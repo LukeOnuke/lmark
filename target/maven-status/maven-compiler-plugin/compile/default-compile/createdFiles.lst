@@ -1,3 +1,4 @@
+com\lukeonuke\mdedit\SystemInfo.class
+com\lukeonuke\mdedit\gui\util\AnchorUtils.class
+com\lukeonuke\mdedit\App.class
 module-info.class
-com\lukeonuke\App.class
-com\lukeonuke\SystemInfo.class

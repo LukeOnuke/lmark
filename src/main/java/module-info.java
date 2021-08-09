@@ -1,4 +1,5 @@
 module mdedit {
     requires javafx.controls;
-    exports com.lukeonuke;
+
+    exports com.lukeonuke.mdedit;
 }
