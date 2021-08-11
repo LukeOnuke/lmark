@@ -16,5 +16,10 @@
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="sandec" />
+      <option name="name" value="Sandec repo" />
+      <option name="url" value="https://sandec.jfrog.io/artifactory/repo" />
+    </remote-repository>
   </component>
 </project>

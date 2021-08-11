@@ -1,4 +1,10 @@
+com\lukeonuke\mdedit\gui\util\OSIntegration.class
+com\lukeonuke\mdedit\gui\util\FileUtils.class
+com\lukeonuke\mdedit\gui\elements\Markdown$1.class
+com\lukeonuke\mdedit\gui\elements\Markdown.class
+com\lukeonuke\mdedit\MDEdit.class
 com\lukeonuke\mdedit\SystemInfo.class
 com\lukeonuke\mdedit\gui\util\AnchorUtils.class
-com\lukeonuke\mdedit\App.class
 module-info.class
+com\lukeonuke\mdedit\gui\AppWindow.class
+com\lukeonuke\mdedit\gui\MainAppWindow.class
