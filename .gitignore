@@ -1,5 +1,6 @@
-/target/*
-target/*
-target\*
+target/**
+.idea/**
+*.class
+*.o
+*.h
 example.md
-target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
