@@ -1,6 +1,15 @@
+
+# java
+.idea/
+*.iml
+*.iws
+log/
+target/
 target/**
 .idea/**
-*.class
+# compiled
 *.o
 *.h
+*.class
+# test file
 example.md
