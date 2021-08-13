@@ -1,2 +1,4 @@
 # mdedit
- An aplication that allows you to easly open markdown files anywhere
+An aplication that allows you to easly open, edit and export md files.
+
+**_currently in early development_**

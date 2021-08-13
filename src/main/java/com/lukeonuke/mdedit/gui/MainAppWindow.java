@@ -1,28 +1,34 @@
 package com.lukeonuke.mdedit.gui;
 
-import com.lukeonuke.mdedit.gui.AppWindow;
+import com.lukeonuke.mdedit.event.CustomEvent;
+import com.lukeonuke.mdedit.event.SimpleScrollEvent;
 import com.lukeonuke.mdedit.gui.elements.Markdown;
 import com.lukeonuke.mdedit.gui.util.AnchorUtils;
+import com.lukeonuke.mdedit.gui.util.FileUtils;
+import com.lukeonuke.mdedit.gui.util.OSIntegration;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainAppWindow implements AppWindow {
     private Stage stage;
+    private static final Logger logger = LoggerFactory.getLogger(AppWindow.class);
+    private FileUtils fileUtils;
 
     public MainAppWindow(Stage stage) {
         this.stage = stage;
+        fileUtils = FileUtils.getInstance();
     }
 
     @Override
@@ -38,39 +44,118 @@ public class MainAppWindow implements AppWindow {
         ScrollPane markdownContainer = new ScrollPane();
         AnchorPane editContainer = new AnchorPane();
         TextArea edit = new TextArea();
+        MenuBar menuBar = new MenuBar();
+        AnchorPane statusBar = new AnchorPane();
+        AtomicReference<ScrollPane> editScrollPane = new AtomicReference<>(null);
         //Setup all stuffs
         markdownContainer.setContent(markdown.getNode());
         markdownContainer.setFitToWidth(true);
         markdownContainer.setFitToHeight(true);
         markdownContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
+        markdown.getNode().addEventHandler(CustomEvent.CUSTOM_EVENT_TYPE, customEvent -> {
+            if (editScrollPane.get() == null) return;
+            editScrollPane.get().setVvalue(((SimpleScrollEvent) customEvent).getScrollPercentage());
+        });
 
         editContainer.getChildren().add(edit);
 
-
         edit.wrapTextProperty().set(true);
+
+        AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(s);
+
+            if (isScrollListenerRegistered.get()) return;
+            //Run when size is calculated
+            Platform.runLater(() -> {
+                editScrollPane.set((ScrollPane) edit.getChildrenUnmodifiable().get(0));
+
+                editScrollPane.get().vvalueProperty().addListener(observable -> {
+                    if (editScrollPane.get().isHover()) { //stop unwanted 2 way coupling
+                        markdown.scrollTo(editScrollPane.get().getVvalue());
+                    }
+                });
+                isScrollListenerRegistered.set(true);
+            });
         });
 
-        edit.scrollTopProperty().addListener((observableValue, number, t1) -> {
+        //Menu bar
+        Menu fileMenu = new Menu("File");
+        menuBar.getMenus().add(fileMenu);
+
+        MenuItem openFile = new MenuItem("Open");
+        openFile.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showOpenDialog(new Stage());
+            if (file == null) return;
+            fileUtils.setFile(file);
+        });
+        fileMenu.getItems().add(openFile);
+
+        MenuItem saveFile = new MenuItem("Save");
+        saveFile.setOnAction(actionEvent -> {
+            fileUtils.saveFile(fileUtils.getFile(), edit.getText());
+        });
+        fileMenu.getItems().add(saveFile);
+
+        MenuItem saveFileAs = new MenuItem("Save As");
+        saveFileAs.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showSaveDialog(new Stage());
+            if (file != null) {
+                fileUtils.saveFile(file, edit.getText());
+            }
+        });
+        fileMenu.getItems().add(saveFileAs);
+
+        MenuItem openFilePath = new MenuItem("Open File Path");
+        openFilePath.setOnAction(actionEvent -> {
+            OSIntegration.openPathInExplorer(FileUtils.getInstance().getFile().getAbsoluteFile().getParent());
+        });
+        fileMenu.getItems().add(openFilePath);
+
+        Menu optionsMenu = new Menu("Options");
+        menuBar.getMenus().add(optionsMenu);
+
+        MenuItem cacheAndSettingsFolderOptions = new MenuItem("Open settings");
+        cacheAndSettingsFolderOptions.setOnAction(actionEvent -> {
 
         });
+        optionsMenu.getItems().add(cacheAndSettingsFolderOptions);
 
-        ScrollBar vBarEdit = (ScrollBar) edit.lookup(".scroll-bar:vertical");
-        ScrollBar hBarEdit = (ScrollBar) edit.lookup(".scroll-bar:horizontal");
-        ScrollBar vBarMarkdown = (ScrollBar) markdown.getNode().lookup(".scroll-bar:vertical");
-        ScrollBar hBarMarkdown = (ScrollBar) markdown.getNode().lookup(".scroll-bar:horizontal");
+        Menu help = new Menu("Help");
+        menuBar.getMenus().add(help);
 
-        edit.scrollTopProperty().addListener(((observableValue, number, t1) -> {
+        MenuItem aboutCreators = new MenuItem("About Creator");
+        aboutCreators.setOnAction(observable -> {
+            OSIntegration.openWebpage("https://github.com/LukeOnuke");
+        });
+        help.getItems().add(aboutCreators);
 
-        }));
+        MenuItem aboutCode = new MenuItem("View code (on github)");
+        aboutCode.setOnAction(observable -> {
+            OSIntegration.openWebpage("https://github.com/LukeOnuke/mdedit");
+        });
+        help.getItems().add(aboutCode);
 
+        statusBar.setPrefHeight(25D);
+        Label fileLabel = new Label();
+        fileLabel.setText(FileUtils.detectCharset(fileUtils.getFile()) + " | " + fileUtils.getFile().getName());
+        AnchorUtils.anchor(fileLabel, 5D, -1D, 5D, -1D);
 
+        statusBar.getChildren().addAll(fileLabel);
 
+        /*
+         * ============================
+         * ||   R E A D  F I L E     ||
+         * ============================
+         * */
         try {
-            String fileContents = Files.readString(new File("example.md").toPath());
-            edit.setText(fileContents);
+            editScrollPane.set(null);
+            String fileContents = fileUtils.readFile();
+            edit.textProperty().set(fileContents);
+
             markdown.setMDContents(fileContents);
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,15 +166,20 @@ public class MainAppWindow implements AppWindow {
         splitPane.getItems().add(editContainer);
         //Add to root
         root.getChildren().add(splitPane);
+        root.getChildren().add(menuBar);
+        root.getChildren().add(statusBar);
 
         AnchorUtils.anchorAllSides(markdown.getNode(), 0D);
         AnchorUtils.anchorAllSides(markdownContainer, 0D);
         AnchorUtils.anchorAllSides(edit, 0D);
-        AnchorUtils.anchorAllSides(splitPane, 0D);
+        AnchorUtils.anchor(splitPane, 25D, 25D, 0D, 0D);
+        AnchorUtils.anchor(menuBar, 0D, -1D, 0D, 0D);
+        AnchorUtils.anchor(statusBar, -1D, 0D, 0D, 0D);
 
         //Init window
         Scene scene = new Scene(root, 640, 480);
         stage.getIcons().add(new Image("icon.png"));
+        stage.setTitle("MDEdit");
         stage.setScene(scene);
 
         stage.onCloseRequestProperty().addListener((event) -> {

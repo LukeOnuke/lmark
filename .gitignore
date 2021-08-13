@@ -1,2 +1,5 @@
 /target/*
-/example.md
+target/*
+target\*
+example.md
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

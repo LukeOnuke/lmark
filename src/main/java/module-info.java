@@ -8,6 +8,12 @@ module mdedit {
     requires flexmark.util.misc;
     requires jdk.xml.dom;
     requires java.desktop;
+    requires jdk.jsobject;
+    requires java.logging;
+    requires org.slf4j;
+    requires com.github.albfernandez.juniversalchardet;
+
+    opens com.lukeonuke.mdedit.gui.elements to javafx.web;
 
     exports com.lukeonuke.mdedit;
 }
