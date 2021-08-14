@@ -28,6 +28,7 @@ public class StartWindow implements AppWindow{
         root.setOnDragOver(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
             File file = db.getFiles().get(0);
+
             try {
                 FileUtils.getInstance(file.getPath());
                 hide();
