@@ -43,7 +43,6 @@ public class FileUtils {
             int count = 0;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
-                LoggerFactory.getLogger(FileUtils.class).info("Line " + count + " " + line);
                 count++;
             }
 

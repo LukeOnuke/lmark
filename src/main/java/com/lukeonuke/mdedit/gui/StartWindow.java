@@ -2,6 +2,7 @@ package com.lukeonuke.mdedit.gui;
 
 import com.lukeonuke.mdedit.gui.util.AnchorUtils;
 import com.lukeonuke.mdedit.gui.util.FileUtils;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -22,6 +23,7 @@ public class StartWindow implements AppWindow{
     @Override
     public void show() {
         AnchorPane root = new AnchorPane();
+        root.getStylesheets().add("")
 
         Label label = new Label("Drop file here");
 
@@ -33,7 +35,7 @@ public class StartWindow implements AppWindow{
                 FileUtils.getInstance(file.getPath());
                 hide();
                 MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
-                mainAppWindow.show();
+                Platform.runLater(mainAppWindow::show);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

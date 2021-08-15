@@ -1,5 +1,6 @@
 package com.lukeonuke.mdedit.gui;
 
+import com.lukeonuke.mdedit.ApplicationConstants;
 import com.lukeonuke.mdedit.event.CustomEvent;
 import com.lukeonuke.mdedit.event.SimpleScrollEvent;
 import com.lukeonuke.mdedit.gui.elements.Markdown;
@@ -36,7 +37,7 @@ public class MainAppWindow implements AppWindow {
         AnchorPane root = new AnchorPane();
 
         //Add css
-        root.getStylesheets().add("/gui/style-light.css");
+        root.getStylesheets().add(MainAppWindow.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
 
         //Initilise nodes
         SplitPane splitPane = new SplitPane();
@@ -123,6 +124,26 @@ public class MainAppWindow implements AppWindow {
 
         });
         optionsMenu.getItems().add(cacheAndSettingsFolderOptions);
+
+        Menu debug = new Menu("Debug");
+
+        MenuItem showNonRenderedHTML = new MenuItem("Show non rendered HTML");
+        showNonRenderedHTML.setOnAction(actionEvent -> {
+            TextArea nonRenderedHTML = new TextArea();
+            nonRenderedHTML.setEditable(false);
+            nonRenderedHTML.setText((String) markdown.getNode().getEngine().executeScript("document.documentElement.outerHTML"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(nonRenderedHTML);
+            stage.setScene(scene);
+            stage.setTitle("Debug - non rendered html");
+            stage.setIconified(false);
+            stage.getIcons().add(new Image("icon.png"));
+            stage.show();
+        });
+        debug.getItems().add(showNonRenderedHTML);
+
+        optionsMenu.getItems().add(debug);
+
 
         Menu help = new Menu("Help");
         menuBar.getMenus().add(help);

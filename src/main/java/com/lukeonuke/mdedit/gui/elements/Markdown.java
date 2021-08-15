@@ -1,5 +1,6 @@
 package com.lukeonuke.mdedit.gui.elements;
 
+import com.lukeonuke.mdedit.ApplicationConstants;
 import com.lukeonuke.mdedit.event.SimpleScrollEvent;
 import com.lukeonuke.mdedit.gui.util.FileUtils;
 import com.lukeonuke.mdedit.gui.util.OSIntegration;
@@ -88,7 +89,7 @@ public class Markdown {
 
     public void setContents(String contents){
         try {
-            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString("/gui/web/markdown-light.css") + "</style></head><body class='markdown-body'>"
+            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) + "</style></head><body class='markdown-body'>"
                     + contents + "</body>", "text/html");
         } catch (IOException e) {
             e.printStackTrace();
