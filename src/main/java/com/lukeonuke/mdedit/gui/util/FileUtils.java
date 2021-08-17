@@ -1,9 +1,11 @@
 package com.lukeonuke.mdedit.gui.util;
 
+import com.google.gson.Gson;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -96,5 +98,21 @@ public class FileUtils {
         }
 
         return reFormatted;
+    }
+
+    public static void writeJSON(Object source, File file) throws IOException {
+        FileWriter fileWriter = new FileWriter(file);
+        Gson gson = new Gson();
+        gson.toJson(source, fileWriter);
+        fileWriter.flush();
+        fileWriter.close();
+    }
+
+    public static <T> T readJSON(String file, Type type) throws IOException {
+        FileReader fileReader = new FileReader(file);
+        Gson gson = new Gson();
+        T memory =  gson.fromJson(fileReader, type);
+        fileReader.close();
+        return memory;
     }
 }

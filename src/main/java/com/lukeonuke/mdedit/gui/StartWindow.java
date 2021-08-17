@@ -1,38 +1,72 @@
 package com.lukeonuke.mdedit.gui;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.lukeonuke.mdedit.ApplicationConstants;
 import com.lukeonuke.mdedit.gui.util.AnchorUtils;
 import com.lukeonuke.mdedit.gui.util.FileUtils;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.util.ArrayList;
 
-public class StartWindow implements AppWindow{
+public class StartWindow implements AppWindow {
     private Stage stage;
+    private Logger logger;
 
     public StartWindow(Stage stage) {
+        logger = LoggerFactory.getLogger(StartWindow.class);
         this.stage = stage;
     }
 
     @Override
     public void show() {
         AnchorPane root = new AnchorPane();
-        root.getStylesheets().add("")
+        root.getStylesheets().add(ApplicationConstants.APPLICATION_CSS);
 
-        Label label = new Label("Drop file here");
+        Label dropFileHere = new Label("Drop file here");
+        Label open = new Label("Open");
 
-        root.setOnDragOver(dragEvent -> {
-            Dragboard db = dragEvent.getDragboard();
-            File file = db.getFiles().get(0);
+        ListView<String> recentFiles = new ListView<>();
+        ArrayList<String> recentFilesList = new ArrayList<>();
+        File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
+        try {
+            if (!recentFilesStorage.exists()) {
 
+                recentFilesStorage.createNewFile();
+                FileUtils.writeJSON(recentFilesList, recentFilesStorage);
+
+            }
+            recentFilesList = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
+                    new TypeToken<ArrayList<String>>() {
+                    }.getType());
+
+            if(recentFilesList == null){
+                recentFilesList = new ArrayList<>();
+            }
+
+            recentFiles.getItems().addAll(recentFilesList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        recentFiles.setOnMouseClicked(mouseEvent -> {
+            String s = recentFiles.getSelectionModel().getSelectedItem();
+
+            if(s == null) return;
+
+            logger.info("Selected in recents" + s);
             try {
-                FileUtils.getInstance(file.getPath());
+                FileUtils.getInstance(s);
                 hide();
                 MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
                 Platform.runLater(mainAppWindow::show);
@@ -41,14 +75,60 @@ public class StartWindow implements AppWindow{
             }
         });
 
-        AnchorUtils.anchorAllSides(label, 200D);
+        recentFiles.getFocusModel().focusedItemProperty().addListener((observableValue, s, t1) -> {
 
-        root.getChildren().addAll(label);
+        });
 
-        Scene scene =new Scene(root);
+        root.setOnDragOver(dragEvent -> {
+            Dragboard db = dragEvent.getDragboard();
+            File file = db.getFiles().get(0);
+
+            try {
+                FileUtils.getInstance(file.getPath());
+                hide();
+
+                ArrayList<String> recent;
+                try {
+                    recent = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
+                            new TypeToken<ArrayList<String>>() {
+                            }.getType());
+
+                    if(recent == null){
+                        recent = new ArrayList<>();
+                    }
+                    if(!recent.contains(file.getPath())){
+                        recent.add(file.getPath());
+                    }
+
+                    if(recent.size() >= 10){
+                        recent.remove(0);
+                    }
+
+                    logger.info("Recent files " + recent);
+                    FileUtils.writeJSON(recent, recentFilesStorage);
+                }catch (IOException ex){
+                    ex.printStackTrace();
+                }
+                logger.info("got 3");
+
+
+                MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
+                Platform.runLater(mainAppWindow::show);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
+        AnchorUtils.anchorTopLeft(open, 5D, 5D);
+        AnchorUtils.anchorTopLeft(dropFileHere, 60D, 5D);
+        AnchorUtils.anchor(recentFiles, 80D, 0D, 0D, 0D);
+
+        root.getChildren().addAll(dropFileHere, open, recentFiles);
+
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("MDEdit - home");
-        stage.getIcons().add(new Image("icon.png"));
+        stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.show();
     }
 

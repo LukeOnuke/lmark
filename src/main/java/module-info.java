@@ -12,6 +12,7 @@ module mdedit {
     requires java.logging;
     requires org.slf4j;
     requires com.github.albfernandez.juniversalchardet;
+    requires com.google.gson;
 
     opens com.lukeonuke.mdedit.gui.elements to javafx.web;
 

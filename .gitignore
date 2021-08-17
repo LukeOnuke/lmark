@@ -13,3 +13,4 @@ target/**
 *.class
 # test file
 example.md
+recent-files.json

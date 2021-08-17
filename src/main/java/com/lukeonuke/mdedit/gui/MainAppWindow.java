@@ -137,7 +137,7 @@ public class MainAppWindow implements AppWindow {
             stage.setScene(scene);
             stage.setTitle("Debug - non rendered html");
             stage.setIconified(false);
-            stage.getIcons().add(new Image("icon.png"));
+            stage.getIcons().add(new Image(ApplicationConstants.ICON));
             stage.show();
         });
         debug.getItems().add(showNonRenderedHTML);
@@ -199,7 +199,7 @@ public class MainAppWindow implements AppWindow {
 
         //Init window
         Scene scene = new Scene(root, 640, 480);
-        stage.getIcons().add(new Image("icon.png"));
+        stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.setTitle("MDEdit");
         stage.setScene(scene);
 

@@ -2,6 +2,7 @@ com\lukeonuke\mdedit\MDEditApplication.class
 com\lukeonuke\mdedit\gui\util\OSIntegration.class
 com\lukeonuke\mdedit\gui\util\FileUtils.class
 com\lukeonuke\mdedit\gui\StartWindow.class
+com\lukeonuke\mdedit\ApplicationConstants.class
 com\lukeonuke\mdedit\gui\elements\Markdown$1.class
 com\lukeonuke\mdedit\event\CustomEventHandler.class
 com\lukeonuke\mdedit\gui\elements\Markdown.class
@@ -10,6 +11,8 @@ com\lukeonuke\mdedit\gui\util\AnchorUtils.class
 module-info.class
 com\lukeonuke\mdedit\gui\elements\Markdown$JSBridge.class
 com\lukeonuke\mdedit\event\CustomEvent.class
+com\lukeonuke\mdedit\gui\StartWindow$1.class
 com\lukeonuke\mdedit\gui\AppWindow.class
 com\lukeonuke\mdedit\event\SimpleScrollEvent.class
 com\lukeonuke\mdedit\gui\MainAppWindow.class
+com\lukeonuke\mdedit\gui\StartWindow$2.class
