@@ -1,4 +1,4 @@
-package com.lukeonuke.mdedit.event;
+package com.lukeonuke.lmark.event;
 
 import javafx.event.Event;
 import javafx.event.EventType;

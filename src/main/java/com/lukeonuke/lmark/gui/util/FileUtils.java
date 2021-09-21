@@ -1,8 +1,7 @@
-package com.lukeonuke.mdedit.gui.util;
+package com.lukeonuke.lmark.gui.util;
 
 import com.google.gson.Gson;
 import org.mozilla.universalchardet.UniversalDetector;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;

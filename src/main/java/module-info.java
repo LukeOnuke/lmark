@@ -1,4 +1,4 @@
-module mdedit {
+module lmark {
     requires javafx.controls;
     requires javafx.web;
     requires flexmark.all;
@@ -14,7 +14,7 @@ module mdedit {
     requires com.github.albfernandez.juniversalchardet;
     requires com.google.gson;
 
-    opens com.lukeonuke.mdedit.gui.elements to javafx.web;
+    opens com.lukeonuke.lmark.gui.elements to javafx.web;
 
-    exports com.lukeonuke.mdedit;
+    exports com.lukeonuke.lmark;
 }

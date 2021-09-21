@@ -1,4 +1,4 @@
-package com.lukeonuke.mdedit.gui;
+package com.lukeonuke.lmark.gui;
 
 public interface AppWindow {
     public void show();

@@ -1,7 +1,7 @@
-package com.lukeonuke.mdedit;
+package com.lukeonuke.lmark;
 
-import com.lukeonuke.mdedit.gui.StartWindow;
-import com.lukeonuke.mdedit.gui.util.FileUtils;
+import com.lukeonuke.lmark.gui.StartWindow;
+import com.lukeonuke.lmark.gui.util.FileUtils;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
-public class MDEditApplication extends Application {
+public class LMarkApplication extends Application {
 
     private static List<String> arguments;
 

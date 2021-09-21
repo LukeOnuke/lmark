@@ -1,12 +1,12 @@
-package com.lukeonuke.mdedit.gui;
+package com.lukeonuke.lmark.gui;
 
-import com.lukeonuke.mdedit.ApplicationConstants;
-import com.lukeonuke.mdedit.event.CustomEvent;
-import com.lukeonuke.mdedit.event.SimpleScrollEvent;
-import com.lukeonuke.mdedit.gui.elements.Markdown;
-import com.lukeonuke.mdedit.gui.util.AnchorUtils;
-import com.lukeonuke.mdedit.gui.util.FileUtils;
-import com.lukeonuke.mdedit.gui.util.OSIntegration;
+import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.event.CustomEvent;
+import com.lukeonuke.lmark.event.SimpleScrollEvent;
+import com.lukeonuke.lmark.gui.elements.Markdown;
+import com.lukeonuke.lmark.gui.util.AnchorUtils;
+import com.lukeonuke.lmark.gui.util.FileUtils;
+import com.lukeonuke.lmark.gui.util.OSIntegration;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -200,7 +201,7 @@ public class MainAppWindow implements AppWindow {
         //Init window
         Scene scene = new Scene(root, 640, 480);
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
-        stage.setTitle("MDEdit");
+        stage.setTitle("LMark");
         stage.setScene(scene);
 
         stage.onCloseRequestProperty().addListener((event) -> {

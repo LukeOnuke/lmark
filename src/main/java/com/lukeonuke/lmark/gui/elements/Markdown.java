@@ -1,9 +1,9 @@
-package com.lukeonuke.mdedit.gui.elements;
+package com.lukeonuke.lmark.gui.elements;
 
-import com.lukeonuke.mdedit.ApplicationConstants;
-import com.lukeonuke.mdedit.event.SimpleScrollEvent;
-import com.lukeonuke.mdedit.gui.util.FileUtils;
-import com.lukeonuke.mdedit.gui.util.OSIntegration;
+import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.event.SimpleScrollEvent;
+import com.lukeonuke.lmark.gui.util.FileUtils;
+import com.lukeonuke.lmark.gui.util.OSIntegration;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;
@@ -89,7 +89,7 @@ public class Markdown {
 
     public void setContents(String contents){
         try {
-            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) + "</style></head><body class='markdown-body'>"
+            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) +  "</style></head><body class='markdown-body'>"
                     + contents + "</body>", "text/html");
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,7 +103,7 @@ public class Markdown {
         Parser parser = Parser.builder(options).build();
         HtmlRenderer renderer = HtmlRenderer.builder(options).build();
 
-        setContents(renderer.render(parser.parse(contents)));
+        setContents(filter(renderer.render(parser.parse(contents))));
     }
 
     public WebView getNode(){
@@ -116,6 +116,10 @@ public class Markdown {
                 " document.documentElement.clientHeight," +
                 " document.documentElement.scrollHeight," +
                 " document.documentElement.offsetHeight )" + "* " + y + "));");
+    }
+
+    private String filter(String string){
+        return string.replace("<strong>", "<b>").replace("</strong>", "</b>");
     }
 
     /**

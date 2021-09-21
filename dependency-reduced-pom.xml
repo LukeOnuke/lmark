@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.lukeonuke</groupId>
-  <artifactId>mdedit</artifactId>
+  <artifactId>lmark</artifactId>
   <version>0.0.2</version>
   <build>
     <plugins>
@@ -21,7 +21,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+              <mainClass>com.lukeonuke.lmark.LMark</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -34,7 +34,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>mdedit/com.lukeonuke.mdedit.MDEdit</mainClass>
+              <mainClass>mdedit/com.lukeonuke.lmark.LMark</mainClass>
             </configuration>
           </execution>
         </executions>
@@ -51,7 +51,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+                  <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -75,7 +75,7 @@
               <jar>target/${MDE.name}-${version}.jar</jar>
               <errTitle>MD Edit</errTitle>
               <classPath>
-                <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+                <mainClass>com.lukeonuke.lmark.LMark</mainClass>
               </classPath>
               <jre>
                 <minVersion>11</minVersion>
@@ -100,8 +100,8 @@
   <properties>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
-    <MDE.description>MDEDIT (Markdown edit) is a simple markdown editor</MDE.description>
-    <MDE.name>mdedit</MDE.name>
+    <MDE.description>lmark is a simple markdown editor</MDE.description>
+    <MDE.name>lmark</MDE.name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

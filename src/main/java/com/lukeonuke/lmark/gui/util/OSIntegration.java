@@ -1,4 +1,4 @@
-package com.lukeonuke.mdedit.gui.util;
+package com.lukeonuke.lmark.gui.util;
 
 import java.awt.*;
 import java.io.File;

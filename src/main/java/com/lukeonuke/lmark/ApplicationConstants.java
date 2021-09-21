@@ -1,4 +1,4 @@
-package com.lukeonuke.mdedit;
+package com.lukeonuke.lmark;
 
 public class ApplicationConstants {
     public static final String APPLICATION_CSS = "/gui/style-light.css";

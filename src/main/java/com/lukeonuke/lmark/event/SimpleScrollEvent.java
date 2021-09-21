@@ -1,7 +1,5 @@
-package com.lukeonuke.mdedit.event;
+package com.lukeonuke.lmark.event;
 
-import javafx.event.Event;
-import javafx.event.EventTarget;
 import javafx.event.EventType;
 
 public class SimpleScrollEvent extends CustomEvent {

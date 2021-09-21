@@ -2,14 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.lukeonuke</groupId>
-    <artifactId>mdedit</artifactId>
+    <artifactId>lmark</artifactId>
     <version>0.0.2</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <MDE.name>mdedit</MDE.name>
-        <MDE.description>MDEDIT (Markdown edit) is a simple markdown editor</MDE.description>
+        <MDE.name>lmark</MDE.name>
+        <MDE.description>lmark is a simple markdown editor</MDE.description>
     </properties>
     <repositories>
 
@@ -83,7 +83,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+                            <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -98,7 +98,7 @@
                         <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>mdedit/com.lukeonuke.mdedit.MDEdit</mainClass>
+                            <mainClass>mdedit/com.lukeonuke.lmark.LMark</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -112,7 +112,7 @@
 <!--                    <appVersion>0.0.1</appVersion>-->
 <!--                    <vendor>com.lukeonuke</vendor>-->
 <!--                    <destination>target/dist</destination>-->
-<!--                    <module>mdedit/com.lukeonuke.mdedit.MDEdit</module>-->
+<!--                    <module>mdedit/com.lukeonuke.lmark.LMark/module>-->
 <!--                    <runtimeImage>target/image</runtimeImage>-->
 <!--                    <linuxShortcut>true</linuxShortcut>-->
 <!--                    <linuxPackageName>mdedit</linuxPackageName>-->
@@ -141,7 +141,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+                                    <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -163,7 +163,7 @@
                             <jar>target/${MDE.name}-${version}.jar</jar>
                             <errTitle>MD Edit</errTitle>
                             <classPath>
-                                <mainClass>com.lukeonuke.mdedit.MDEdit</mainClass>
+                                <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                             </classPath>
                             <jre>
                                 <minVersion>11</minVersion>

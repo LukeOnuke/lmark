@@ -1,10 +1,9 @@
-package com.lukeonuke.mdedit.gui;
+package com.lukeonuke.lmark.gui;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.lukeonuke.mdedit.ApplicationConstants;
-import com.lukeonuke.mdedit.gui.util.AnchorUtils;
-import com.lukeonuke.mdedit.gui.util.FileUtils;
+import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.gui.util.AnchorUtils;
+import com.lukeonuke.lmark.gui.util.FileUtils;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -35,6 +34,7 @@ public class StartWindow implements AppWindow {
 
         Label dropFileHere = new Label("Drop file here");
         Label open = new Label("Open");
+        open.getStyleClass().addAll("text", "title");
 
         ListView<String> recentFiles = new ListView<>();
         ArrayList<String> recentFilesList = new ArrayList<>();
@@ -127,7 +127,7 @@ public class StartWindow implements AppWindow {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("MDEdit - home");
+        stage.setTitle("LMark - home");
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.show();
     }

@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * */
-package com.lukeonuke.mdedit;
+package com.lukeonuke.lmark;
 
 /**
  * MDEDIT
  * ======
  * Simple and effective markdown editor.
  */
-public class MDEdit{
+public class LMark {
     public static void main(String[] args) {
-        MDEditApplication.launchApp(args);
+        LMarkApplication.launchApp(args);
     }
 
 }
