@@ -37,9 +37,6 @@ public class MainAppWindow implements AppWindow {
     public void show() {
         AnchorPane root = new AnchorPane();
 
-        //Add css
-        root.getStylesheets().add(MainAppWindow.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
-
         //Initilise nodes
         SplitPane splitPane = new SplitPane();
         Markdown markdown = new Markdown();
@@ -66,7 +63,7 @@ public class MainAppWindow implements AppWindow {
 
         AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
         edit.textProperty().addListener((observableValue, s, t1) -> {
-            markdown.setMDContents(s);
+            markdown.setMDContents(edit.getText());
 
             if (isScrollListenerRegistered.get()) return;
             //Run when size is calculated
@@ -200,6 +197,10 @@ public class MainAppWindow implements AppWindow {
 
         //Init window
         Scene scene = new Scene(root, 640, 480);
+
+        //Add css
+        scene.getStylesheets().add(ApplicationConstants.class.getResource(ApplicationConstants.APPLICATION_CSS).getFile());
+
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.setTitle("LMark");
         stage.setScene(scene);

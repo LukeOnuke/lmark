@@ -9,6 +9,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;
 import com.vladsch.flexmark.profile.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.data.DataHolder;
+import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -28,6 +29,17 @@ public class Markdown {
     private final Logger logger = LoggerFactory.getLogger(Markdown.class);
     private final WebView webView = new WebView();
     private JSBridge jsBridge;
+    private static HtmlRenderer renderer;
+    private static Parser parser;
+
+    static{
+        DataHolder options = PegdownOptionsAdapter.flexmarkOptions(
+                Extensions.ALL
+        );
+        parser = Parser.builder(options).build();
+        renderer = HtmlRenderer.builder(options).build();
+    }
+
     public Markdown() {
         webView.getEngine().getHistory().getEntries().clear();
         webView.contextMenuEnabledProperty().setValue(false);
@@ -41,11 +53,11 @@ public class Markdown {
         });
 
         /*
-        * Register js bridge and add clicks to open in browser
-        * ====================================================
-        * When a link is clicked open it in a new window, although the WebEngine#getDocument() needs to wait to when
-        * the load-worker loads the webpage. Plus, this enables it to work every time something is loaded.
-        * */
+         * Register js bridge and add clicks to open in browser
+         * ====================================================
+         * When a link is clicked open it in a new window, although the WebEngine#getDocument() needs to wait to when
+         * the load-worker loads the webpage. Plus, this enables it to work every time something is loaded.
+         * */
         webView.getEngine().getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 Document document = webView.getEngine().getDocument();
@@ -64,18 +76,15 @@ public class Markdown {
 
                 //Clickable links
                 NodeList nodeList = document.getElementsByTagName("a");
-                for (int i = 0; i < nodeList.getLength(); i++)
-                {
-                    Node node= nodeList.item(i);
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    Node node = nodeList.item(i);
                     EventTarget eventTarget = (EventTarget) node;
-                    eventTarget.addEventListener("click", new EventListener()
-                    {
+                    eventTarget.addEventListener("click", new EventListener() {
                         @Override
-                        public void handleEvent(Event evt)
-                        {
+                        public void handleEvent(Event evt) {
                             HTMLAnchorElement anchorElement = (HTMLAnchorElement) evt.getCurrentTarget();
                             String href = anchorElement.getHref();
-                            if(href.startsWith("#")) return;
+                            if (href.startsWith("#")) return;
                             //handle opening URL outside JavaFX WebView
                             OSIntegration.openWebpage(anchorElement.getHref());
 
@@ -87,49 +96,45 @@ public class Markdown {
         });
     }
 
-    public void setContents(String contents){
+    public void setContents(String contents) {
         try {
-            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) +  "</style></head><body class='markdown-body'>"
+            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) + "</style></head><body class='markdown-body'>"
                     + contents + "</body>", "text/html");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void setMDContents(String contents){
-        DataHolder options = PegdownOptionsAdapter.flexmarkOptions(
-                Extensions.ALL
-        );
-        Parser parser = Parser.builder(options).build();
-        HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+    public void setMDContents(String contents) {
 
         setContents(filter(renderer.render(parser.parse(contents))));
+
     }
 
-    public WebView getNode(){
+    public WebView getNode() {
         return webView;
     }
 
-    public void scrollTo(double y){
-        webView.getEngine().executeScript("window.scrollTo(0, "+
+    public void scrollTo(double y) {
+        webView.getEngine().executeScript("window.scrollTo(0, " +
                 "(Math.max( document.body.scrollHeight, document.body.offsetHeight," +
                 " document.documentElement.clientHeight," +
                 " document.documentElement.scrollHeight," +
                 " document.documentElement.offsetHeight )" + "* " + y + "));");
     }
 
-    private String filter(String string){
+    private String filter(String string) {
         return string.replace("<strong>", "<b>").replace("</strong>", "</b>");
     }
 
     /**
      * Implements a bridge between the javascript on the web view and the java:tm: on ere
      * https://stackoverflow.com/questions/35985601/calling-a-java-method-from-a-javafx-webview
-     * */
-    public class JSBridge{
-        public void scroll(int current, int max){
+     */
+    public class JSBridge {
+        public void scroll(int current, int max) {
             //System.out.println("Scrolled to " + current + " out of " + max + " in percent " + ((float)(current + 200)/max) * 100);
-            webView.fireEvent(new SimpleScrollEvent(((float)(current)/max)));
+            webView.fireEvent(new SimpleScrollEvent(((float) (current) / max)));
         }
     }
 }

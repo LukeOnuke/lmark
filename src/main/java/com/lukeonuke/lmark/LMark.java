@@ -23,8 +23,10 @@
  * */
 package com.lukeonuke.lmark;
 
+import java.io.File;
+
 /**
- * MDEDIT
+ * LMARK
  * ======
  * Simple and effective markdown editor.
  */
