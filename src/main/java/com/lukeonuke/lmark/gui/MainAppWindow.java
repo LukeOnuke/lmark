@@ -54,6 +54,7 @@ public class MainAppWindow implements AppWindow {
 
         markdown.getNode().addEventHandler(CustomEvent.CUSTOM_EVENT_TYPE, customEvent -> {
             if (editScrollPane.get() == null) return;
+            if (!markdown.getNode().isHover()) return;
             editScrollPane.get().setVvalue(((SimpleScrollEvent) customEvent).getScrollPercentage());
         });
 
@@ -71,9 +72,10 @@ public class MainAppWindow implements AppWindow {
                 editScrollPane.set((ScrollPane) edit.getChildrenUnmodifiable().get(0));
 
                 editScrollPane.get().vvalueProperty().addListener(observable -> {
-                    if (editScrollPane.get().isHover()) { //stop unwanted 2 way coupling
-                        markdown.scrollTo(editScrollPane.get().getVvalue());
-                    }
+                    //stop unwanted 2 way coupling
+                    if(!editScrollPane.get().isHover()) return;
+                    markdown.scrollTo(editScrollPane.get().getVvalue());
+
                 });
                 isScrollListenerRegistered.set(true);
             });

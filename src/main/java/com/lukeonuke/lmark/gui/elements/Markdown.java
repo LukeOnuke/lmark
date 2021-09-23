@@ -31,6 +31,7 @@ public class Markdown {
     private JSBridge jsBridge;
     private static HtmlRenderer renderer;
     private static Parser parser;
+    private double scrollY;
 
     static{
         DataHolder options = PegdownOptionsAdapter.flexmarkOptions(
@@ -74,6 +75,8 @@ public class Markdown {
                         " document.documentElement.offsetHeight ))" +
                         "});");
 
+                scroll(scrollY);
+
                 //Clickable links
                 NodeList nodeList = document.getElementsByTagName("a");
                 for (int i = 0; i < nodeList.getLength(); i++) {
@@ -116,6 +119,11 @@ public class Markdown {
     }
 
     public void scrollTo(double y) {
+        scrollY = y;
+        scroll(scrollY);
+    }
+
+    private void scroll(double y){
         webView.getEngine().executeScript("window.scrollTo(0, " +
                 "(Math.max( document.body.scrollHeight, document.body.offsetHeight," +
                 " document.documentElement.clientHeight," +
