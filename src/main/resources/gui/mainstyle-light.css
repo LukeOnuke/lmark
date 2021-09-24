@@ -1,11 +1,12 @@
-.mega{
-
-}
-
 .title{
     font-size: 20px;
 }
 
 .text{
 
+}
+
+.edit{
+    -fx-font-size: 13px;
+    -fx-background-color: #000000;
 }

@@ -1,6 +1,7 @@
 package com.lukeonuke.lmark.gui;
 
 import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.event.CustomEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.Markdown;
@@ -60,6 +61,8 @@ public class MainAppWindow implements AppWindow {
 
         editContainer.getChildren().add(edit);
 
+        edit.getStyleClass().clear();
+        edit.getStyleClass().add("edit");
         edit.wrapTextProperty().set(true);
 
         AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
@@ -201,7 +204,7 @@ public class MainAppWindow implements AppWindow {
         Scene scene = new Scene(root, 640, 480);
 
         //Add css
-        scene.getStylesheets().add(ApplicationConstants.class.getResource(ApplicationConstants.APPLICATION_CSS).getFile());
+        scene.getStylesheets().add(LMark.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
 
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.setTitle("LMark");

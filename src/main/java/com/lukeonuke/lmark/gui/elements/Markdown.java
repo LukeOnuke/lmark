@@ -69,11 +69,11 @@ public class Markdown {
                 ((JSObject) webView.getEngine().executeScript("window")).setMember("mdedit", jsBridge);
 
                 webView.getEngine().executeScript("document.addEventListener('scroll', function(event) {" +
-                        "mdedit.scroll(window.scrollY ,Math.max( document.body.scrollHeight, document.body.offsetHeight," +
-                        " document.documentElement.clientHeight," +
-                        " document.documentElement.scrollHeight," +
-                        " document.documentElement.offsetHeight ))" +
+                        "mdedit.scroll(document.body.scrollTop ,document.body.scrollHeight - document.body.clientHeight);" +
+                        "mdedit.log(document.body.scrollTop);" +
                         "});");
+
+                webView.getEngine().executeScript("mdedit.log(document.documentElement.scrollY)");
 
                 scroll(scrollY);
 
@@ -125,10 +125,7 @@ public class Markdown {
 
     private void scroll(double y){
         webView.getEngine().executeScript("window.scrollTo(0, " +
-                "(Math.max( document.body.scrollHeight, document.body.offsetHeight," +
-                " document.documentElement.clientHeight," +
-                " document.documentElement.scrollHeight," +
-                " document.documentElement.offsetHeight )" + "* " + y + "));");
+                "((document.body.scrollHeight - document.body.clientHeight)" + "* " + y + "));");
     }
 
     private String filter(String string) {
@@ -142,7 +139,12 @@ public class Markdown {
     public class JSBridge {
         public void scroll(int current, int max) {
             //System.out.println("Scrolled to " + current + " out of " + max + " in percent " + ((float)(current + 200)/max) * 100);
+            System.out.println(String.format("%f, %d, %d", ((float) (current) / max), current, max));
             webView.fireEvent(new SimpleScrollEvent(((float) (current) / max)));
+        }
+
+        public void log(String s){
+            logger.info(s);
         }
     }
 }

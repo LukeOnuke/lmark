@@ -2,6 +2,7 @@ package com.lukeonuke.lmark.gui;
 
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.gui.util.AnchorUtils;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import javafx.application.Platform;
@@ -30,7 +31,6 @@ public class StartWindow implements AppWindow {
     @Override
     public void show() {
         AnchorPane root = new AnchorPane();
-        root.getStylesheets().add(ApplicationConstants.APPLICATION_CSS);
 
         Label dropFileHere = new Label("Drop file here");
         Label open = new Label("Open");
@@ -126,6 +126,9 @@ public class StartWindow implements AppWindow {
         root.getChildren().addAll(dropFileHere, open, recentFiles);
 
         Scene scene = new Scene(root);
+
+        scene.getStylesheets().add(LMark.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
+
         stage.setScene(scene);
         stage.setTitle("LMark - home");
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
