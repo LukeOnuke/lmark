@@ -13,6 +13,7 @@ module lmark {
     requires org.slf4j;
     requires com.github.albfernandez.juniversalchardet;
     requires com.google.gson;
+    requires javafx.graphics;
 
     opens com.lukeonuke.lmark.gui.elements to javafx.web;
 

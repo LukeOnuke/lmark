@@ -3,6 +3,8 @@ package com.lukeonuke.lmark.gui;
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMark;
+import com.lukeonuke.lmark.gui.elements.FileCell;
+import com.lukeonuke.lmark.gui.elements.Title;
 import com.lukeonuke.lmark.gui.util.AnchorUtils;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import javafx.application.Platform;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class StartWindow implements AppWindow {
     private Stage stage;
@@ -33,10 +36,17 @@ public class StartWindow implements AppWindow {
         AnchorPane root = new AnchorPane();
 
         Label dropFileHere = new Label("Drop file here");
-        Label open = new Label("Open");
-        open.getStyleClass().addAll("text", "title");
+        Title open = new Title("Open");
+        ListView<FileCell> recentFiles = new ListView<>();
 
-        ListView<String> recentFiles = new ListView<>();
+        open.getStyleClass().addAll("title");
+
+        dropFileHere.getStyleClass().addAll("card", "center-text", "shadow", "bg-1");
+
+        root.getStyleClass().add("gradient");
+
+        recentFiles.getStyleClass().addAll("shadow");
+
         ArrayList<String> recentFilesList = new ArrayList<>();
         File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
         try {
@@ -54,13 +64,15 @@ public class StartWindow implements AppWindow {
                 recentFilesList = new ArrayList<>();
             }
 
-            recentFiles.getItems().addAll(recentFilesList);
+            recentFilesList.forEach(s -> {
+                recentFiles.getItems().add(new FileCell(new File(s)));
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         recentFiles.setOnMouseClicked(mouseEvent -> {
-            String s = recentFiles.getSelectionModel().getSelectedItem();
+            String s = recentFiles.getSelectionModel().getSelectedItem().getFile().getPath();
 
             if(s == null) return;
 
@@ -97,6 +109,7 @@ public class StartWindow implements AppWindow {
                         recent = new ArrayList<>();
                     }
                     if(!recent.contains(file.getPath())){
+                        //TODO: Add recent files from bottom to top
                         recent.add(file.getPath());
                     }
 
@@ -119,9 +132,9 @@ public class StartWindow implements AppWindow {
             }
         });
 
-        AnchorUtils.anchorTopLeft(open, 5D, 5D);
-        AnchorUtils.anchorTopLeft(dropFileHere, 60D, 5D);
-        AnchorUtils.anchor(recentFiles, 80D, 0D, 0D, 0D);
+        AnchorUtils.anchor(open, 0D, -1D, 0D, 0D);
+        AnchorUtils.anchor(dropFileHere, 80D, -1D, 100D, 100D);
+        AnchorUtils.anchor(recentFiles, 150D, 0D, 100D, 100D);
 
         root.getChildren().addAll(dropFileHere, open, recentFiles);
 
@@ -133,6 +146,16 @@ public class StartWindow implements AppWindow {
         stage.setTitle("LMark - home");
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.show();
+
+        AtomicReference<Double> maxListPrefWidth = new AtomicReference<>((double) 0);
+        recentFiles.getItems().forEach(node -> {
+            if(maxListPrefWidth.get() < node.getLayoutWidth()){
+                maxListPrefWidth.set(node.getLayoutWidth());
+            }
+        });
+
+        stage.setWidth(maxListPrefWidth.get() + 400D);
+        stage.centerOnScreen();
     }
 
     @Override

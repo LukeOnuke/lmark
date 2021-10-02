@@ -70,10 +70,7 @@ public class Markdown {
 
                 webView.getEngine().executeScript("document.addEventListener('scroll', function(event) {" +
                         "mdedit.scroll(document.body.scrollTop ,document.body.scrollHeight - document.body.clientHeight);" +
-                        "mdedit.log(document.body.scrollTop);" +
                         "});");
-
-                webView.getEngine().executeScript("mdedit.log(document.documentElement.scrollY)");
 
                 scroll(scrollY);
 
@@ -138,8 +135,6 @@ public class Markdown {
      */
     public class JSBridge {
         public void scroll(int current, int max) {
-            //System.out.println("Scrolled to " + current + " out of " + max + " in percent " + ((float)(current + 200)/max) * 100);
-            System.out.println(String.format("%f, %d, %d", ((float) (current) / max), current, max));
             webView.fireEvent(new SimpleScrollEvent(((float) (current) / max)));
         }
 

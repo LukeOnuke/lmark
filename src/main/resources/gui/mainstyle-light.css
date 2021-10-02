@@ -1,12 +1,141 @@
-.title{
-    font-size: 20px;
+/*https://coolors.co/528e86-eef5db-303633-8c271e-cb904d*/
+
+.root{
+    -wintergreen: #528e86ff;
+    -beige: #eef5dbff;
+    -gray: #303633ff;
+    -red: #8c271eff;
+    -orange: #cb904dff;
+    -text: #0e332e;
+    -text-light: white;
+    -background: white;
+    -background-2: #fcffff;
+    -transparent-white: rgba(255, 255, 255, 0.3);
+    -none: rgba(0,0,0,0);
+
+    -fx-background-color : -background;
 }
 
 .text{
-
+    -fx-text-fill: -text;
 }
 
 .edit{
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-background-color: #000000;
+}
+
+.shadow{
+    /*-fx-effect: dropshadow(three-pass-box, rgba(0,0,10,0.2), 8, 0, 5, 5); box-shadow:  20px 20px 40px #bebebe,*/
+    -fx-effect: dropshadow(three-pass-box, #bebebe, 20, 0, 15px, 15px);
+}
+
+.card{
+    -fx-padding: 15px;
+    -fx-background-color : white;
+    -fx-background-radius: 5px;
+}
+
+.center-text{
+    -fx-alignment: center;
+}
+
+.gradient{
+    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, derive(-wintergreen,1.0), -background);
+}
+
+.transparent{
+    -fx-background-color: -transparent-white;
+}
+
+.bg-1{
+    -fx-background-color: -background;
+}
+
+.bg-2{
+    -fx-background-color: -background-2;
+}
+
+/*
+* Listview
+*/
+
+.list-view{
+    -fx-border-color: -none;
+    -fx-focus-color: -none;
+    -fx-faint-focus-color: -none;
+}
+
+.list-cell{
+    -fx-focus-color: -none;
+    -fx-faint-focus-color: -none;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    /* 3:, 4: */
+    -fx-background-color: derive(-wintergreen, 0.85);
+    -fx-text-fill: white; /* 5 */
+}
+.list-cell {
+    -fx-padding: 10px;
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+}
+
+.list-cell:odd {
+    -fx-background-color: -background-2; /* 1 */
+}
+
+.list-cell:even {
+    -fx-background-color: -background-2; /* for information */
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: -none; /* 2 */
+    -fx-text-fill: -none; /* 5 */
+}
+
+.file-cell{
+    -fx-background-radius: 2px;
+}
+
+.file-cell:hover{
+    -fx-background-color: derive(-wintergreen, 0.85);
+    -fx-text-fill: -text-light;
+}
+
+.file-cell-title{
+    -fx-text-fill: -text;
+}
+
+.file-cell:hover > file-cell-title{
+    -fx-text-fill: -text-light;
+}
+
+.file-cell-text{
+    -fx-text-fill: derive(-text, 0.85);
+}
+
+.file-cell:hover > file-cell-text{
+    -fx-text-fill: derive(-text-light, 0.85);
+}
+
+.title{
+    -fx-alignment: center;
+}
+
+.title-text{
+    -fx-font-size: 40px;
+    -fx-text-fill: -text;
+    -fx-letter-spacing: 10px;
+    -fx-alignment: center;
+    -fx-padding: 0 0 0 20px;
+    -fx-border-insets: 0 0 0 20px;
+    -fx-background-insets: 0 0 0 20px;
+}
+
+.title-text-notfirst{
+    -fx-padding: 0 0 0 0;
+    -fx-border-insets: 0 0 0 0;
+    -fx-background-insets: 0 0 0 0;
 }
