@@ -2,11 +2,6 @@
 
 name: CI
 
-# Controls when the workflow will run
-on:
-  # Build javafx shaded jars for all major platforms
-# Builds are stored as artifacts in the action tab
-
 on:
   push:
     branches: [ master ]
