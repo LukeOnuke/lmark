@@ -2,6 +2,7 @@ package com.lukeonuke.lmark.gui;
 
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMark;
+import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.event.CustomEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.Markdown;
@@ -12,6 +13,8 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -20,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,6 +30,8 @@ public class MainAppWindow implements AppWindow {
     private Stage stage;
     private static final Logger logger = LoggerFactory.getLogger(AppWindow.class);
     private FileUtils fileUtils;
+    private Registry registry = new Registry();
+    boolean autosaveEnabled = registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED);
 
     public MainAppWindow(Stage stage) {
         this.stage = stage;
@@ -36,6 +40,7 @@ public class MainAppWindow implements AppWindow {
 
     @Override
     public void show() {
+
         AnchorPane root = new AnchorPane();
 
         //Initilise nodes
@@ -69,6 +74,10 @@ public class MainAppWindow implements AppWindow {
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(edit.getText());
 
+            if(!autosaveEnabled){
+                stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName() + "*");
+            }
+
             if (isScrollListenerRegistered.get()) return;
             //Run when size is calculated
             Platform.runLater(() -> {
@@ -76,7 +85,7 @@ public class MainAppWindow implements AppWindow {
 
                 editScrollPane.get().vvalueProperty().addListener(observable -> {
                     //stop unwanted 2 way coupling
-                    if(!editScrollPane.get().isHover()) return;
+                    if (!editScrollPane.get().isHover()) return;
                     markdown.scrollTo(editScrollPane.get().getVvalue());
 
                 });
@@ -207,12 +216,29 @@ public class MainAppWindow implements AppWindow {
         scene.getStylesheets().add(LMark.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
 
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
-        stage.setTitle("LMark");
+        stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
+        if(autosaveEnabled){
+            stage.setTitle(stage.getTitle() + " | autosave enabled");
+        }
         stage.setScene(scene);
 
         stage.onCloseRequestProperty().addListener((event) -> {
+            if(autosaveEnabled){
+                save(edit.getText());
+            }
+
             Platform.exit();
             System.exit(0);
+        });
+
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.S)) {
+                save(edit.getText());
+            }
+
+            if((keyEvent.getCode().equals(KeyCode.SPACE) || keyEvent.getCode().equals(KeyCode.PERIOD)) && autosaveEnabled){
+                save(edit.getText());
+            }
         });
 
         stage.show();
@@ -226,5 +252,10 @@ public class MainAppWindow implements AppWindow {
     @Override
     public String getDescription() {
         return "Main window";
+    }
+
+    private void save(String text){
+        if (!autosaveEnabled) stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
+        fileUtils.saveFile(fileUtils.getFile(), text);
     }
 }

@@ -32,6 +32,7 @@ import java.io.File;
  */
 public class LMark {
     public static void main(String[] args) {
+        new Registry();
         LMarkApplication.launchApp(args);
     }
 
