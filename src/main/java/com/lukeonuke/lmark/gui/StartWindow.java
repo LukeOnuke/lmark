@@ -122,7 +122,6 @@ public class StartWindow implements AppWindow {
                 }catch (IOException ex){
                     ex.printStackTrace();
                 }
-                logger.info("got 3");
 
 
                 MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
