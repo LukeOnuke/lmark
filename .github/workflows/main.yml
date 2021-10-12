@@ -20,7 +20,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - run: mkdir staging && cp target/lmark*.jar staging && cp -r assets staging
+    - run: mkdir staging && cp target/lmark*.jar staging && cp target/lmark*.exe staging
     - uses: actions/upload-artifact@v1
       with:
         name: WindowsPackage
@@ -38,7 +38,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - run: mkdir staging && cp target/lmark*.jar staging && cp -r assets staging
+    - run: mkdir staging && cp target/lmark*.jar staging
     - uses: actions/upload-artifact@v1
       with:
         name: LinuxPackage
@@ -56,7 +56,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - run: mkdir staging && cp target/lmark*.jar staging && cp -r assets staging
+    - run: mkdir staging && cp target/lmark*.jar staging
     - uses: actions/upload-artifact@v1
       with:
         name: MacosPackage
