@@ -38,6 +38,7 @@ public class StartWindow implements AppWindow {
         Label dropFileHere = new Label("Drop file here");
         Title open = new Title("Open");
         ListView<FileCell> recentFiles = new ListView<>();
+        AnchorPane recentFilesContainer = new AnchorPane();
 
         open.getStyleClass().addAll("title");
 
@@ -45,7 +46,6 @@ public class StartWindow implements AppWindow {
 
         root.getStyleClass().add("gradient");
 
-        recentFiles.getStyleClass().addAll("shadow");
 
         ArrayList<String> recentFilesList = new ArrayList<>();
         File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
@@ -85,10 +85,6 @@ public class StartWindow implements AppWindow {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        });
-
-        recentFiles.getFocusModel().focusedItemProperty().addListener((observableValue, s, t1) -> {
-
         });
 
         root.setOnDragOver(dragEvent -> {
@@ -131,11 +127,22 @@ public class StartWindow implements AppWindow {
             }
         });
 
+        recentFilesContainer.getStyleClass().addAll("shadow", "bg-1", "rounded-top-corners");
+        Label recentTitle = new Label("Recent files");
+        recentTitle.getStyleClass().addAll("h2", "pd-l");
+        Label recentDescription = new Label("Recent files appear below");
+        recentDescription.getStyleClass().addAll("pd-l", "bottom-border", "pd-d");
+        recentFilesContainer.getChildren().addAll(recentTitle, recentDescription, recentFiles);
+        AnchorUtils.anchor(recentTitle, 0D, -1D, 0D, 0D);
+        AnchorUtils.anchor(recentDescription, 30D, -1, 0D, 0D);
+        AnchorUtils.anchor(recentFiles, 50D, 0D, 0D, 0D);
+
+
         AnchorUtils.anchor(open, 0D, -1D, 0D, 0D);
         AnchorUtils.anchor(dropFileHere, 80D, -1D, 100D, 100D);
-        AnchorUtils.anchor(recentFiles, 150D, 0D, 100D, 100D);
+        AnchorUtils.anchor(recentFilesContainer, 150D, 0D, 100D, 100D);
 
-        root.getChildren().addAll(dropFileHere, open, recentFiles);
+        root.getChildren().addAll(dropFileHere, open, recentFilesContainer);
 
         Scene scene = new Scene(root);
 

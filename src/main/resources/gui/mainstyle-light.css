@@ -139,3 +139,23 @@
     -fx-border-insets: 0 0 0 0;
     -fx-background-insets: 0 0 0 0;
 }
+
+.h2{
+    -fx-font-size: 25px;
+    -fx-text-fill: -text;
+}
+
+.pd-l{
+    -fx-padding: 0 0 0 16px;
+}
+
+.bottom-border{
+    -fx-border-style: hidden hidden solid hidden;
+    -fx-border-width: 1;
+    -fx-border-color: derive(-wintergreen, 0.85);
+}
+
+.rounded-top-corners{
+    -fx-background-radius: 5px 5px 0px 0px;
+    -fx-border-radius: 5px 5px 0px 0px;
+}
