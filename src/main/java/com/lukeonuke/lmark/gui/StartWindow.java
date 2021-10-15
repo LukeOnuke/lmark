@@ -105,8 +105,7 @@ public class StartWindow implements AppWindow {
                         recent = new ArrayList<>();
                     }
                     if(!recent.contains(file.getPath())){
-                        //TODO: Add recent files from bottom to top
-                        recent.add(file.getPath());
+                        recent.add(0, file.getPath());
                     }
 
                     if(recent.size() >= 10){

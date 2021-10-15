@@ -9,6 +9,8 @@ import com.lukeonuke.lmark.gui.elements.Markdown;
 import com.lukeonuke.lmark.gui.util.AnchorUtils;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import com.lukeonuke.lmark.gui.util.OSIntegration;
+import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
+import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -22,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,7 +34,7 @@ public class MainAppWindow implements AppWindow {
     private Stage stage;
     private static final Logger logger = LoggerFactory.getLogger(AppWindow.class);
     private FileUtils fileUtils;
-    private Registry registry = new Registry();
+    private Registry registry = Registry.getInstance();
     boolean autosaveEnabled = registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED);
 
     public MainAppWindow(Stage stage) {
@@ -115,9 +119,29 @@ public class MainAppWindow implements AppWindow {
         MenuItem saveFileAs = new MenuItem("Save As");
         saveFileAs.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Markdown", "*.md", "*.MD"));
+            /*fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));*/
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML", "*.html"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Any", "*.*"));
+
             File file = fileChooser.showSaveDialog(new Stage());
             if (file != null) {
-                fileUtils.saveFile(file, edit.getText());
+                if(file.getPath().toLowerCase().endsWith(".md")){
+                    fileUtils.saveFile(file, edit.getText());
+                }
+                /*if(file.getPath().toLowerCase().endsWith(".pdf")){
+                    try {
+                        FileOutputStream fos = new FileOutputStream(file);
+                        PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", BaseRendererBuilder.TextDirection.LTR);
+                        fileUtils.saveFile(file, edit.getText());
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }*/
+                if(file.getPath().toLowerCase().endsWith(".html")){
+                    fileUtils.saveFile(file, markdown.getContents());
+                }
             }
         });
         fileMenu.getItems().add(saveFileAs);
@@ -143,7 +167,7 @@ public class MainAppWindow implements AppWindow {
         showNonRenderedHTML.setOnAction(actionEvent -> {
             TextArea nonRenderedHTML = new TextArea();
             nonRenderedHTML.setEditable(false);
-            nonRenderedHTML.setText((String) markdown.getNode().getEngine().executeScript("document.documentElement.outerHTML"));
+            nonRenderedHTML.setText(markdown.getContents());
             Stage stage = new Stage();
             Scene scene = new Scene(nonRenderedHTML);
             stage.setScene(scene);

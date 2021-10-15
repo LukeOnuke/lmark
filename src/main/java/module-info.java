@@ -14,6 +14,8 @@ module lmark {
     requires com.github.albfernandez.juniversalchardet;
     requires com.google.gson;
     requires javafx.graphics;
+    requires flexmark.pdf.converter;
+    requires openhtmltopdf.core;
 
     opens com.lukeonuke.lmark.gui.elements to javafx.web;
 

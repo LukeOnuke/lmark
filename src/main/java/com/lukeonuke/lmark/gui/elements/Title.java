@@ -8,7 +8,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Text;
 
 public class Title extends FlowPane {
-    //TODO: Title with spaced out text
     String text;
 
     public Title(String text) {

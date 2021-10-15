@@ -159,3 +159,37 @@
     -fx-background-radius: 5px 5px 0px 0px;
     -fx-border-radius: 5px 5px 0px 0px;
 }
+
+/*menu-bar & context-bar*/
+
+menu-bar {
+    -fx-background-color: -background;
+    -fx-opacity: 0.5;
+}
+
+.menu-bar .label {
+    -fx-text-fill: -text;
+}
+
+.menu-bar .menu-button:hover, .menu-bar .menu-button:focused, .menu-bar .menu-button:showing {
+    -fx-background: derive(-wintergreen, 0.85);
+    -fx-text-fill: -text-light;
+}
+
+.menu-item {
+    -fx-text-fill: -text;
+    -fx-background: -background-2;
+}
+.menu-item .label{
+    -fx-text-fill: -text;
+}
+
+.menu-item:hover{
+    -fx-background: derive(-wintergreen, 0.85);
+    -fx-text-fill: -text-light;
+}
+
+.menu-item .label:hover{
+    -fx-background: derive(-wintergreen, 0.85);
+    -fx-text-fill: -text-light;
+}

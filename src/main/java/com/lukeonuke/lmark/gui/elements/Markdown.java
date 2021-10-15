@@ -129,6 +129,10 @@ public class Markdown {
         return string.replace("<strong>", "<b>").replace("</strong>", "</b>");
     }
 
+    public String getContents(){
+        return (String) webView.getEngine().executeScript("document.documentElement.outerHTML");
+    }
+
     /**
      * Implements a bridge between the javascript on the web view and the java:tm: on ere
      * https://stackoverflow.com/questions/35985601/calling-a-java-method-from-a-javafx-webview

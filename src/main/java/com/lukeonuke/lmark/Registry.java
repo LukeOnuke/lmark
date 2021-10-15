@@ -8,8 +8,9 @@ import java.util.Properties;
 public class Registry {
     Properties prop = new Properties();
     String fileName = "app.properties";
+    private static Registry instance = null;
 
-    public Registry() {
+    private Registry() {
         if(!new File(fileName).exists()){
             try {
                 new File(fileName).createNewFile();
@@ -26,6 +27,13 @@ public class Registry {
             ex.printStackTrace();
         }
 
+    }
+
+    public static Registry getInstance(){
+        if (instance == null) {
+            instance = new Registry();
+        }
+        return instance;
     }
 
     public void reset(){
