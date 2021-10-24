@@ -1,17 +1,24 @@
 package com.lukeonuke.lmark.gui.util;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.lukeonuke.lmark.ApplicationConstants;
 import org.mozilla.universalchardet.UniversalDetector;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class FileUtils {
     private static FileUtils instance;
     private File file;
+    private PropertyChangeSupport fileChangeSupport = new PropertyChangeSupport(this);
+
 
     public static FileUtils getInstance(String path) throws FileNotFoundException {
         if (instance == null) {
@@ -58,7 +65,10 @@ public class FileUtils {
     }
 
     public void setFile(File file) {
+        File oldFile = this.file;
         this.file = file;
+        fileChangeSupport.firePropertyChange("file", oldFile, file);
+        addToRecents(file);
     }
 
     public String readFile() throws IOException {
@@ -113,5 +123,38 @@ public class FileUtils {
         T memory =  gson.fromJson(fileReader, type);
         fileReader.close();
         return memory;
+    }
+
+    public File getParentFile(){
+        return file.getParentFile();
+    }
+
+    public void registerFileListener(PropertyChangeListener propertyChangeListener){
+        fileChangeSupport.addPropertyChangeListener(propertyChangeListener);
+    }
+
+    public void addToRecents(File recentFile){
+        File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
+        ArrayList<String> recent;
+        try {
+            recent = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
+                    new TypeToken<ArrayList<String>>() {
+                    }.getType());
+
+            if(recent == null){
+                recent = new ArrayList<>();
+            }
+            if(!recent.contains(recentFile.getPath())){
+                recent.add(0, recentFile.getPath());
+            }
+
+            if(recent.size() >= 10){
+                recent.remove(0);
+            }
+
+            FileUtils.writeJSON(recent, recentFilesStorage);
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
     }
 }

@@ -72,6 +72,7 @@ public class StartWindow implements AppWindow {
         }
 
         recentFiles.setOnMouseClicked(mouseEvent -> {
+            if (recentFiles.getSelectionModel().getSelectedItem().getFile().getPath() == null) return;
             String s = recentFiles.getSelectionModel().getSelectedItem().getFile().getPath();
 
             if(s == null) return;

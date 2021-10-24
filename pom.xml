@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.lukeonuke</groupId>
     <artifactId>lmark</artifactId>
@@ -103,31 +103,31 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.panteleyev</groupId>-->
-<!--                <artifactId>jpackage-maven-plugin</artifactId>-->
-<!--                <version>1.4.0</version>-->
-<!--                <configuration>-->
-<!--                    <name>${MDE.name}</name>-->
-<!--                    <appVersion>0.0.1</appVersion>-->
-<!--                    <vendor>com.lukeonuke</vendor>-->
-<!--                    <destination>target/dist</destination>-->
-<!--                    <module>mdedit/com.lukeonuke.lmark.LMark/module>-->
-<!--                    <runtimeImage>target/image</runtimeImage>-->
-<!--                    <linuxShortcut>true</linuxShortcut>-->
-<!--                    <linuxPackageName>mdedit</linuxPackageName>-->
-<!--                    <linuxAppCategory>Utilities</linuxAppCategory>-->
-<!--                    <linuxMenuGroup>Utilities</linuxMenuGroup>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.panteleyev</groupId>-->
+            <!--                <artifactId>jpackage-maven-plugin</artifactId>-->
+            <!--                <version>1.4.0</version>-->
+            <!--                <configuration>-->
+            <!--                    <name>${MDE.name}</name>-->
+            <!--                    <appVersion>0.0.1</appVersion>-->
+            <!--                    <vendor>com.lukeonuke</vendor>-->
+            <!--                    <destination>target/dist</destination>-->
+            <!--                    <module>mdedit/com.lukeonuke.lmark.LMark/module>-->
+            <!--                    <runtimeImage>target/image</runtimeImage>-->
+            <!--                    <linuxShortcut>true</linuxShortcut>-->
+            <!--                    <linuxPackageName>mdedit</linuxPackageName>-->
+            <!--                    <linuxAppCategory>Utilities</linuxAppCategory>-->
+            <!--                    <linuxMenuGroup>Utilities</linuxMenuGroup>-->
 
-<!--                    <winMenu>true</winMenu>-->
-<!--                    <winShortcut>true</winShortcut>-->
-<!--                    <type>MSI</type>-->
-<!--                    <icon>src/main/resources/icon.png</icon>-->
-<!--                    <javaOptions>-->
-<!--                        <option>-Dfile.encoding=UTF-8</option>-->
-<!--                    </javaOptions>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--                    <winMenu>true</winMenu>-->
+            <!--                    <winShortcut>true</winShortcut>-->
+            <!--                    <type>MSI</type>-->
+            <!--                    <icon>src/main/resources/icon.png</icon>-->
+            <!--                    <javaOptions>-->
+            <!--                        <option>-Dfile.encoding=UTF-8</option>-->
+            <!--                    </javaOptions>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

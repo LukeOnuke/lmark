@@ -5,6 +5,7 @@ import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.event.CustomEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
+import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
 import com.lukeonuke.lmark.gui.util.AnchorUtils;
 import com.lukeonuke.lmark.gui.util.FileUtils;
@@ -12,12 +13,15 @@ import com.lukeonuke.lmark.gui.util.OSIntegration;
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder;
 import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
 import javafx.application.Platform;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -27,6 +31,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,6 +61,7 @@ public class MainAppWindow implements AppWindow {
         MenuBar menuBar = new MenuBar();
         AnchorPane statusBar = new AnchorPane();
         AtomicReference<ScrollPane> editScrollPane = new AtomicReference<>(null);
+        AnchorPane fileBrowserContainer = new AnchorPane();
         //Setup all stuffs
         markdownContainer.setContent(markdown.getNode());
         markdownContainer.setFitToWidth(true);
@@ -196,6 +202,21 @@ public class MainAppWindow implements AppWindow {
         });
         help.getItems().add(aboutCode);
 
+
+        Menu view = new Menu("View");
+
+        MenuItem toggleRecent = new MenuItem("Toggle recent");
+        toggleRecent.setOnAction(actionEvent -> {
+            if(splitPane.getItems().contains(fileBrowserContainer)){
+                splitPane.getItems().remove(fileBrowserContainer);
+            }else{
+                splitPane.getItems().add(0, fileBrowserContainer);
+            }
+        });
+        view.getItems().add(toggleRecent);
+
+        menuBar.getMenus().add(view);
+
         statusBar.setPrefHeight(25D);
         Label fileLabel = new Label();
         fileLabel.setText(FileUtils.detectCharset(fileUtils.getFile()) + " | " + fileUtils.getFile().getName());
@@ -203,22 +224,53 @@ public class MainAppWindow implements AppWindow {
 
         statusBar.getChildren().addAll(fileLabel);
 
+        FlowPane files = new FlowPane(Orientation.VERTICAL);
+        ScrollPane filesContainer = new ScrollPane(files);
+        filesContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        filesContainer.setFitToHeight(true);
+        filesContainer.setFitToWidth(true);
+
+        files.setAlignment(Pos.CENTER);
+
+        Arrays.stream(fileUtils.getParentFile().listFiles()).iterator().forEachRemaining(file -> {
+            if(!file.isFile()) return;
+            FileCell currentFile = new FileCell(file);
+            currentFile.setOnMouseClicked(mouseEvent -> {
+                fileUtils.setFile(currentFile.getFile());
+            });
+            files.getChildren().add(currentFile);
+        });
+
+        AnchorUtils.anchorAllSides(fileBrowserContainer, 0D);
+        AnchorUtils.anchorAllSides(filesContainer, 0D);
+        fileBrowserContainer.getChildren().addAll(filesContainer);
+
+
         /*
          * ============================
          * ||   R E A D  F I L E     ||
          * ============================
          * */
-        try {
-            editScrollPane.set(null);
-            String fileContents = fileUtils.readFile();
-            edit.textProperty().set(fileContents);
+        Runnable readFile = () -> {
+            try {
+                editScrollPane.set(null);
+                String fileContents = fileUtils.readFile();
+                edit.textProperty().set(fileContents);
 
-            markdown.setMDContents(fileContents);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                markdown.setMDContents(fileContents);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+        fileUtils.registerFileListener(fileChangeEvent -> {
+            logger.info("Reading " + fileChangeEvent.getNewValue());
+            readFile.run();
+        });
+        fileUtils.setFile(fileUtils.getFile());
+        readFile.run();
 
         //Add to splitpane
+        splitPane.getItems().add(fileBrowserContainer);
         splitPane.getItems().add(markdownContainer);
         splitPane.getItems().add(editContainer);
         //Add to root
@@ -246,7 +298,8 @@ public class MainAppWindow implements AppWindow {
         }
         stage.setScene(scene);
 
-        stage.onCloseRequestProperty().addListener((event) -> {
+        stage.setOnCloseRequest((event) -> {
+            logger.info("Closing");
             if(autosaveEnabled){
                 save(edit.getText());
             }
@@ -281,5 +334,6 @@ public class MainAppWindow implements AppWindow {
     private void save(String text){
         if (!autosaveEnabled) stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
         fileUtils.saveFile(fileUtils.getFile(), text);
+        logger.info("Saved hash = "+text.hashCode());
     }
 }
