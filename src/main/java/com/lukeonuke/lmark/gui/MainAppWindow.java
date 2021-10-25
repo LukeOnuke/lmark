@@ -27,10 +27,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -198,7 +195,7 @@ public class MainAppWindow implements AppWindow {
 
         MenuItem aboutCode = new MenuItem("View code (on github)");
         aboutCode.setOnAction(observable -> {
-            OSIntegration.openWebpage("https://github.com/LukeOnuke/mdedit");
+            OSIntegration.openWebpage("https://github.com/LukeOnuke/lmark");
         });
         help.getItems().add(aboutCode);
 
@@ -208,6 +205,7 @@ public class MainAppWindow implements AppWindow {
         MenuItem toggleRecent = new MenuItem("Toggle recent");
         toggleRecent.setOnAction(actionEvent -> {
             if(splitPane.getItems().contains(fileBrowserContainer)){
+                splitPane.setPrefWidth(splitPane.getWidth());
                 splitPane.getItems().remove(fileBrowserContainer);
             }else{
                 splitPane.getItems().add(0, fileBrowserContainer);
@@ -270,7 +268,6 @@ public class MainAppWindow implements AppWindow {
         readFile.run();
 
         //Add to splitpane
-        splitPane.getItems().add(fileBrowserContainer);
         splitPane.getItems().add(markdownContainer);
         splitPane.getItems().add(editContainer);
         //Add to root
@@ -316,6 +313,18 @@ public class MainAppWindow implements AppWindow {
             if((keyEvent.getCode().equals(KeyCode.SPACE) || keyEvent.getCode().equals(KeyCode.PERIOD)) && autosaveEnabled){
                 save(edit.getText());
             }
+
+            if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.I)){
+                formatItalicize(edit, 1);
+            }
+
+            if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.B)){
+                formatItalicize(edit, 2);
+            }
+
+            if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.J)){
+                formatItalicize(edit, 3);
+            }
         });
 
         stage.show();
@@ -335,5 +344,45 @@ public class MainAppWindow implements AppWindow {
         if (!autosaveEnabled) stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
         fileUtils.saveFile(fileUtils.getFile(), text);
         logger.info("Saved hash = "+text.hashCode());
+    }
+
+    private void formatItalicize(TextArea textArea, int count){
+        if(textArea.getSelection() == null) return;
+        boolean isBolded = true;
+        for (int i = 0; i < count; i++) {
+            isBolded = isBolded && selectionIsItalized(textArea, i);
+        }
+        if(isBolded){
+            for (int i = 0; i < count; i++) {
+                unitalicize(textArea);
+            }
+        }else{
+            for (int i = 0; i < count; i++) {
+                italicize(textArea);
+            }
+        }
+    }
+
+    private void italicize(TextArea textArea){
+        IndexRange selection = textArea.getSelection();
+        StringBuilder text = new StringBuilder(textArea.getText());
+        text.insert(selection.getStart(), "*");
+        text.insert(selection.getEnd() + 1, "*");
+        textArea.setText(text.toString());
+        textArea.selectRange(selection.getStart() + 1, selection.getEnd() + 1);
+    }
+
+    private void unitalicize(TextArea textArea){
+        IndexRange selection = textArea.getSelection();
+        StringBuilder text = new StringBuilder(textArea.getText());
+        text.replace(selection.getStart() - 1, selection.getStart(), "");
+        text.replace(selection.getEnd() - 1, selection.getEnd(), "");
+        textArea.setText(text.toString());
+        textArea.selectRange(selection.getStart() - 1, selection.getEnd() - 1);
+    }
+
+    private boolean selectionIsItalized(TextArea textArea, int offset){
+        IndexRange selection = textArea.getSelection();
+        return textArea.getText().charAt(selection.getStart() - 1 - offset) == '*' && textArea.getText().charAt(selection.getEnd() + offset) == '*';
     }
 }
