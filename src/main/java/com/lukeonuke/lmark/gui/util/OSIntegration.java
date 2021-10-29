@@ -91,4 +91,11 @@ public class OSIntegration {
     public static void openPathInExplorer(String file){
         openPathInExplorer(new File(file));
     }
+
+    /**
+     * Make a system specific notify (beep) sound. <i>Beep boop.<i/>
+     * */
+    public static void beep(){
+        Toolkit.getDefaultToolkit().beep();
+    }
 }

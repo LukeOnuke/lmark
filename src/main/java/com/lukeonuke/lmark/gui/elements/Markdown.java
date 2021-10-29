@@ -1,9 +1,11 @@
 package com.lukeonuke.lmark.gui.elements;
 
+import com.jthemedetecor.OsThemeDetector;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import com.lukeonuke.lmark.gui.util.OSIntegration;
+import com.lukeonuke.lmark.gui.util.ThemeManager;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;
@@ -32,6 +34,8 @@ public class Markdown {
     private static HtmlRenderer renderer;
     private static Parser parser;
     private double scrollY;
+    private String contents;
+    final ThemeManager themeManager = ThemeManager.getInstance();
 
     static{
         DataHolder options = PegdownOptionsAdapter.flexmarkOptions(
@@ -42,6 +46,7 @@ public class Markdown {
     }
 
     public Markdown() {
+        webView.getStyleClass().add("markdown");
         webView.getEngine().getHistory().getEntries().clear();
         webView.contextMenuEnabledProperty().setValue(false);
 
@@ -97,8 +102,13 @@ public class Markdown {
     }
 
     public void setContents(String contents) {
+        this.contents = contents;
+        refresh();
+    }
+
+    public void refresh(){
         try {
-            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(ApplicationConstants.WEB_MARKDOWN_CSS) + "</style></head><body class='markdown-body'>"
+            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(themeManager.getWebCSS(this)) + "</style></head><body class='markdown-body'>"
                     + contents + "</body>", "text/html");
         } catch (IOException e) {
             e.printStackTrace();

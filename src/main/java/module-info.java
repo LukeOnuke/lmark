@@ -16,6 +16,7 @@ module lmark {
     requires javafx.graphics;
     requires flexmark.pdf.converter;
     requires openhtmltopdf.core;
+    requires com.jthemedetector;
 
     opens com.lukeonuke.lmark.gui.elements to javafx.web;
 

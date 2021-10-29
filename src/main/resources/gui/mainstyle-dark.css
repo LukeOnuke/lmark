@@ -1,22 +1,28 @@
 /*https://coolors.co/528e86-eef5db-303633-8c271e-cb904d*/
 
 .root{
-    -wintergreen: #528e86ff;
+    -wintergreen: #0f211f;
     -beige: #eef5dbff;
-    -gray: #303633ff;
+    -gray: #1c1f1dff;
     -red: #8c271eff;
     -orange: #cb904dff;
-    -text: #0e332e;
+    -text: #defffb;
     -text-light: white;
-    -background: #ffffff;
-    -background-2: #fcffff;
+    -background: #242626;
+    -background-2: #0a0a0a;
     -transparent-white: rgba(255, 255, 255, 0.3);
     -none: rgba(0,0,0,0);
 
     -fx-background-color : -background;
+    -fx-control-inner-background: -background;
+    -fx-border-color: -gray;
 }
 
 .text{
+    -fx-text-fill: -text;
+}
+
+.label{
     -fx-text-fill: -text;
 }
 
@@ -27,7 +33,7 @@
 
 .shadow{
     /*-fx-effect: dropshadow(three-pass-box, rgba(0,0,10,0.2), 8, 0, 5, 5); box-shadow:  20px 20px 40px #bebebe,*/
-    -fx-effect: dropshadow(three-pass-box, #bebebe, 20, 0, 15px, 15px);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,10,0.2), 20, 0, 15px, 15px);
 }
 
 .card{
@@ -41,7 +47,7 @@
 }
 
 .gradient{
-    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, derive(-wintergreen,1.0), -background);
+    -fx-background-color: linear-gradient(from 25% 25% to 100% 100%, -wintergreen, -background);
 }
 
 .transparent{
@@ -83,11 +89,11 @@
 }
 
 .list-cell:odd {
-    -fx-background-color: -background-2; /* 1 */
+    -fx-background-color: -background; /* 1 */
 }
 
 .list-cell:even {
-    -fx-background-color: -background-2; /* for information */
+    -fx-background-color: -background; /* for information */
 }
 
 .list-cell:filled:hover {
@@ -126,7 +132,7 @@
 
 .title-text{
     -fx-font-size: 40px;
-    -fx-text-fill: -text;
+    -fx-text-fill: -text-light;
     -fx-letter-spacing: 10px;
     -fx-alignment: center;
     -fx-padding: 0 0 0 20px;
@@ -162,9 +168,8 @@
 
 /*menu-bar & context-bar*/
 
-menu-bar {
+.menu-bar {
     -fx-background-color: -background;
-    -fx-opacity: 0.5;
 }
 
 .menu-bar .label {
@@ -195,15 +200,15 @@ menu-bar {
 }
 
 .tool-bar{
-    -fx-background-color: -background;
+    -fx-background: -background;
 }
 
 .button{
     -fx-focus-color : -wintergreen;
     -fx-faint-focus-color : rgba(0, 0, 0, 0);
     -fx-background-color: -background-2;
-    -fx-border-color: -text;
     -fx-border-radius: 3px;
+    -fx-text-fill: -text;
 }
 
 .button:hover{
@@ -213,7 +218,6 @@ menu-bar {
 .button:focused{
     -fx-background-color: derive(-wintergreen, 0.85);
 }
-
 
 .anchor-pane{
     -fx-background-color: -background;
@@ -258,7 +262,7 @@ menu-bar {
 
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
-    -fx-background-color: derive(-wintergreen, 0.85);
+    -fx-background-color: -background-2;
     -fx-background-radius: 5em;
 }
 
@@ -275,7 +279,7 @@ menu-bar {
 }
 
 .check-box .box {
-    -fx-background-color: derive(-wintergreen, 0.85);
+    -fx-background-color: -background-2;
 }
 
 .check-box:selected .mark {

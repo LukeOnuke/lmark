@@ -7,6 +7,7 @@ import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Title;
 import com.lukeonuke.lmark.gui.util.AnchorUtils;
 import com.lukeonuke.lmark.gui.util.FileUtils;
+import com.lukeonuke.lmark.gui.util.ThemeManager;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -72,7 +73,7 @@ public class StartWindow implements AppWindow {
         }
 
         recentFiles.setOnMouseClicked(mouseEvent -> {
-            if (recentFiles.getSelectionModel().getSelectedItem().getFile().getPath() == null) return;
+            if (recentFiles.getSelectionModel().getSelectedItem().getFile() == null) return;
             String s = recentFiles.getSelectionModel().getSelectedItem().getFile().getPath();
 
             if(s == null) return;
@@ -146,7 +147,7 @@ public class StartWindow implements AppWindow {
 
         Scene scene = new Scene(root);
 
-        scene.getStylesheets().add(LMark.class.getResource(ApplicationConstants.APPLICATION_CSS).toExternalForm());
+        ThemeManager.getInstance().addCss(scene);
 
         stage.setScene(scene);
         stage.setTitle("LMark - home");
@@ -162,6 +163,8 @@ public class StartWindow implements AppWindow {
 
         stage.setWidth(maxListPrefWidth.get() + 400D);
         stage.centerOnScreen();
+
+
     }
 
     @Override
