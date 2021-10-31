@@ -16,11 +16,15 @@ jobs:
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
-        java-version: 11
+        java-version: 16
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - run: mkdir staging && cp target/lmark*.jar staging && cp target/lmark*.exe staging
+    - run: mkdir staging && cp target/lmark*.jar staging
+    
+    - name: jpackage
+      run : for i in staging/*.jar; do jpackage --name lmark --input staging\ --main-jar "$i" --main-class com.lukeonuke.lmark.LMark --verbose --dest staging\app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src\main\resources\icon.ico; break; done;
+    
     - uses: actions/upload-artifact@v1
       with:
         name: WindowsPackage
