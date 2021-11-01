@@ -24,6 +24,7 @@
               <mainClass>com.lukeonuke.lmark.LMark</mainClass>
             </manifest>
           </archive>
+          <finalName>${project.name}</finalName>
         </configuration>
       </plugin>
       <plugin>
@@ -54,63 +55,6 @@
                   <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                 </transformer>
               </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-        <artifactId>launch4j-maven-plugin</artifactId>
-        <version>2.1.1</version>
-        <executions>
-          <execution>
-            <id>l4j-gui</id>
-            <phase>package</phase>
-            <goals>
-              <goal>launch4j</goal>
-            </goals>
-            <configuration>
-              <headerType>gui</headerType>
-              <outfile>target/${MDE.name}.exe</outfile>
-              <jar>target/${MDE.name}-${version}.jar</jar>
-              <errTitle>lmark</errTitle>
-              <classPath>
-                <mainClass>com.lukeonuke.lmark.LMark</mainClass>
-              </classPath>
-              <jre>
-                <minVersion>11</minVersion>
-              </jre>
-              <versionInfo>
-                <fileVersion>${version}.0</fileVersion>
-                <txtFileVersion>${version}.0</txtFileVersion>
-                <fileDescription>${MDE.description}</fileDescription>
-                <copyright>LukeOnuke mit 2020</copyright>
-                <productVersion>${version}.0</productVersion>
-                <txtProductVersion>${version}.0</txtProductVersion>
-                <productName>${MDE.name}</productName>
-                <internalName>lmark</internalName>
-                <originalFilename>${MDE.name}.exe</originalFilename>
-              </versionInfo>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.github.akman</groupId>
-        <artifactId>jpackage-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>jpackage</goal>
-            </goals>
-            <configuration>
-              <name>lmark</name>
-              <description>Lmark, the open markdown editor.</description>
-              <licensefile>LICENSE</licensefile>
-              <type>app-image</type>
-              <mainjar>${artifactId}-${version}.jar</mainjar>
-              <mainclass>com.lukeonuke.lmark.LMark</mainclass>
             </configuration>
           </execution>
         </executions>
