@@ -1,9 +1,9 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
-import com.lukeonuke.lmark.gui.util.FileUtils;
-import com.lukeonuke.lmark.gui.util.OSIntegration;
-import com.lukeonuke.lmark.gui.util.ThemeManager;
+import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.OSIntegration;
+import com.lukeonuke.lmark.util.ThemeManager;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;

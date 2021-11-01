@@ -1,16 +1,15 @@
 package com.lukeonuke.lmark.gui;
 
 import com.lukeonuke.lmark.ApplicationConstants;
-import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.event.CustomEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
-import com.lukeonuke.lmark.gui.util.AnchorUtils;
-import com.lukeonuke.lmark.gui.util.FileUtils;
-import com.lukeonuke.lmark.gui.util.OSIntegration;
-import com.lukeonuke.lmark.gui.util.ThemeManager;
+import com.lukeonuke.lmark.util.AnchorUtils;
+import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.OSIntegration;
+import com.lukeonuke.lmark.util.ThemeManager;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;

@@ -1,8 +1,9 @@
-package com.lukeonuke.lmark.gui.util;
+package com.lukeonuke.lmark.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
+import javafx.application.Platform;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.beans.PropertyChangeListener;
@@ -133,28 +134,44 @@ public class FileUtils {
         fileChangeSupport.addPropertyChangeListener(propertyChangeListener);
     }
 
-    public void addToRecents(File recentFile){
-        File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
+    public static void addToRecents(File recentFile){
+        File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
         ArrayList<String> recent;
         try {
-            recent = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
+            recent = FileUtils.readJSON(recentFilesStorage.getPath(),
                     new TypeToken<ArrayList<String>>() {
                     }.getType());
 
             if(recent == null){
                 recent = new ArrayList<>();
             }
-            if(!recent.contains(recentFile.getPath())){
-                recent.add(0, recentFile.getPath());
+
+            if(recent.contains(recentFile.getAbsolutePath())){
+                recent.add(0, recentFile.getAbsolutePath());
+                recent.remove(recentFile.getAbsolutePath());
+            }
+
+            if(!recent.contains(recentFile.getAbsolutePath())){
+                recent.add(0, recentFile.getAbsolutePath());
             }
 
             if(recent.size() >= 10){
-                recent.remove(0);
+                recent.remove(10);
             }
 
             FileUtils.writeJSON(recent, recentFilesStorage);
         }catch (IOException ex){
             ex.printStackTrace();
+        }
+    }
+
+    public static File getRelativeFile(String path){
+        try {
+            return new File(new File(".").getCanonicalPath() + File.separator + path);
+        } catch (IOException e) {
+            Platform.exit();
+            System.exit(1);
+            return new File(path);
         }
     }
 }

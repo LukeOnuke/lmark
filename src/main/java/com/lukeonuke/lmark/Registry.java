@@ -1,19 +1,20 @@
 package com.lukeonuke.lmark;
 
-import org.slf4j.LoggerFactory;
+import com.lukeonuke.lmark.util.FileUtils;
 
 import java.io.*;
 import java.util.Properties;
 
 public class Registry {
     Properties prop = new Properties();
-    String fileName = "app.properties";
+    String fileName = FileUtils.getRelativeFile("app.properties").getPath();
     private static Registry instance = null;
 
     private Registry() {
-        if(!new File(fileName).exists()){
+        File file = new File(fileName);
+        if(!file.exists()){
             try {
-                new File(fileName).createNewFile();
+                file.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }

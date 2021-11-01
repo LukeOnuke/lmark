@@ -24,14 +24,10 @@
 package com.lukeonuke.lmark;
 
 
-import com.lukeonuke.lmark.gui.util.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lukeonuke.lmark.util.FileUtils;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * LMARK

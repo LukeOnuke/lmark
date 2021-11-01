@@ -1,6 +1,6 @@
 package com.lukeonuke.lmark.gui.elements;
 
-import com.lukeonuke.lmark.gui.util.AnchorUtils;
+import com.lukeonuke.lmark.util.AnchorUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;

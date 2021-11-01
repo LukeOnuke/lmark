@@ -1,4 +1,4 @@
-package com.lukeonuke.lmark.gui.util;
+package com.lukeonuke.lmark.util;
 
 import java.awt.*;
 import java.io.File;

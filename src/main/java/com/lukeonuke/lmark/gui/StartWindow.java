@@ -2,12 +2,11 @@ package com.lukeonuke.lmark.gui;
 
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
-import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Title;
-import com.lukeonuke.lmark.gui.util.AnchorUtils;
-import com.lukeonuke.lmark.gui.util.FileUtils;
-import com.lukeonuke.lmark.gui.util.ThemeManager;
+import com.lukeonuke.lmark.util.AnchorUtils;
+import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.ThemeManager;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -97,29 +96,7 @@ public class StartWindow implements AppWindow {
                 FileUtils.getInstance(file.getPath());
                 hide();
 
-                ArrayList<String> recent;
-                try {
-                    recent = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
-                            new TypeToken<ArrayList<String>>() {
-                            }.getType());
-
-                    if(recent == null){
-                        recent = new ArrayList<>();
-                    }
-                    if(!recent.contains(file.getPath())){
-                        recent.add(0, file.getPath());
-                    }
-
-                    if(recent.size() >= 10){
-                        recent.remove(0);
-                    }
-
-                    logger.info("Recent files " + recent);
-                    FileUtils.writeJSON(recent, recentFilesStorage);
-                }catch (IOException ex){
-                    ex.printStackTrace();
-                }
-
+                FileUtils.addToRecents(file);
 
                 MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
                 Platform.runLater(mainAppWindow::show);

@@ -1,18 +1,16 @@
 package com.lukeonuke.lmark.gui;
 
 import com.lukeonuke.lmark.ApplicationConstants;
-import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.gui.elements.Title;
-import com.lukeonuke.lmark.gui.util.AnchorUtils;
-import com.lukeonuke.lmark.gui.util.OSIntegration;
-import com.lukeonuke.lmark.gui.util.ThemeManager;
+import com.lukeonuke.lmark.util.AnchorUtils;
+import com.lukeonuke.lmark.util.OSIntegration;
+import com.lukeonuke.lmark.util.ThemeManager;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class SettingsWindow implements AppWindow{
     private final ThemeManager themeManager = ThemeManager.getInstance();

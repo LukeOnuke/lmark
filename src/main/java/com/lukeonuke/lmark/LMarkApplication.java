@@ -2,7 +2,7 @@ package com.lukeonuke.lmark;
 
 import com.lukeonuke.lmark.gui.MainAppWindow;
 import com.lukeonuke.lmark.gui.StartWindow;
-import com.lukeonuke.lmark.gui.util.FileUtils;
+import com.lukeonuke.lmark.util.FileUtils;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -36,13 +36,15 @@ public class LMarkApplication extends Application {
                     if (file.exists() && file.isFile()) {
                         FileUtils.getInstance(file.getPath());
                         new MainAppWindow(primaryStage).show();
+                        return;
                     }
                 } catch (Exception ex) {
                     logger.info(s);
                 }
             });
 
+        }else{
+            new StartWindow(primaryStage).show();
         }
-        new StartWindow(primaryStage).show();
     }
 }
