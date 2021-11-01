@@ -1,7 +1,5 @@
 package com.lukeonuke.lmark.gui.elements;
 
-import com.jthemedetecor.OsThemeDetector;
-import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import com.lukeonuke.lmark.gui.util.OSIntegration;
@@ -11,7 +9,6 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;
 import com.vladsch.flexmark.profile.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.data.DataHolder;
-import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -116,9 +113,7 @@ public class Markdown {
     }
 
     public void setMDContents(String contents) {
-
-        setContents(filter(renderer.render(parser.parse(contents))));
-
+        setContents(filter(renderer.render(parser.parse(preFilter(contents)))));
     }
 
     public WebView getNode() {
@@ -136,7 +131,13 @@ public class Markdown {
     }
 
     private String filter(String string) {
-        return string.replace("<strong>", "<b>").replace("</strong>", "</b>");
+        return string.replace("<strong>", "<b>")
+                .replace("</strong>", "</b>");
+    }
+
+    private String preFilter(String string){
+        return string.replace(">", "`>`")
+                .replace("<", "`<`");
     }
 
     public String getContents(){

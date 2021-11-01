@@ -4,8 +4,9 @@
 *.iml
 *.iws
 log/
-target/
+target
 target/**
+target/*
 .idea/**
 # compiled
 *.o
@@ -16,3 +17,5 @@ example.md
 recent-files.json
 recent-files.json
 app.properties
+*.msi
+*.msi

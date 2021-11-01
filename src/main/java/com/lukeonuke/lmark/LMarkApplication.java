@@ -1,31 +1,47 @@
 package com.lukeonuke.lmark;
 
+import com.lukeonuke.lmark.gui.MainAppWindow;
 import com.lukeonuke.lmark.gui.StartWindow;
 import com.lukeonuke.lmark.gui.util.FileUtils;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 public class LMarkApplication extends Application {
 
     private static List<String> arguments;
+    private final Logger logger = LoggerFactory.getLogger(LMarkApplication.class);
 
     public static void launchApp(String[] args) {
-        arguments =  Arrays.asList(args);
+        arguments = Arrays.asList(args);
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        try {
-            if(arguments.size() > 0){
-                FileUtils.getInstance("example.md");
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
+        if (!arguments.isEmpty()) {
+            logger.info("Found arguments");
+            arguments.forEach(logger::info);
+
+
+            arguments.forEach(s -> {
+                try {
+                    File file = new File(s);
+                    if (file.exists() && file.isFile()) {
+                        FileUtils.getInstance(file.getPath());
+                        new MainAppWindow(primaryStage).show();
+                    }
+                } catch (Exception ex) {
+                    logger.info(s);
+                }
+            });
+
         }
         new StartWindow(primaryStage).show();
     }

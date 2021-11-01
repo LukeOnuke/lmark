@@ -23,7 +23,15 @@
  * */
 package com.lukeonuke.lmark;
 
-import java.io.File;
+
+import com.lukeonuke.lmark.gui.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.*;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * LMARK
@@ -32,8 +40,27 @@ import java.io.File;
  */
 public class LMark {
     public static void main(String[] args) {
+        //Load all mandatory subsystems
         Registry.getInstance();
+        registerToDesktop();
+        //Finished base boot.
+
         LMarkApplication.launchApp(args);
     }
 
+    private static void registerToDesktop(){
+        if(Desktop.isDesktopSupported()){
+            Desktop desktop = Desktop.getDesktop();
+            if(desktop.isSupported(Desktop.Action.APP_OPEN_FILE)){
+                desktop.setOpenFileHandler(e -> {
+                    try {
+                        FileUtils.getInstance(e.getFiles().get(0).getPath());
+                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                        System.exit(-1);
+                    }
+                });
+            }
+        }
+    }
 }
