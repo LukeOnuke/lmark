@@ -23,7 +23,7 @@ jobs:
     - run: mkdir staging && cp target/lmark*.jar staging
     
     - name: jpackage
-      run : jpackage --name lmark --input staging\ --main-jar @(gci staging/lmark-*.jar)[0] --main-class com.lukeonuke.lmark.LMark --verbose --dest staging\app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon ..\src\main\resources\icon.ico
+      run : jpackage --name lmark --input staging\ --main-jar @(gci staging/lmark-*.jar)[0] --main-class com.lukeonuke.lmark.LMark --verbose --dest staging\app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src\main\resources\icon.ico
     
     - uses: actions/upload-artifact@v1
       with:
