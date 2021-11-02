@@ -3,6 +3,7 @@ package com.lukeonuke.lmark.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMark;
 import javafx.application.Platform;
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -33,7 +34,7 @@ public class FileUtils {
     }
 
     private FileUtils(String path) throws FileNotFoundException {
-        file = new File(path).getAbsoluteFile();
+        setFile(new File(path).getAbsoluteFile());
 
         if (!file.exists()) {
             throw new FileNotFoundException("File not found");
@@ -49,10 +50,8 @@ public class FileUtils {
 
             String line;
 
-            int count = 0;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
-                count++;
             }
 
         } catch (IOException e) {
@@ -68,8 +67,8 @@ public class FileUtils {
     public void setFile(File file) {
         File oldFile = this.file;
         this.file = file;
-        fileChangeSupport.firePropertyChange("file", oldFile, file);
         addToRecents(file);
+        fileChangeSupport.firePropertyChange("file", oldFile, file);
     }
 
     public String readFile() throws IOException {
@@ -97,19 +96,6 @@ public class FileUtils {
         return charset;
     }
 
-    public static String stripProtocolFromPath(String path) {
-        String reFormatted = path;
-        if(path.indexOf(':') != -1){
-            reFormatted = path.substring(path.indexOf(':') + 1);
-        }
-
-        while (reFormatted.startsWith("/") || reFormatted.startsWith("\\")) {
-            reFormatted = reFormatted.substring(1);
-        }
-
-        return reFormatted;
-    }
-
     public static void writeJSON(Object source, File file) throws IOException {
         FileWriter fileWriter = new FileWriter(file);
         Gson gson = new Gson();
@@ -135,6 +121,7 @@ public class FileUtils {
     }
 
     public static void addToRecents(File recentFile){
+        recentFile = recentFile.getAbsoluteFile();
         File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
         ArrayList<String> recent;
         try {
@@ -147,8 +134,8 @@ public class FileUtils {
             }
 
             if(recent.contains(recentFile.getAbsolutePath())){
-                recent.add(0, recentFile.getAbsolutePath());
                 recent.remove(recentFile.getAbsolutePath());
+                recent.add(0, recentFile.getAbsolutePath());
             }
 
             if(!recent.contains(recentFile.getAbsolutePath())){
@@ -167,7 +154,9 @@ public class FileUtils {
 
     public static File getRelativeFile(String path){
         try {
-            return new File(new File(".").getCanonicalPath() + File.separator + path);
+            return new File(new File(LMark.class.getResource("").getFile())
+                    .getParentFile().getParentFile().getParentFile().getParentFile().getCanonicalPath()
+                    + File.separator + path);
         } catch (IOException e) {
             Platform.exit();
             System.exit(1);

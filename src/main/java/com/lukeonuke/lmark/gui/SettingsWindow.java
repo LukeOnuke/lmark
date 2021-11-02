@@ -77,8 +77,7 @@ public class SettingsWindow implements AppWindow{
 
         stage.show();
 
-        stage.setAlwaysOnTop(true);
-        stage.setAlwaysOnTop(false);
+        stage.toFront();
     }
 
     @Override

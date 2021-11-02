@@ -46,6 +46,7 @@ public class Markdown {
         webView.getStyleClass().add("markdown");
         webView.getEngine().getHistory().getEntries().clear();
         webView.contextMenuEnabledProperty().setValue(false);
+        webView.getEngine().setUserDataDirectory(FileUtils.getRelativeFile("webview-memory"));
 
         webView.getEngine().setOnError(errorEvent -> {
             logger.error(errorEvent.getMessage());

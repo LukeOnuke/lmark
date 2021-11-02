@@ -48,7 +48,7 @@ public class StartWindow implements AppWindow {
 
 
         ArrayList<String> recentFilesList = new ArrayList<>();
-        File recentFilesStorage = new File(ApplicationConstants.RECENT_FILES_STORAGE);
+        File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
         try {
             if (!recentFilesStorage.exists()) {
 
@@ -56,7 +56,7 @@ public class StartWindow implements AppWindow {
                 FileUtils.writeJSON(recentFilesList, recentFilesStorage);
 
             }
-            recentFilesList = FileUtils.readJSON(ApplicationConstants.RECENT_FILES_STORAGE,
+            recentFilesList = FileUtils.readJSON(recentFilesStorage.getPath(),
                     new TypeToken<ArrayList<String>>() {
                     }.getType());
 

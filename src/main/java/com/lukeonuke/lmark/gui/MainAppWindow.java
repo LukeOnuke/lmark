@@ -1,15 +1,13 @@
 package com.lukeonuke.lmark.gui;
 
 import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMarkApplication;
 import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.event.CustomEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
-import com.lukeonuke.lmark.util.AnchorUtils;
-import com.lukeonuke.lmark.util.FileUtils;
-import com.lukeonuke.lmark.util.OSIntegration;
-import com.lukeonuke.lmark.util.ThemeManager;
+import com.lukeonuke.lmark.util.*;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -169,18 +167,21 @@ public class MainAppWindow implements AppWindow {
 
         MenuItem showNonRenderedHTML = new MenuItem("Show non rendered HTML");
         showNonRenderedHTML.setOnAction(actionEvent -> {
-            TextArea nonRenderedHTML = new TextArea();
-            nonRenderedHTML.setEditable(false);
-            nonRenderedHTML.setText(markdown.getContents());
             Stage stage = new Stage();
-            Scene scene = new Scene(nonRenderedHTML);
-            stage.setScene(scene);
-            stage.setTitle("Debug - non rendered html");
-            stage.setIconified(false);
-            stage.getIcons().add(new Image(ApplicationConstants.ICON));
-            stage.show();
+            DebugWindow debugWindow = new DebugWindow(stage);
+            debugWindow.setText(markdown.getContents());
+            debugWindow.show();
         });
-        debug.getItems().add(showNonRenderedHTML);
+
+        MenuItem showArguments = new MenuItem("Show arguments");
+        showArguments.setOnAction(actionEvent -> {
+            Stage stage = new Stage();
+            DebugWindow debugWindow = new DebugWindow(stage);
+            debugWindow.setText(LMarkApplication.getArguments().toString());
+            debugWindow.show();
+        });
+
+        debug.getItems().addAll(showNonRenderedHTML, showArguments);
 
         optionsMenu.getItems().add(debug);
 
@@ -320,9 +321,7 @@ public class MainAppWindow implements AppWindow {
 
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
         stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
-        if (autosaveEnabled) {
-            stage.setTitle(stage.getTitle() + " | autosave enabled");
-        }
+        updateTitle();
         stage.setScene(scene);
 
         stage.setOnCloseRequest((event) -> {
@@ -362,6 +361,11 @@ public class MainAppWindow implements AppWindow {
             }
         });
 
+        registry.registerRegistryChangeEvent(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED, autosaveEvent -> {
+            autosaveEnabled = Boolean.parseBoolean( (String) autosaveEvent.getNewValue());
+            FxUtils.lazyRunOnPlatform(this::updateTitle);
+        });
+
         stage.show();
     }
 
@@ -376,10 +380,16 @@ public class MainAppWindow implements AppWindow {
     }
 
     private void save(String text) {
-        if (!autosaveEnabled)
-            stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName());
+
         fileUtils.saveFile(fileUtils.getFile(), text);
         logger.info("Saved hash = " + text.hashCode());
+    }
+
+    private void updateTitle(){
+        stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getPath());
+        if (autosaveEnabled){
+            stage.setTitle(stage.getTitle() + " | autosave enabled");
+        }
     }
 
     private void formatItalicize(TextArea textArea, int count) {

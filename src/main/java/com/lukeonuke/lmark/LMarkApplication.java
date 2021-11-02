@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class LMarkApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        logger.info("Virtual working directory " + FileUtils.getRelativeFile("").getPath());
 
         if (!arguments.isEmpty()) {
             logger.info("Found arguments");
@@ -46,5 +48,9 @@ public class LMarkApplication extends Application {
         }else{
             new StartWindow(primaryStage).show();
         }
+    }
+
+    public static List<String> getArguments() {
+        return arguments;
     }
 }

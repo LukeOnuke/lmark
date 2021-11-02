@@ -1,13 +1,18 @@
 package com.lukeonuke.lmark;
 
 import com.lukeonuke.lmark.util.FileUtils;
+import org.slf4j.LoggerFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.Properties;
 
 public class Registry {
     Properties prop = new Properties();
     String fileName = FileUtils.getRelativeFile("app.properties").getPath();
+    PropertyChangeSupport registryChangeSupport = new PropertyChangeSupport(this);
     private static Registry instance = null;
 
     private Registry() {
@@ -50,7 +55,11 @@ public class Registry {
         return prop.getProperty(key);
     }
 
-    public void write(String key, String value) {prop.setProperty(key, value);}
+    public void write(String key, String value) {
+        registryChangeSupport.firePropertyChange(key, prop.getProperty(key), value);
+        prop.setProperty(key, value);
+    }
+
     public void write(String key, boolean value){write(key, Boolean.toString(value));}
 
     public boolean readOptionAsBoolean(String key){
@@ -63,5 +72,9 @@ public class Registry {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void registerRegistryChangeEvent(String propertyName, PropertyChangeListener propertyChangeEvent){
+        registryChangeSupport.addPropertyChangeListener(propertyName, propertyChangeEvent);
     }
 }
