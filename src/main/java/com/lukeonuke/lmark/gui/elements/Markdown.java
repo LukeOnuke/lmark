@@ -1,5 +1,6 @@
 package com.lukeonuke.lmark.gui.elements;
 
+import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.util.FileUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
@@ -12,6 +13,8 @@ import com.vladsch.flexmark.util.data.DataHolder;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,6 +24,7 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
+import org.w3c.dom.html.HTMLImageElement;
 
 import java.io.IOException;
 
@@ -32,10 +36,11 @@ public class Markdown {
     private static Parser parser;
     private double scrollY;
     private String contents;
+    private static DataHolder options;
     final ThemeManager themeManager = ThemeManager.getInstance();
 
-    static{
-        DataHolder options = PegdownOptionsAdapter.flexmarkOptions(
+    static {
+        options = PegdownOptionsAdapter.flexmarkOptions(
                 Extensions.ALL
         );
         parser = Parser.builder(options).build();
@@ -104,13 +109,19 @@ public class Markdown {
         refresh();
     }
 
-    public void refresh(){
+    public void refresh() {
+        webView.getEngine().loadContent(renderWithStyleSheet(themeManager.getWebCSS(this)));
+    }
+
+    private String renderWithStyleSheet(String css) {
         try {
-            webView.getEngine().loadContent("<head><style>body{padding: 10px;}" + FileUtils.getResourceAsString(themeManager.getWebCSS(this)) + "</style></head><body class='markdown-body'>"
-                    + contents + "</body>", "text/html");
+            return "<head>\r\n<style>body{padding: 10px;}\r\n" + FileUtils.getResourceAsString(css)
+                    + "</style>\r\n</head>\r\n<body class='markdown-body'>"
+                    + contents + "</body>";
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void setMDContents(String contents) {
@@ -126,7 +137,7 @@ public class Markdown {
         scroll(scrollY);
     }
 
-    private void scroll(double y){
+    private void scroll(double y) {
         webView.getEngine().executeScript("window.scrollTo(0, " +
                 "((document.body.scrollHeight - document.body.clientHeight)" + "* " + y + "));");
     }
@@ -136,13 +147,23 @@ public class Markdown {
                 .replace("</strong>", "</b>");
     }
 
-    private String preFilter(String string){
+    private String preFilter(String string) {
         return string.replace(">", "`>`")
                 .replace("<", "`<`");
     }
 
-    public String getContents(){
+    public String getContents() {
         return (String) webView.getEngine().executeScript("document.documentElement.outerHTML");
+    }
+
+    public static DataHolder getOptions() {
+        return options;
+    }
+
+    public String getPDFReadyDocument() {
+        org.jsoup.nodes.Document document = Jsoup.parse(renderWithStyleSheet(ApplicationConstants.WEB_MARKDOWN_CSS));
+        document.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
+        return document.html();
     }
 
     /**
@@ -154,7 +175,7 @@ public class Markdown {
             webView.fireEvent(new SimpleScrollEvent(((float) (current) / max)));
         }
 
-        public void log(String s){
+        public void log(String s) {
             logger.info(s);
         }
     }

@@ -1,5 +1,6 @@
 package com.lukeonuke.lmark.gui;
 
+import com.lowagie.text.DocumentException;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMarkApplication;
 import com.lukeonuke.lmark.Registry;
@@ -22,8 +23,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -121,7 +124,7 @@ public class MainAppWindow implements AppWindow {
         saveFileAs.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Markdown", "*.md", "*.MD"));
-            /*fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));*/
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML", "*.html"));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Any", "*.*"));
 
@@ -130,16 +133,23 @@ public class MainAppWindow implements AppWindow {
                 if (file.getPath().toLowerCase().endsWith(".md")) {
                     fileUtils.saveFile(file, edit.getText());
                 }
-                /*if(file.getPath().toLowerCase().endsWith(".pdf")){
-                    try {
-                        FileOutputStream fos = new FileOutputStream(file);
-                        PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", BaseRendererBuilder.TextDirection.LTR);
-                        fileUtils.saveFile(file, edit.getText());
-                    } catch (FileNotFoundException e) {
+                if(file.getPath().toLowerCase().endsWith(".pdf")){
+                    try (FileOutputStream fos = new FileOutputStream(file)){
+                        /*PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", Markdown.getOptions());*/
+
+                        ITextRenderer iTextRenderer = new ITextRenderer();
+                        iTextRenderer.setDocumentFromString(markdown.getPDFReadyDocument(), fileUtils.getParentFile().getPath());
+
+                        iTextRenderer.layout();
+
+                        iTextRenderer.createPDF(fos);
+
+                        fos.flush();
+                    } catch (IOException | DocumentException e) {
                         e.printStackTrace();
                     }
 
-                }*/
+                }
                 if (file.getPath().toLowerCase().endsWith(".html")) {
                     fileUtils.saveFile(file, markdown.getContents());
                 }

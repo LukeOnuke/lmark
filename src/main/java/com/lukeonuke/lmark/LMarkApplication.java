@@ -25,7 +25,7 @@ public class LMarkApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("Virtual working directory " + FileUtils.getRelativeFile("").getPath());
+        logger.info("Virtual working directory " + FileUtils.getRelativeFile().getPath());
 
         if (!arguments.isEmpty()) {
             logger.info("Found arguments");

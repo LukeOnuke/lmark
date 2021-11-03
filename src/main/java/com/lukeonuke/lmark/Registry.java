@@ -1,33 +1,38 @@
 package com.lukeonuke.lmark;
 
 import com.lukeonuke.lmark.util.FileUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 public class Registry {
     Properties prop = new Properties();
     String fileName = FileUtils.getRelativeFile("app.properties").getPath();
     PropertyChangeSupport registryChangeSupport = new PropertyChangeSupport(this);
+    Logger logger = LoggerFactory.getLogger(Registry.class);
     private static Registry instance = null;
 
     private Registry() {
+        logger.info("Loading properties from {}", fileName);
         File file = new File(fileName);
         if(!file.exists()){
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error whilst initilising Registry", e.getCause());
             }
             reset();
             save();
         }
-
         refresh();
+        logger.info(this.toString());
     }
 
     public static Registry getInstance(){
@@ -76,5 +81,21 @@ public class Registry {
 
     public void registerRegistryChangeEvent(String propertyName, PropertyChangeListener propertyChangeEvent){
         registryChangeSupport.addPropertyChangeListener(propertyName, propertyChangeEvent);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder(Registry.class.getName());
+        sb.append(" ");
+        sb.append(registryChangeSupport);
+        sb.append(" Properties are");
+        prop.forEach((o, o2) -> {
+            sb.append(" , ");
+            sb.append(o);
+            sb.append(" : ");
+            sb.append(o2);
+        });
+        sb.append(".");
+        return sb.toString();
     }
 }

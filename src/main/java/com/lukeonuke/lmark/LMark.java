@@ -25,6 +25,8 @@ package com.lukeonuke.lmark;
 
 
 import com.lukeonuke.lmark.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
@@ -36,11 +38,16 @@ import java.io.FileNotFoundException;
  */
 public class LMark {
     public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(LMark.class);
+        logger.info("<banner soon>");
         //Load all mandatory subsystems
-        Registry.getInstance();
         registerToDesktop();
+        logger.info("Registered to desktop");
+        //Load registry
+        Registry.getInstance();
+        logger.info("Loaded registry");
         //Finished base boot.
-
+        logger.info("Finished loading all subsystems, starting gui");
         LMarkApplication.launchApp(args);
     }
 

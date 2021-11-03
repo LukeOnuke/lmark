@@ -27,6 +27,18 @@
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-all</artifactId>
             <version>0.62.2</version>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vladsch.flexmark</groupId>
+                    <artifactId>flexmark-pdf-converter</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>com.vladsch.flexmark</groupId>
+                    <artifactId>flexmark-html2md-converter</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -70,7 +82,50 @@
             <groupId>com.github.Dansoftowner</groupId>
             <artifactId>jSystemThemeDetector</artifactId>
             <version>3.6</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.xhtmlrenderer</groupId>
+                    <artifactId>flying-saucer-core</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>org.xhtmlrenderer</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.xhtmlrenderer/flying-saucer-pdf -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.1.22</version>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>org.xhtmlrenderer</groupId>
+                    <artifactId>flying-saucer-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+
+        <!-- https://mvnrepository.com/artifact/org.xhtmlrenderer/flying-saucer-core -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-core</artifactId>
+            <version>9.1.22</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.14.3</version>
+        </dependency>
+
 
     </dependencies>
     <build>
@@ -130,6 +185,16 @@
                                     <mainClass>com.lukeonuke.lmark.LMark</mainClass>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -137,3 +202,4 @@
         </plugins>
     </build>
 </project>
+

@@ -6,9 +6,7 @@
 Currently in mid stage development, see [Milestone 1](https://github.com/LukeOnuke/lmark/projects/1) for progress.
 
 # Screenshots
-|---|---|
-|light mode| dark mode |
-|![image](https://user-images.githubusercontent.com/57074484/137563890-125c4b0b-09f1-4534-b0d0-4514d232fdb3.png) |![image](https://user-images.githubusercontent.com/57074484/137563890-125c4b0b-09f1-4534-b0d0-4514d232fdb3.png) |
+comming soon
 
 # Contributions
 If you want to contribute to lmark, please do. Contributers are welcome.

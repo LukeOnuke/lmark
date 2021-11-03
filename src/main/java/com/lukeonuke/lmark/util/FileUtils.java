@@ -6,6 +6,8 @@ import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMark;
 import javafx.application.Platform;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -13,13 +15,18 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileUtils {
     private static FileUtils instance;
     private File file;
     private PropertyChangeSupport fileChangeSupport = new PropertyChangeSupport(this);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
 
     public static FileUtils getInstance(String path) throws FileNotFoundException {
@@ -107,20 +114,20 @@ public class FileUtils {
     public static <T> T readJSON(String file, Type type) throws IOException {
         FileReader fileReader = new FileReader(file);
         Gson gson = new Gson();
-        T memory =  gson.fromJson(fileReader, type);
+        T memory = gson.fromJson(fileReader, type);
         fileReader.close();
         return memory;
     }
 
-    public File getParentFile(){
+    public File getParentFile() {
         return file.getParentFile();
     }
 
-    public void registerFileListener(PropertyChangeListener propertyChangeListener){
+    public void registerFileListener(PropertyChangeListener propertyChangeListener) {
         fileChangeSupport.addPropertyChangeListener(propertyChangeListener);
     }
 
-    public static void addToRecents(File recentFile){
+    public static void addToRecents(File recentFile) {
         recentFile = recentFile.getAbsoluteFile();
         File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
         ArrayList<String> recent;
@@ -129,38 +136,78 @@ public class FileUtils {
                     new TypeToken<ArrayList<String>>() {
                     }.getType());
 
-            if(recent == null){
+            if (recent == null) {
                 recent = new ArrayList<>();
             }
 
-            if(recent.contains(recentFile.getAbsolutePath())){
+            if (recent.contains(recentFile.getAbsolutePath())) {
                 recent.remove(recentFile.getAbsolutePath());
                 recent.add(0, recentFile.getAbsolutePath());
             }
 
-            if(!recent.contains(recentFile.getAbsolutePath())){
+            if (!recent.contains(recentFile.getAbsolutePath())) {
                 recent.add(0, recentFile.getAbsolutePath());
             }
 
-            if(recent.size() >= 10){
+            if (recent.size() >= 10) {
                 recent.remove(10);
             }
 
             FileUtils.writeJSON(recent, recentFilesStorage);
-        }catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    public static File getRelativeFile(String path){
+    public static File getRelativeFile(String path) {
+        return new File(getRelativeFile().getPath() + File.separator + path);
+    }
+
+    public static File getRelativeFile() {
+        ArrayList<String> path = new ArrayList<>(Arrays.asList(LMark.class.getResource(ApplicationConstants.ICON).getPath().replace(File.separator, "/").split("[/]")));
+        path.remove(path.size() - 1);
+        path.remove(path.size() - 1);
+        StringBuilder sb = new StringBuilder();
+        path.forEach(s -> {
+            if(path.indexOf(s) != 0){
+                sb.append(File.separator);
+            }
+            sb.append(s);
+        });
+        if(!sb.toString().endsWith(File.separator)){
+            sb.append(File.separator);
+        }
+        logger.debug(new File(stripProtocol(sb.toString())).getPath());
         try {
-            return new File(new File(LMark.class.getResource("").getFile())
-                    .getParentFile().getParentFile().getParentFile().getParentFile().getCanonicalPath()
-                    + File.separator + path);
-        } catch (IOException e) {
+            return new File(stripProtocol(sb.toString()));
+        } catch (NullPointerException e) {
+            logger.error("Error while getting relative file", e.getCause());
+            e.printStackTrace();
             Platform.exit();
             System.exit(1);
-            return new File(path);
+            return new File(".");
         }
+    }
+
+    public static String stripProtocol(String url){
+        String[] urlArr = url.split(":");
+
+        //It already has no protocol
+        if(urlArr.length == 2){
+            return url;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < urlArr.length; i++) {
+            sb.append(urlArr[i]);
+            if(i != urlArr.length - 1){
+                sb.append(":");
+            }
+        }
+        url = sb.toString();
+        while(url.startsWith(File.separator)){
+            url = url.substring(1);
+        }
+        return url;
     }
 }
