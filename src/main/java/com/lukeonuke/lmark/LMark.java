@@ -39,7 +39,14 @@ import java.io.FileNotFoundException;
 public class LMark {
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(LMark.class);
-        logger.info("<banner soon>");
+        System.out.println("\n _                          _    \n" +
+                    "| |                        | |   \n" +
+                    "| |    _ __ ___   __ _ _ __| | __\n" +
+                    "| |   | '_ ` _ \\ / _` | '__| |/ /\n" +
+                    "| |___| | | | | | (_| | |  |   < \n" +
+                    "\\_____/_| |_| |_|\\__,_|_|  |_|\\_\\\n" +
+                    "                                 \n" +
+                    "Lmark - simple and os integrated markdown editor");
         //Load all mandatory subsystems
         registerToDesktop();
         logger.info("Registered to desktop");
