@@ -1,6 +1,7 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.util.FileUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
@@ -26,6 +27,7 @@ import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 import org.w3c.dom.html.HTMLImageElement;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Markdown {
@@ -114,14 +116,20 @@ public class Markdown {
     }
 
     private String renderWithStyleSheet(String css) {
+
         try {
-            return "<head>\r\n<style>body{padding: 10px;}\r\n" + FileUtils.getResourceAsString(css)
-                    + "</style>\r\n</head>\r\n<body class='markdown-body'>"
-                    + contents + "</body>";
+            css = FileUtils.getResourceAsString(css);
         } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                css = FileUtils.readSpecifiedFile(new File(css));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
-        return null;
+
+        return "<head>\r\n<style>body{padding: 10px;}\r\n" + css
+                + "</style>\r\n</head>\r\n<body class='markdown-body'>"
+                + contents + "</body>";
     }
 
     public void setMDContents(String contents) {

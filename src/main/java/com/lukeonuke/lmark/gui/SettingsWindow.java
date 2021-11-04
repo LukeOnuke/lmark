@@ -7,6 +7,7 @@ import com.lukeonuke.lmark.util.AnchorUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
 import com.lukeonuke.lmark.util.ThemeManager;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -72,7 +73,12 @@ public class SettingsWindow implements AppWindow{
         stage.setOnCloseRequest(windowEvent -> {
             stage.hide();
             save();
-            OSIntegration.beep();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Settings");
+            alert.setHeaderText("Your settings have been saved");
+            alert.setContentText(null);
+            alert.initOwner(stage.getScene().getWindow());
+            alert.showAndWait();
         });
 
         stage.show();

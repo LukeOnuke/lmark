@@ -294,3 +294,19 @@
 .check-box{
     -fx-text-fill: -text;
 }
+
+.dialog-pane {
+    -fx-background-color: -background;
+}
+
+.dialog-pane:header .header-panel {
+    -fx-background-color: -background-2;
+}
+
+.button:hover{
+    -fx-opacity: 0.85;
+}
+
+.button:pressed{
+    -fx-opacity: 0.70;
+}

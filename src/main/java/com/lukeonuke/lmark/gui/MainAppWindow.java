@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -141,6 +142,7 @@ public class MainAppWindow implements AppWindow {
                         iTextRenderer.setDocumentFromString(markdown.getPDFReadyDocument(), fileUtils.getParentFile().getPath());
 
                         iTextRenderer.layout();
+                        iTextRenderer.finishPDF();
 
                         iTextRenderer.createPDF(fos);
 
@@ -171,7 +173,13 @@ public class MainAppWindow implements AppWindow {
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.show();
         });
-        optionsMenu.getItems().add(cacheAndSettingsFolderOptions);
+
+        MenuItem openProgramFolder = new MenuItem("Open program folder");
+        openProgramFolder.setOnAction(actionEvent -> {
+            OSIntegration.openPathInExplorer(FileUtils.getRelativeFile());
+        });
+
+        optionsMenu.getItems().addAll(cacheAndSettingsFolderOptions, openProgramFolder);
 
         Menu debug = new Menu("Debug");
 
@@ -415,6 +423,9 @@ public class MainAppWindow implements AppWindow {
         if (textArea.getSelection().getStart() == 0 && textArea.getSelection().getEnd() == 0) return;
         boolean isFormatted = true;
         for (int i = 0; i < count; i++) {
+            repairSelect(textArea, character);
+        }
+        for (int i = 0; i < count; i++) {
             isFormatted = isFormatted && selectionIsFormattedWithChar(textArea, i, character);
         }
         if (isFormatted) {
@@ -430,11 +441,13 @@ public class MainAppWindow implements AppWindow {
 
     private void unformatSelection(TextArea textArea) {
         IndexRange selection = textArea.getSelection();
-        StringBuilder text = new StringBuilder(textArea.getText());
-        text.replace(selection.getStart() - 1, selection.getStart(), "");
-        text.replace(selection.getEnd() - 1, selection.getEnd(), "");
-        textArea.setText(text.toString());
+        StringBuilder text = new StringBuilder(textArea.getText(selection.getStart() - 1, selection.getEnd()));
+        double scroll = textArea.getScrollTop();
+        text.delete(0, 1);
+        text.delete(text.length() , text.length() + 1);
+        textArea.replaceText(selection.getStart() - 1, selection.getEnd() + 1, text.toString());
         textArea.selectRange(selection.getStart() - 1, selection.getEnd() - 1);
+        textArea.setScrollTop(scroll);
     }
 
     private boolean selectionIsFormattedWithChar(TextArea textArea, int offset, char character) {
@@ -444,10 +457,24 @@ public class MainAppWindow implements AppWindow {
 
     private void formatWithChar(TextArea textArea, char character) {
         IndexRange selection = textArea.getSelection();
-        StringBuilder text = new StringBuilder(textArea.getText());
-        text.insert(selection.getStart(), character);
-        text.insert(selection.getEnd() + 1, character);
-        textArea.setText(text.toString());
+        StringBuilder text = new StringBuilder(textArea.getSelectedText());
+        double scroll = textArea.getScrollTop();
+        text.append(character);
+        text.insert(0, character);
+        textArea.replaceText(selection, text.toString());
         textArea.selectRange(selection.getStart() + 1, selection.getEnd() + 1);
+        textArea.setScrollTop(scroll);
+    }
+
+    private void repairSelect(TextArea textArea, char character){
+        IndexRange selection = textArea.getSelection();
+
+        if(Objects.equals(textArea.getText(selection.getStart(), selection.getStart() + 1), String.valueOf(character))){
+            textArea.selectRange(selection.getStart() + 1, selection.getEnd());
+            selection = textArea.getSelection();
+        }
+        if(Objects.equals(textArea.getText(selection.getEnd() - 1, selection.getEnd()), String.valueOf(character))){
+            textArea.selectRange(selection.getStart(), selection.getEnd() - 1);
+        }
     }
 }
