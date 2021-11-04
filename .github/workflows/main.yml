@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    
+env:
+  VERSION: 1.0.1
 
 jobs:
   build-windows:
@@ -20,20 +23,13 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - name: Extract Maven project version
-      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-      id: project
-
-    - name: Show extracted Maven project version
-      run: echo ${{ steps.project.outputs.version }}
-      
     - run: mkdir staging && cp target/lmark.jar staging
     
     # JPACKAGE build and compile
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --type msi --name lmark --input jpackage-temp/ --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --win-shortcut --win-menu --file-associations jpackage-configuration/FAmarkdown.properties --version ${{ steps.project.outputs.version }}
+      run : jpackage --type msi --name lmark --input jpackage-temp/ --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --win-shortcut --win-menu --file-associations jpackage-configuration/FAmarkdown.properties --version ${{ env.VERSION }}
     
     - uses: actions/upload-artifact@v1
       with:
@@ -58,7 +54,7 @@ jobs:
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --linux-shortcut --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties
+      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --linux-shortcut --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --version ${{ env.VERSION }}
     
     - uses: actions/upload-artifact@v1
       with:
@@ -83,7 +79,7 @@ jobs:
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties
+      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --version ${{ env.VERSION }}
     
     - uses: actions/upload-artifact@v1
       with:
