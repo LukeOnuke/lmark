@@ -63,6 +63,10 @@ public class ThemeManager {
         markdowns.forEach(markdown -> Platform.runLater(markdown::refresh));
     }
 
+    public boolean isDark() {
+        return dark;
+    }
+
     public String getWebCSS(Markdown markdown){
         if(!markdowns.contains(markdown)) markdowns.add(markdown);
 

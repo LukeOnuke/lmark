@@ -98,7 +98,7 @@ public class StartWindow implements AppWindow {
 
                 FileUtils.addToRecents(file);
 
-                MainAppWindow mainAppWindow = new MainAppWindow(new Stage());
+                MainAppWindow mainAppWindow = new MainAppWindow(stage);
                 Platform.runLater(mainAppWindow::show);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -140,8 +140,6 @@ public class StartWindow implements AppWindow {
 
         stage.setWidth(maxListPrefWidth.get() + 400D);
         stage.centerOnScreen();
-
-
     }
 
     @Override

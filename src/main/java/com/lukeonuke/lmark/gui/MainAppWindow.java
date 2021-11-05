@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,6 +40,7 @@ public class MainAppWindow implements AppWindow {
     private FileUtils fileUtils;
     private Registry registry = Registry.getInstance();
     boolean autosaveEnabled = registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED);
+    boolean tampered = false;
 
     public MainAppWindow(Stage stage) {
         this.stage = stage;
@@ -80,12 +82,11 @@ public class MainAppWindow implements AppWindow {
         edit.wrapTextProperty().set(true);
 
         AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
+        edit.setText("");
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(edit.getText());
-
-            if (!autosaveEnabled) {
-                stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getName() + "*");
-            }
+            if (!s.equals("")) tampered = true;
+            updateTitle();
 
             if (isScrollListenerRegistered.get()) return;
             //Run when size is calculated
@@ -332,14 +333,34 @@ public class MainAppWindow implements AppWindow {
         updateTitle();
         stage.setScene(scene);
 
-        stage.setOnCloseRequest((event) -> {
-            logger.info("Closing");
 
-            stage.hide();
+
+        stage.setOnCloseRequest((event) -> {
+            logger.info("Close request");
 
             if (autosaveEnabled) {
                 save(edit.getText());
+            }else{
+                if(tampered){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setHeaderText("Are you sure you want to exit?");
+                    alert.setContentText("Changes arent saved");
+
+                    alert.initOwner(stage.getScene().getWindow());
+                    alert.setTitle(alert.getHeaderText());
+                    Optional<ButtonType> response = alert.showAndWait();
+                    if(response.isPresent()){
+                        if(response.get().equals(ButtonType.CANCEL)){
+                            logger.info("Didnt close, going back to ");
+                            event.consume();
+                            return;
+                        }
+                    }
+                }
             }
+            stage.hide();
+            Platform.exit();
+            System.exit(0);
         });
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -389,6 +410,8 @@ public class MainAppWindow implements AppWindow {
 
     private void save(String text) {
         fileUtils.saveFile(fileUtils.getFile(), text);
+        tampered = false;
+        updateTitle();
         logger.info("Saved hash = " + text.hashCode());
     }
 
@@ -396,6 +419,8 @@ public class MainAppWindow implements AppWindow {
         stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getPath());
         if (autosaveEnabled){
             stage.setTitle(stage.getTitle() + " | autosave enabled");
+        }else{
+            if(tampered) stage.setTitle(stage.getTitle() + "*");
         }
     }
 

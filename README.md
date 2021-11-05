@@ -16,7 +16,7 @@
  - Being able to choose the css on export to pdf or markdown
  - More tools in the toolbar 
 
-## Screenshots
+# Screenshots
 *ℹ Keep in mind there is more stuff than shown on the screenshots.*
 ### Dark mode
 ![dark mode open](https://raw.githubusercontent.com/LukeOnuke/lmark/main/images/dark-opened.png)
@@ -46,7 +46,7 @@ Preffered IDE is intelij IDEA but you could make it work on others
 2. **Navigate to project root**
 3. **Package with maven**
 	```
-	mvn compile
+	mvn package
 	```
 4. *(Optional)* **Compile to native application**
 	```

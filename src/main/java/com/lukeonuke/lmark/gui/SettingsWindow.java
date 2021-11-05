@@ -1,5 +1,6 @@
 package com.lukeonuke.lmark.gui;
 
+import com.jthemedetecor.OsThemeDetector;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.gui.elements.Title;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
 public class SettingsWindow implements AppWindow{
     private final ThemeManager themeManager = ThemeManager.getInstance();
     private final Registry registry = Registry.getInstance();
+    private final OsThemeDetector detector = OsThemeDetector.getDetector();
 
     private Stage stage;
 
@@ -37,6 +39,10 @@ public class SettingsWindow implements AppWindow{
         automaticDarkMode.setSelected(true);
         automaticDarkMode.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
             darkMode.setDisable(automaticDarkMode.isSelected());
+            if (automaticDarkMode.isSelected()) {
+                themeManager.setDark(detector.isDark());
+                darkMode.setSelected(themeManager.isDark());
+            }
         });
 
 
@@ -84,6 +90,7 @@ public class SettingsWindow implements AppWindow{
         stage.show();
 
         stage.toFront();
+        stage.setAlwaysOnTop(true);
     }
 
     @Override
