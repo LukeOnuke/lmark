@@ -11,4 +11,5 @@ public class ApplicationConstants {
     public static final String PROPERTIES_AUTOSAVE_ENABLED = "autosaveEnabled";
     public static final String PROPERTIES_DARK_MODE_ENABLED = "darkModeEnabled";
     public static final String PROPERTIES_AUTO_DARK_MODE = "autoDarkMode";
+    public static final String MARKDOWN_CACHE_PATH = "markdown-renderer-cache";
 }

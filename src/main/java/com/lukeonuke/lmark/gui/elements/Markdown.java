@@ -6,11 +6,17 @@ import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.util.FileUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
 import com.lukeonuke.lmark.util.ThemeManager;
+import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
+import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.profile.pegdown.Extensions;
 import com.vladsch.flexmark.profile.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.data.DataHolder;
+import com.vladsch.flexmark.util.data.MutableDataSet;
+import com.vladsch.flexmark.util.misc.Extension;
+import com.vladsch.flexmark.util.misc.Mutable;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -29,22 +35,26 @@ import org.w3c.dom.html.HTMLImageElement;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Markdown {
     private final Logger logger = LoggerFactory.getLogger(Markdown.class);
     private final WebView webView = new WebView();
     private JSBridge jsBridge;
-    private static HtmlRenderer renderer;
-    private static Parser parser;
+    private static final HtmlRenderer renderer;
+    private static final Parser parser;
     private double scrollY;
     private String contents;
-    private static DataHolder options;
+    private static MutableDataSet options = new MutableDataSet();
     final ThemeManager themeManager = ThemeManager.getInstance();
 
     static {
-        options = PegdownOptionsAdapter.flexmarkOptions(
-                Extensions.ALL
-        );
+        List<Extension> extensions = new ArrayList<>();
+        extensions.add(TablesExtension.create());
+        extensions.add(TaskListExtension.create());
+        extensions.add(AnchorLinkExtension.create());
+        options.set(Parser.EXTENSIONS, extensions);
         parser = Parser.builder(options).build();
         renderer = HtmlRenderer.builder(options).build();
     }
@@ -53,7 +63,7 @@ public class Markdown {
         webView.getStyleClass().add("markdown");
         webView.getEngine().getHistory().getEntries().clear();
         webView.contextMenuEnabledProperty().setValue(false);
-        webView.getEngine().setUserDataDirectory(FileUtils.getRelativeFile("webview-memory"));
+        webView.getEngine().setUserDataDirectory(FileUtils.getRelativeFile(ApplicationConstants.MARKDOWN_CACHE_PATH));
 
         webView.getEngine().setOnError(errorEvent -> {
             logger.error(errorEvent.getMessage());

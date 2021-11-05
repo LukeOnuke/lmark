@@ -111,6 +111,8 @@ public class MainAppWindow implements AppWindow {
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showOpenDialog(new Stage());
             if (file == null) return;
+            logger.info(file.getPath());
+            if (autosaveEnabled) save(edit.getText());
             fileUtils.setFile(file);
         });
         fileMenu.getItems().add(openFile);
@@ -222,7 +224,7 @@ public class MainAppWindow implements AppWindow {
 
         Menu view = new Menu("View");
 
-        MenuItem toggleRecent = new MenuItem("Toggle recent");
+        MenuItem toggleRecent = new MenuItem("Toggle arround files");
         toggleRecent.setOnAction(actionEvent -> {
             if (splitPane.getItems().contains(fileBrowserContainer)) {
                 splitPane.setPrefWidth(splitPane.getWidth());
@@ -296,23 +298,11 @@ public class MainAppWindow implements AppWindow {
          * ||   R E A D  F I L E     ||
          * ============================
          * */
-        Runnable readFile = () -> {
-            try {
-                editScrollPane.set(null);
-                String fileContents = fileUtils.readFile();
-                edit.textProperty().set(fileContents);
-
-                markdown.setMDContents(fileContents);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
         fileUtils.registerFileListener(fileChangeEvent -> {
-            logger.info("Reading " + fileChangeEvent.getNewValue());
-            readFile.run();
+            readFileAndSet(edit, markdown);
         });
         fileUtils.setFile(fileUtils.getFile());
-        readFile.run();
+        readFileAndSet(edit, markdown);
 
         //Add to splitpane
         splitPane.getItems().add(markdownContainer);
@@ -398,7 +388,6 @@ public class MainAppWindow implements AppWindow {
     }
 
     private void save(String text) {
-
         fileUtils.saveFile(fileUtils.getFile(), text);
         logger.info("Saved hash = " + text.hashCode());
     }
@@ -475,6 +464,19 @@ public class MainAppWindow implements AppWindow {
         }
         if(Objects.equals(textArea.getText(selection.getEnd() - 1, selection.getEnd()), String.valueOf(character))){
             textArea.selectRange(selection.getStart(), selection.getEnd() - 1);
+        }
+    }
+
+    private void readFileAndSet(TextArea edit, Markdown markdown){
+        logger.info("Reading " + fileUtils.getFile().getPath());
+        try {
+            updateTitle();
+            String fileContents = FileUtils.readSpecifiedFile(fileUtils.getFile());
+            edit.setText(fileContents);
+
+            markdown.setMDContents(fileContents);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

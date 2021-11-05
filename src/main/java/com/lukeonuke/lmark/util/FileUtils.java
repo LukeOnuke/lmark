@@ -205,8 +205,8 @@ public class FileUtils {
      * @param propertyChangeListener Change listener.
      * */
     public void registerFileListener(PropertyChangeListener propertyChangeListener) {
-        if (Arrays.asList(fileChangeSupport.getPropertyChangeListeners()).contains(propertyChangeListener))
-            fileChangeSupport.addPropertyChangeListener(propertyChangeListener);
+        if (!Arrays.asList(fileChangeSupport.getPropertyChangeListeners()).contains(propertyChangeListener))
+            fileChangeSupport.addPropertyChangeListener("file", propertyChangeListener);
     }
 
     /**
