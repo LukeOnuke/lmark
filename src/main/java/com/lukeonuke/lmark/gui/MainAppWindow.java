@@ -4,7 +4,8 @@ import com.lowagie.text.DocumentException;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMarkApplication;
 import com.lukeonuke.lmark.Registry;
-import com.lukeonuke.lmark.event.CustomEvent;
+import com.lukeonuke.lmark.event.LinkStartHoverEvent;
+import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
@@ -13,6 +14,13 @@ import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -25,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -59,7 +68,7 @@ public class MainAppWindow implements AppWindow {
         AnchorPane editContainer = new AnchorPane();
         TextArea edit = new TextArea();
         MenuBar menuBar = new MenuBar();
-        AnchorPane statusBar = new AnchorPane();
+        FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
         AtomicReference<ScrollPane> editScrollPane = new AtomicReference<>(null);
         AnchorPane fileBrowserContainer = new AnchorPane();
         FlowPane toolBar = new FlowPane();
@@ -69,10 +78,21 @@ public class MainAppWindow implements AppWindow {
         markdownContainer.setFitToHeight(true);
         markdownContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        markdown.getNode().addEventHandler(CustomEvent.CUSTOM_EVENT_TYPE, customEvent -> {
+        markdown.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
             if (editScrollPane.get() == null) return;
             if (!markdown.getNode().isHover()) return;
-            editScrollPane.get().setVvalue(((SimpleScrollEvent) customEvent).getScrollPercentage());
+            editScrollPane.get().setVvalue(lmarkEvent.getScrollPercentage());
+        });
+
+        Label hoveredLink = new Label();
+        markdown.getNode().addEventHandler(LinkStartHoverEvent.LINK_START_HOVER_EVENT_TYPE, linkStartHoverEvent -> {
+            String href = linkStartHoverEvent.getAnchorElement().getHref();
+            hoveredLink.setText(href);
+            statusBar.getChildren().add(hoveredLink);
+        });
+        markdown.getNode().addEventHandler(LinkStopHoverEvent.LINK_STOP_HOVER_EVENT_TYPE, linkStopHoverEvent -> {
+            hoveredLink.setText("");
+            statusBar.getChildren().remove(hoveredLink);
         });
 
         editContainer.getChildren().add(edit);
@@ -168,6 +188,25 @@ public class MainAppWindow implements AppWindow {
         });
         fileMenu.getItems().add(openFilePath);
 
+
+        Menu documentMenu = new Menu("Document");
+
+        MenuItem resizePreview = new MenuItem("Resize preview to pdf width");
+        resizePreview.setOnAction(actionEvent -> {
+            setWidthToA4(markdownContainer, splitPane);
+        });
+
+        MenuItem undo = new MenuItem("Undo (CTRL + Z)");
+        undo.setOnAction(actionEvent -> edit.undo());
+
+        MenuItem redo = new MenuItem("Redo (CTRL + Y)");
+        redo.setOnAction(actionEvent -> edit.redo());
+
+        documentMenu.getItems().addAll(undo, redo);
+
+        menuBar.getMenus().add(documentMenu);
+
+
         Menu optionsMenu = new Menu("Options");
         menuBar.getMenus().add(optionsMenu);
 
@@ -243,6 +282,8 @@ public class MainAppWindow implements AppWindow {
         fileLabel.setText(FileUtils.detectCharset(fileUtils.getFile()) + " | " + fileUtils.getFile().getName());
         AnchorUtils.anchor(fileLabel, 5D, -1D, 5D, -1D);
 
+
+        statusBar.getStyleClass().addAll("status-bar");
         statusBar.getChildren().addAll(fileLabel);
 
         FlowPane files = new FlowPane(Orientation.VERTICAL);
@@ -384,9 +425,20 @@ public class MainAppWindow implements AppWindow {
                 formatItalicize(edit, 3);
             }
 
-
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.O)) {
                 formatStrikethrough(edit);
+            }
+
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.E))  {
+                dotBulletFormat(edit);
+            }
+
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.R)) {
+                checkListBulletFormat(edit);
+            }
+
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.T)) {
+                titleFormat(edit);
             }
         });
 
@@ -497,11 +549,114 @@ public class MainAppWindow implements AppWindow {
         try {
             updateTitle();
             String fileContents = FileUtils.readSpecifiedFile(fileUtils.getFile());
-            edit.setText(fileContents);
 
+            if(!fileContents.contains(System.lineSeparator())){
+                fileContents = fileContents.replace("\n", System.lineSeparator());
+            }
+
+            edit.setText(fileContents);
             markdown.setMDContents(fileContents);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setWidthToA4(ScrollPane markdownContainer, SplitPane splitPane){
+        int index = splitPane.getItems().indexOf(markdownContainer);
+        logger.info("Index " + index);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        double width = toolkit.getScreenResolution() * 8.26D;
+
+        logger.info("[{}] Resolution is {}, width is {}",index ,toolkit.getScreenResolution(), width);
+
+        if(index == 0){
+            splitPane.setDividerPosition(0, width);
+        }else{
+            splitPane.setDividerPosition(index + 1, splitPane.getDividerPositions()[index] + width);
+        }
+    }
+
+    private int getBeginningOfLine(TextArea textArea){
+        int caretPos = textArea.getCaretPosition();
+        String text = textArea.getText(0, textArea.getCaretPosition());
+
+        if(!text.contains("\n")){
+            return 0;
+        }
+
+        int index = caretPos;
+        while(text.charAt(index - 1) != '\n'){
+            if (index < 1) return -1;
+            index--;
+        }
+        return index;
+    }
+
+    private int getEndOfLine(TextArea textArea){
+        return textArea.getText().indexOf('\n', getBeginningOfLine(textArea));
+    }
+
+    private void formatBullet(TextArea textArea, String bullet){
+        SelectionMemory selectionMemory = new SelectionMemory(textArea);
+        int index = getBeginningOfLine(textArea);
+        if(index == -1) return;
+        textArea.insertText(index, bullet);
+        selectionMemory.applyOffset(bullet.length());
+        selectionMemory.write(textArea);
+    }
+
+    private void removeBullet(TextArea textArea, String bullet){
+        SelectionMemory selectionMemory = new SelectionMemory(textArea);
+        int index = textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).indexOf(bullet);
+        index += getBeginningOfLine(textArea);
+        textArea.deleteText(index, index + bullet.length());
+        selectionMemory.applyOffset(-1 * bullet.length());
+        selectionMemory.write(textArea);
+    }
+
+    private void replaceBullet(TextArea textArea, String bulletToReplace, String replacementBullet){
+        removeBullet(textArea, bulletToReplace);
+        formatBullet(textArea, replacementBullet);
+    }
+
+    private boolean isFormattedBullet(TextArea textArea, String bullet){
+        return textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).trim().startsWith(bullet);
+    }
+
+    private void dotBulletFormat(TextArea textArea){
+        final String bullet = "- ";
+        if(isFormattedBullet(textArea, bullet)){
+            removeBullet(textArea, bullet);
+        }else{
+            formatBullet(textArea, bullet);
+        }
+    }
+
+    private void checkListBulletFormat(TextArea textArea){
+        final String checked = "- [x]";
+        final String unchecked = "- [ ]";
+
+        if(isFormattedBullet(textArea, unchecked)){
+            replaceBullet(textArea, unchecked, checked);
+        } else if(isFormattedBullet(textArea, checked)){
+            removeBullet(textArea, checked);
+        }else{
+            formatBullet(textArea, unchecked);
+        }
+    }
+
+    private void titleFormat(TextArea textArea){
+        final String title = "# ";
+        final String title2 = "## ";
+        final String title3 = "### ";
+        if(isFormattedBullet(textArea, title)){
+            replaceBullet(textArea, title, title2);
+        } else if(isFormattedBullet(textArea, title2)){
+            replaceBullet(textArea, title2, title3);
+        } else if (isFormattedBullet(textArea, title3)){
+            removeBullet(textArea, title3);
+        } else {
+            formatBullet(textArea, title);
         }
     }
 }

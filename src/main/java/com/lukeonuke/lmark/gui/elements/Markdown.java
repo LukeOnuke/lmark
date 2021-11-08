@@ -1,7 +1,8 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.ApplicationConstants;
-import com.lukeonuke.lmark.LMark;
+import com.lukeonuke.lmark.event.LinkStartHoverEvent;
+import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.util.FileUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
@@ -11,17 +12,13 @@ import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.profile.pegdown.Extensions;
-import com.vladsch.flexmark.profile.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
-import com.vladsch.flexmark.util.misc.Mutable;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.jsoup.Jsoup;
-import org.jsoup.helper.W3CDom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -31,7 +28,6 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
-import org.w3c.dom.html.HTMLImageElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,15 +92,29 @@ public class Markdown {
 
                 //Clickable links
                 NodeList nodeList = document.getElementsByTagName("a");
+                Node node;
+                EventTarget eventTarget;
                 for (int i = 0; i < nodeList.getLength(); i++) {
-                    Node node = nodeList.item(i);
-                    EventTarget eventTarget = (EventTarget) node;
+                    node = nodeList.item(i);
+                    eventTarget = (EventTarget) node;
+
+                    eventTarget.addEventListener("mouseenter", evt -> {
+                        webView.fireEvent(new LinkStartHoverEvent((HTMLAnchorElement) evt.getCurrentTarget()));
+                    }, false);
+                    eventTarget.addEventListener("mouseleave", evt -> {
+                        webView.fireEvent(new LinkStopHoverEvent((HTMLAnchorElement) evt.getCurrentTarget()));
+                    }, false);
                     eventTarget.addEventListener("click", new EventListener() {
                         @Override
                         public void handleEvent(Event evt) {
                             HTMLAnchorElement anchorElement = (HTMLAnchorElement) evt.getCurrentTarget();
                             String href = anchorElement.getHref();
-                            if (href.startsWith("#")) return;
+                            if (href.startsWith("#")) {
+                                webView.getEngine()
+                                        .executeScript("var ele = document.getElementById(`" +href.replace("#", "")+"`);" +
+                                                "if(ele != null){ele.scrollIntoView(true);}");
+                                return;
+                            }
                             //handle opening URL outside JavaFX WebView
                             OSIntegration.openWebpage(anchorElement.getHref());
 
@@ -126,6 +136,10 @@ public class Markdown {
     }
 
     private String renderWithStyleSheet(String css) {
+        return renderWithStyleSheet(css, "");
+    }
+
+    private String renderWithStyleSheet(String css, String additions) {
 
         try {
             css = FileUtils.getResourceAsString(css);
@@ -136,6 +150,8 @@ public class Markdown {
                 ex.printStackTrace();
             }
         }
+
+        css += additions;
 
         return "<head>\r\n<style>body{padding: 10px;}\r\n" + css
                 + "</style>\r\n</head>\r\n<body class='markdown-body'>"
@@ -179,7 +195,8 @@ public class Markdown {
     }
 
     public String getPDFReadyDocument() {
-        org.jsoup.nodes.Document document = Jsoup.parse(renderWithStyleSheet(ApplicationConstants.WEB_MARKDOWN_CSS));
+        org.jsoup.nodes.Document document = Jsoup.parse(renderWithStyleSheet(ApplicationConstants.WEB_MARKDOWN_CSS,
+                "@page{size: A4 portrait;} img{max-width: 90vw;}"));
         document.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
         return document.html();
     }

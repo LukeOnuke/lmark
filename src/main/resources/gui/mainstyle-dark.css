@@ -310,3 +310,7 @@
 .button:pressed{
     -fx-opacity: 0.70;
 }
+
+.status-bar > .label{
+    -fx-padding: 2px 0px 2px 6px;
+}

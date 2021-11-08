@@ -9,7 +9,8 @@
  - Multiplatform support *(windows, linux, macos)*
  - Word like writing expirience
  - Open source and free
- - Desktop built application, made with enterprise technologies like java**fx**.
+ - Desktop built application, made with enterprise technologies.
+ - Supports all scripts (chirilic, latin, Arabic, Japanese).
 
 ### Planned stuff
  - Tabs
