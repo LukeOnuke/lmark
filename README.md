@@ -4,18 +4,18 @@
 ***Basicly a markdown notepad with extra open sauce!*** Or in academic wording an that allows you to easly open, edit and export md files.
 
 ### Main features include
- - Export markdown to ***pdf*** and ***html***!
- - System synchronisable dark / light mode swich
- - Multiplatform support *(windows, linux, macos)*
- - Word like writing expirience
- - Open source and free
- - Desktop built application, made with enterprise technologies.
- - Supports all scripts (chirilic, latin, Arabic, Japanese).
+- Export markdown to ***pdf*** and ***html***!
+- System synchronisable dark / light mode swich
+- Multiplatform support *(windows, linux, macos)*
+- Word like writing expirience
+- Open source and free
+- Desktop built application, made with enterprise technologies.
+- Supports all scripts (chirilic, latin, Arabic, Japanese).
 
 ### Planned stuff
- - Tabs
- - Being able to choose the css on export to pdf or markdown
- - More tools in the toolbar 
+- Tabs
+-  Being able to choose the css on export to pdf or markdown
+- More tools in the toolbar 
 
 # Screenshots
 *ℹ Keep in mind there is more stuff than shown on the screenshots.*
@@ -57,7 +57,9 @@ Preffered IDE is intelij IDEA but you could make it work on others
 	--verbose --dest jpkg
 	```
 
-# Licence
+# Licence & legal
+This program uses [fonts awsome 6](https://fontawesome.com/)
+
 This program is under the mit licence.
 
 ```txt

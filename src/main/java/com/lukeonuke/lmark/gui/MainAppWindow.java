@@ -310,27 +310,46 @@ public class MainAppWindow implements AppWindow {
         fileBrowserContainer.getChildren().addAll(filesContainer);
 
 
-        Button boldButton = new Button("B");
+        Button boldButton = new Button("\uf032");
+        boldButton.setFont(ApplicationConstants.FONTS_AWESOME);
         boldButton.getStyleClass().addAll("bold");
         boldButton.setTooltip(new Tooltip("CONTROL + B"));
         boldButton.setOnAction(actionEvent -> formatItalicize(edit, 2));
 
-        Button italicButton = new Button("I");
+        Button italicButton = new Button("\uf033");
+        italicButton.setFont(ApplicationConstants.FONTS_AWESOME);
         italicButton.getStyleClass().addAll("italic");
         italicButton.setTooltip(new Tooltip("CONTROL + I"));
         italicButton.setOnAction(actionEvent -> formatItalicize(edit, 1));
 
-        Button boldItalicButton = new Button("BI");
+        Button boldItalicButton = new Button("\uf032\uf033");
+        boldItalicButton.setFont(ApplicationConstants.FONTS_AWESOME);
         boldItalicButton.getStyleClass().addAll("bold", "italic");
         boldItalicButton.setTooltip(new Tooltip("CONTROL + J"));
         boldItalicButton.setOnAction(actionEvent -> formatItalicize(edit, 3));
 
-        Button strikethroughButton = new Button("S");
+        Button strikethroughButton = new Button("\uf0cc");
+        strikethroughButton.setFont(ApplicationConstants.FONTS_AWESOME);
         strikethroughButton.getStyleClass().add("strikethrough");
         strikethroughButton.setTooltip(new Tooltip("CONTROL + O"));
         strikethroughButton.setOnAction(actionEvent -> formatStrikethrough(edit));
 
-        toolBar.getChildren().addAll(boldButton, italicButton, boldItalicButton, strikethroughButton);
+        Button checkBoxButton = new Button("\uF14A");
+        checkBoxButton.setFont(ApplicationConstants.FONTS_AWESOME);
+        checkBoxButton.setTooltip(new Tooltip("CONTROL + R"));
+        checkBoxButton.setOnAction(actionEvent -> checkListBulletFormat(edit));
+
+        Button bulletButton = new Button("\uF111");
+        bulletButton.setFont(ApplicationConstants.FONTS_AWESOME);
+        bulletButton.setTooltip(new Tooltip("CONTROL + E"));
+        bulletButton.setOnAction(actionEvent -> dotBulletFormat(edit));
+
+        Button headingButton = new Button("\uf1dc");
+        headingButton.setFont(ApplicationConstants.FONTS_AWESOME);
+        headingButton.setTooltip(new Tooltip("CONTROL + T"));
+        headingButton.setOnAction(actionEvent -> titleFormat(edit));
+
+        toolBar.getChildren().addAll(boldButton, italicButton, boldItalicButton, strikethroughButton, bulletButton, checkBoxButton, headingButton);
         toolBar.setMaxHeight(25D);
         toolBar.getStyleClass().addAll("tool-bar", "bg-1", "bottom-border");
         toolBar.setHgap(15D);

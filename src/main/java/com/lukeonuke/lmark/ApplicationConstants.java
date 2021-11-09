@@ -1,5 +1,7 @@
 package com.lukeonuke.lmark;
 
+import javafx.scene.text.Font;
+
 public class ApplicationConstants {
     public static final String APPLICATION_CSS = "/gui/mainstyle-light.css";
     public static final String APPLICATION_DARK_CSS = "/gui/mainstyle-dark.css";
@@ -12,4 +14,5 @@ public class ApplicationConstants {
     public static final String PROPERTIES_DARK_MODE_ENABLED = "darkModeEnabled";
     public static final String PROPERTIES_AUTO_DARK_MODE = "autoDarkMode";
     public static final String MARKDOWN_CACHE_PATH = "markdown-renderer-cache";
+    public static final Font FONTS_AWESOME = Font.loadFont(LMark.class.getResourceAsStream("/gui/fa-6-solid.otf"), 12);
 }
