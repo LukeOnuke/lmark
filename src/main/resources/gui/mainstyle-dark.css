@@ -314,3 +314,21 @@
 .status-bar > .label{
     -fx-padding: 2px 0px 2px 6px;
 }
+
+.progress-bar {
+    -fx-accent: derive(-wintergreen, 50%);
+}
+
+.progress-bar .bar {
+    -fx-padding: 0px;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+.progress-bar > .track {
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-text-box-border: transparent;
+    -fx-control-inner-background: transparent;
+    -fx-background-color: -background;
+}

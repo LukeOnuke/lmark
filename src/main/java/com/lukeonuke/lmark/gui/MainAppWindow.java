@@ -12,6 +12,8 @@ import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
 import com.lukeonuke.lmark.util.*;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -35,13 +38,8 @@ import org.apache.pdfbox.printing.PDFPageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.print.DocFlavor;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.attribute.AttributeSet;
-import javax.print.attribute.HashAttributeSet;
-import javax.print.attribute.standard.PrinterName;
 import java.awt.*;
+import java.awt.print.PrinterAbortException;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
@@ -49,8 +47,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,6 +60,7 @@ public class MainAppWindow implements AppWindow {
     private FileUtils fileUtils;
     private Registry registry = Registry.getInstance();
     boolean autosaveEnabled = registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED);
+    private static final SimpleBooleanProperty isWorking = new SimpleBooleanProperty(false);
     boolean tampered = false;
 
     public MainAppWindow(Stage stage) {
@@ -82,6 +81,8 @@ public class MainAppWindow implements AppWindow {
         TextArea edit = new TextArea();
         MenuBar menuBar = new MenuBar();
         FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
+        ProgressBar statusProgress = new ProgressBar();
+        StackPane statusBarContainer = new StackPane(statusProgress, statusBar);
         AtomicReference<ScrollPane> editScrollPane = new AtomicReference<>(null);
         AnchorPane fileBrowserContainer = new AnchorPane();
         FlowPane toolBar = new FlowPane();
@@ -101,7 +102,7 @@ public class MainAppWindow implements AppWindow {
         markdown.getNode().addEventHandler(LinkStartHoverEvent.LINK_START_HOVER_EVENT_TYPE, linkStartHoverEvent -> {
             String href = linkStartHoverEvent.getAnchorElement().getHref();
             hoveredLink.setText(href);
-            statusBar.getChildren().add(hoveredLink);
+            if (!statusBar.getChildren().contains(hoveredLink)) statusBar.getChildren().add(hoveredLink);
         });
         markdown.getNode().addEventHandler(LinkStopHoverEvent.LINK_STOP_HOVER_EVENT_TYPE, linkStopHoverEvent -> {
             hoveredLink.setText("");
@@ -151,10 +152,22 @@ public class MainAppWindow implements AppWindow {
         });
         fileMenu.getItems().add(openFile);
 
+        final Menu openRecent = new Menu("Open recent");
+        fileMenu.getItems().add(openRecent);
+        try {
+            ArrayList<String> recentsList = fileUtils.getRecentFiles();
+
+            recentsList.forEach(s -> {
+                MenuItem menuItem = new MenuItem(s);
+                menuItem.setOnAction(actionEvent -> fileUtils.setFile(new File(s)));
+                openRecent.getItems().add(menuItem);
+            });
+        } catch (IOException ioex) {
+            fileMenu.getItems().remove(openRecent);
+        }
+
         MenuItem saveFile = new MenuItem("Save");
-        saveFile.setOnAction(actionEvent -> {
-            fileUtils.saveFile(fileUtils.getFile(), edit.getText());
-        });
+        saveFile.setOnAction(actionEvent -> fileUtils.saveFile(fileUtils.getFile(), edit.getText()));
         fileMenu.getItems().add(saveFile);
 
         MenuItem saveFileAs = new MenuItem("Save As");
@@ -278,15 +291,36 @@ public class MainAppWindow implements AppWindow {
 
         menuBar.getMenus().add(view);
 
+        //Status bar
         statusBar.setPrefHeight(25D);
+        statusBar.getStyleClass().addAll("status-bar");
         Label fileLabel = new Label();
         fileLabel.setText(FileUtils.detectCharset(fileUtils.getFile()) + " | " + fileUtils.getFile().getName());
         AnchorUtils.anchor(fileLabel, 5D, -1D, 5D, -1D);
 
-
-        statusBar.getStyleClass().addAll("status-bar");
         statusBar.getChildren().addAll(fileLabel);
 
+        statusProgress.setOpaqueInsets(new Insets(0));
+        statusProgress.setProgress(0);
+        statusProgress.setMaxHeight(Double.MAX_VALUE);
+        statusProgress.setMaxWidth(Double.MAX_VALUE);
+        isWorking.addListener(observable -> FxUtils.lazyRunOnPlatform(() -> {
+            if (isWorking.get()) {
+                statusProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+            } else {
+                statusProgress.setProgress(0);
+            }
+        }));
+        statusBarContainer.prefWidthProperty().bind(statusProgress.minWidthProperty());
+        statusBarContainer.prefHeightProperty().bind(statusProgress.minHeightProperty());
+
+        StackPane.setMargin(statusBar, new Insets(0D));
+        StackPane.setMargin(statusProgress, new Insets(0D));
+
+        AnchorUtils.anchorAllSides(statusBar, 0D);
+        AnchorUtils.anchorAllSides(statusProgress, 0D);
+
+        //Arround files
         FlowPane files = new FlowPane(Orientation.VERTICAL);
         files.getStyleClass().add("bg-2");
         ScrollPane filesContainer = new ScrollPane(files);
@@ -310,47 +344,44 @@ public class MainAppWindow implements AppWindow {
         AnchorUtils.anchorAllSides(filesContainer, 0D);
         fileBrowserContainer.getChildren().addAll(filesContainer);
 
+        Button saveButton = FxUtils.createToolBarButton("\uF0C7", "CONTROL + S",
+                actionEvent -> save(edit.getText()));
 
-        Button boldButton = new Button("\uf032");
-        boldButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        boldButton.getStyleClass().addAll("bold");
-        boldButton.setTooltip(new Tooltip("CONTROL + B"));
-        boldButton.setOnAction(actionEvent -> formatItalicize(edit, 2));
+        Button printButton = FxUtils.createToolBarButton("\uF02F", "CONTROL + P",
+                actionEvent -> print(markdown));
 
-        Button italicButton = new Button("\uf033");
-        italicButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        italicButton.getStyleClass().addAll("italic");
-        italicButton.setTooltip(new Tooltip("CONTROL + I"));
-        italicButton.setOnAction(actionEvent -> formatItalicize(edit, 1));
+        Button boldButton = FxUtils.createToolBarButton("\uf032", "CONTROL + B",
+                actionEvent -> formatItalicize(edit, 2));
 
-        Button boldItalicButton = new Button("\uf032\uf033");
-        boldItalicButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        boldItalicButton.getStyleClass().addAll("bold", "italic");
-        boldItalicButton.setTooltip(new Tooltip("CONTROL + J"));
-        boldItalicButton.setOnAction(actionEvent -> formatItalicize(edit, 3));
+        Button italicButton = FxUtils.createToolBarButton("\uf033", "CONTROL + I",
+                actionEvent -> formatItalicize(edit, 1));
 
-        Button strikethroughButton = new Button("\uf0cc");
-        strikethroughButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        strikethroughButton.getStyleClass().add("strikethrough");
-        strikethroughButton.setTooltip(new Tooltip("CONTROL + O"));
-        strikethroughButton.setOnAction(actionEvent -> formatStrikethrough(edit));
+        Button boldItalicButton = FxUtils.createToolBarButton("\uf032\uf033", "CONTROL + J",
+                actionEvent -> formatItalicize(edit, 3));
 
-        Button checkBoxButton = new Button("\uF14A");
-        checkBoxButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        checkBoxButton.setTooltip(new Tooltip("CONTROL + R"));
-        checkBoxButton.setOnAction(actionEvent -> checkListBulletFormat(edit));
+        Button strikethroughButton = FxUtils.createToolBarButton("\uf0cc", "CONTROL + O",
+                actionEvent -> formatStrikethrough(edit));
 
-        Button bulletButton = new Button("\uF111");
-        bulletButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        bulletButton.setTooltip(new Tooltip("CONTROL + E"));
-        bulletButton.setOnAction(actionEvent -> dotBulletFormat(edit));
+        Button checkBoxButton = FxUtils.createToolBarButton("\uF14A", "CONTROL + R",
+                actionEvent -> checkListBulletFormat(edit));
 
-        Button headingButton = new Button("\uf1dc");
-        headingButton.setFont(ApplicationConstants.FONTS_AWESOME);
-        headingButton.setTooltip(new Tooltip("CONTROL + T"));
-        headingButton.setOnAction(actionEvent -> titleFormat(edit));
+        Button bulletButton = FxUtils.createToolBarButton("\uF111", "CONTROL + E",
+                actionEvent -> dotBulletFormat(edit));
 
-        toolBar.getChildren().addAll(boldButton, italicButton, boldItalicButton, strikethroughButton, bulletButton, checkBoxButton, headingButton);
+        Button headingButton = FxUtils.createToolBarButton("\uf1dc", "CONTROL + T",
+                actionEvent -> titleFormat(edit));
+
+        toolBar.getChildren()
+                .addAll(
+                        saveButton,
+                        printButton,
+                        boldButton,
+                        italicButton,
+                        boldItalicButton,
+                        strikethroughButton,
+                        bulletButton,
+                        checkBoxButton,
+                        headingButton);
         toolBar.setMaxHeight(25D);
         toolBar.getStyleClass().addAll("tool-bar", "bg-1", "bottom-border");
         toolBar.setHgap(15D);
@@ -362,6 +393,8 @@ public class MainAppWindow implements AppWindow {
          * */
         fileUtils.registerFileListener(fileChangeEvent -> {
             readFileAndSet(edit, markdown);
+            hoveredLink.setText("");
+            statusBar.getChildren().remove(hoveredLink);
         });
         fileUtils.setFile(fileUtils.getFile());
         readFileAndSet(edit, markdown);
@@ -372,7 +405,7 @@ public class MainAppWindow implements AppWindow {
         //Add to root
         root.getChildren().add(splitPane);
         root.getChildren().add(menuBar);
-        root.getChildren().add(statusBar);
+        root.getChildren().add(statusBarContainer);
         root.getChildren().add(toolBar);
 
         AnchorUtils.anchorAllSides(markdown.getNode(), 0D);
@@ -380,7 +413,7 @@ public class MainAppWindow implements AppWindow {
         AnchorUtils.anchorAllSides(edit, 0D);
         AnchorUtils.anchor(splitPane, 60D, 25D, 0D, 0D);
         AnchorUtils.anchor(menuBar, 0D, -1D, 0D, 0D);
-        AnchorUtils.anchor(statusBar, -1D, 0D, 0D, 0D);
+        AnchorUtils.anchor(statusBarContainer, -1D, 0D, 0D, 0D);
         AnchorUtils.anchor(toolBar, 25D, -1D, 0D, 0D);
 
         //Init window
@@ -479,11 +512,29 @@ public class MainAppWindow implements AppWindow {
         return "Main window";
     }
 
+    static volatile int workAmount = 0;
+
+    private synchronized static void setIsWorking(boolean bool) {
+        if (!bool) {
+            workAmount--;
+            if (workAmount <= 0) {
+                isWorking.set(false);
+            }
+        }
+
+        if (bool) {
+            workAmount++;
+            isWorking.set(true);
+        }
+    }
+
     private void save(String text) {
+        setIsWorking(true);
         fileUtils.saveFile(fileUtils.getFile(), text);
         tampered = false;
         updateTitle();
         logger.info("Saved hash = " + text.hashCode());
+        setIsWorking(false);
     }
 
     private void updateTitle() {
@@ -514,24 +565,21 @@ public class MainAppWindow implements AppWindow {
             isFormatted = isFormatted && selectionIsFormattedWithChar(textArea, i, character);
         }
         if (isFormatted) {
-            for (int i = 0; i < count; i++) {
-                unformatSelection(textArea);
-            }
+            unformatSelection(textArea, count - 1);
         } else {
-            for (int i = 0; i < count; i++) {
-                formatWithChar(textArea, character);
-            }
+            formatWithChar(textArea, character, count - 1);
         }
     }
 
-    private void unformatSelection(TextArea textArea) {
+    private void unformatSelection(TextArea textArea, int offset) {
         IndexRange selection = textArea.getSelection();
-        StringBuilder text = new StringBuilder(textArea.getText(selection.getStart() - 1, selection.getEnd()));
+        StringBuilder text = new StringBuilder(
+                textArea.getText(selection.getStart() - 1 - offset, selection.getEnd() + offset));
         double scroll = textArea.getScrollTop();
-        text.delete(0, 1);
-        text.delete(text.length(), text.length() + 1);
-        textArea.replaceText(selection.getStart() - 1, selection.getEnd() + 1, text.toString());
-        textArea.selectRange(selection.getStart() - 1, selection.getEnd() - 1);
+        text.delete(0, 1 + offset);
+        text.delete(text.length() - offset, text.length() + 1);
+        textArea.replaceText(selection.getStart() - 1 - offset, selection.getEnd() + 1 + offset, text.toString());
+        textArea.selectRange(selection.getStart() - 1 - offset, selection.getEnd() - 1 - offset);
         textArea.setScrollTop(scroll);
     }
 
@@ -540,14 +588,16 @@ public class MainAppWindow implements AppWindow {
         return textArea.getText().charAt(selection.getStart() - 1 - offset) == character && textArea.getText().charAt(selection.getEnd() + offset) == character;
     }
 
-    private void formatWithChar(TextArea textArea, char character) {
+    private void formatWithChar(TextArea textArea, char character, int count) {
         IndexRange selection = textArea.getSelection();
         StringBuilder text = new StringBuilder(textArea.getSelectedText());
         double scroll = textArea.getScrollTop();
-        text.append(character);
-        text.insert(0, character);
+
+        String repeatedCharacter = String.valueOf(character).repeat(count + 1);
+        text.append(repeatedCharacter);
+        text.insert(0, repeatedCharacter);
         textArea.replaceText(selection, text.toString());
-        textArea.selectRange(selection.getStart() + 1, selection.getEnd() + 1);
+        textArea.selectRange(selection.getStart() + 1 + count, selection.getEnd() + 1 + count);
         textArea.setScrollTop(scroll);
     }
 
@@ -612,7 +662,9 @@ public class MainAppWindow implements AppWindow {
     }
 
     private int getEndOfLine(TextArea textArea) {
-        return textArea.getText().indexOf('\n', getBeginningOfLine(textArea));
+        String text = textArea.getText();
+        if (!text.contains("\n")) return text.length();
+        return text.indexOf('\n', getBeginningOfLine(textArea));
     }
 
     private void formatBullet(TextArea textArea, String bullet) {
@@ -634,8 +686,13 @@ public class MainAppWindow implements AppWindow {
     }
 
     private void replaceBullet(TextArea textArea, String bulletToReplace, String replacementBullet) {
-        removeBullet(textArea, bulletToReplace);
-        formatBullet(textArea, replacementBullet);
+        SelectionMemory selectionMemory = new SelectionMemory(textArea);
+        int beginningOfLine = getBeginningOfLine(textArea);
+        int endOfLine = getEndOfLine(textArea);
+        textArea.replaceText(beginningOfLine, endOfLine,
+                textArea.getText(beginningOfLine, endOfLine).replace(bulletToReplace, replacementBullet));
+        selectionMemory.applyOffset(replacementBullet.length() - bulletToReplace.length());
+        selectionMemory.write(textArea);
     }
 
     private boolean isFormattedBullet(TextArea textArea, String bullet) {
@@ -680,6 +737,7 @@ public class MainAppWindow implements AppWindow {
     }
 
     private void writePDFToFile(Markdown markdown, File file) {
+        setIsWorking(true);
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -706,24 +764,35 @@ public class MainAppWindow implements AppWindow {
             alert.initOwner(stage);
             alert.show();
         }
+        setIsWorking(false);
     }
 
     private void print(Markdown markdown) {
         Thread t = new Thread(() -> {
+            setIsWorking(true);
             Instant instant = Instant.now();
             File tmp = FileUtils.getRelativeFile(ApplicationConstants.TMP + instant.toEpochMilli() + ".pdf");
 
             writePDFToFile(markdown, tmp);
-            try{
+            try {
                 PDDocument document = PDDocument.load(tmp);
 
                 PrinterJob job = PrinterJob.getPrinterJob();
                 job.setPageable(new PDFPageable(document));
-                job.printDialog();
-                job.print();
-            }catch (IOException | PrinterException ex){
-                ex.printStackTrace();
+                if (job.printDialog()) {
+                    job.print();
+                }
+            } catch (PrinterAbortException printerAbortException) {
+                FxUtils.createAlert(Alert.AlertType.ERROR, "Printing error",
+                                "The print-job was unexpectedly aborted", printerAbortException.getMessage(), stage)
+                        .show();
+            } catch (IOException | PrinterException ex) {
+                FxUtils.createAlert(Alert.AlertType.ERROR, "General printing error",
+                                "A error occurred whilst sending the document to the printer",
+                                ex.getMessage(), stage)
+                        .show();
             }
+            setIsWorking(false);
         }, "print-worker");
         t.start();
     }

@@ -8,6 +8,7 @@ import com.lukeonuke.lmark.util.FileUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
 import com.lukeonuke.lmark.util.ThemeManager;
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -50,6 +51,7 @@ public class Markdown {
         extensions.add(TablesExtension.create());
         extensions.add(TaskListExtension.create());
         extensions.add(AnchorLinkExtension.create());
+        extensions.add(StrikethroughExtension.create());
         options.set(Parser.EXTENSIONS, extensions);
         parser = Parser.builder(options).build();
         renderer = HtmlRenderer.builder(options).build();
@@ -80,7 +82,6 @@ public class Markdown {
                 Document document = webView.getEngine().getDocument();
 
                 //Js bridge
-                JSObject win = (JSObject) document;
                 jsBridge = new JSBridge(); //Bit stupid making a variable but sometimes the jvm just dies without it
                 ((JSObject) webView.getEngine().executeScript("window")).setMember("mdedit", jsBridge);
 
@@ -111,7 +112,7 @@ public class Markdown {
                             String href = anchorElement.getHref();
                             if (href.startsWith("#")) {
                                 webView.getEngine()
-                                        .executeScript("var ele = document.getElementById(`" +href.replace("#", "")+"`);" +
+                                        .executeScript("var ele = document.getElementById(`" + href.replace("#", "") + "`);" +
                                                 "if(ele != null){ele.scrollIntoView(true);}");
                                 return;
                             }

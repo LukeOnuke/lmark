@@ -6,14 +6,18 @@ import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Title;
 import com.lukeonuke.lmark.util.AnchorUtils;
 import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.FxUtils;
 import com.lukeonuke.lmark.util.ThemeManager;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,11 +116,39 @@ public class StartWindow implements AppWindow {
         recentTitle.getStyleClass().addAll("h2", "pd-l");
         Label recentDescription = new Label("Recent files appear below");
         recentDescription.getStyleClass().addAll("pd-l", "bottom-border", "pd-d");
-        recentFilesContainer.getChildren().addAll(recentTitle, recentDescription, recentFiles);
+        Button openButton = FxUtils.createToolBarButton("+", "New file", actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showOpenDialog(new Stage());
+            if(file == null) return;
+            logger.info("Selected {} file from plus dialog", file.getPath());
+            if(file.isDirectory()) return;
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                FileUtils.getInstance(file.getPath());
+                hide();
+                MainAppWindow mainAppWindow = new MainAppWindow(stage);
+                Platform.runLater(mainAppWindow::show);
+            } catch (IOException e) {
+                FxUtils.createAlert(Alert.AlertType.ERROR, "FATAL ERROR"
+                        , "An error has occured whilst trying to open selected file",
+                        e.getMessage(),
+                        new Stage()).showAndWait();
+                e.printStackTrace();
+                Platform.exit();
+                System.exit(-1);
+            }
+        });
+        final double openButtonHeight = 46D;
+        openButton.setMinHeight(openButtonHeight);
+        openButton.setMaxHeight(openButtonHeight);
+        openButton.setMinWidth(openButtonHeight);
+        openButton.setMaxWidth(openButtonHeight);
+        recentFilesContainer.getChildren().addAll(recentTitle, recentDescription, recentFiles, openButton);
         AnchorUtils.anchor(recentTitle, 0D, -1D, 0D, 0D);
         AnchorUtils.anchor(recentDescription, 30D, -1, 0D, 0D);
         AnchorUtils.anchor(recentFiles, 50D, 0D, 0D, 0D);
-
+        AnchorUtils.anchor(openButton, 0D, -1D, -1D, 0D);
 
         AnchorUtils.anchor(open, 0D, -1D, 0D, 0D);
         AnchorUtils.anchor(dropFileHere, 80D, -1D, 100D, 100D);
