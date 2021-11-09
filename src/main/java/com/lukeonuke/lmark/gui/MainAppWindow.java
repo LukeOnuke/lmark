@@ -546,6 +546,11 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
+    private boolean selectionOutOfRange(IndexRange indexRange, int length, int offsetStart, int offsetEnd){
+        if(indexRange.getStart() + offsetStart > length) return true;
+        return indexRange.getEnd() + offsetEnd > length;
+    }
+
     private void formatItalicize(TextArea textArea, int count) {
         formatSelection(textArea, count, '*');
     }
@@ -603,6 +608,7 @@ public class MainAppWindow implements AppWindow {
 
     private void repairSelect(TextArea textArea, char character) {
         IndexRange selection = textArea.getSelection();
+        if (selectionOutOfRange(textArea.getSelection(), textArea.getLength(), -1, 1)) return;
 
         if (Objects.equals(textArea.getText(selection.getStart(), selection.getStart() + 1), String.valueOf(character))) {
             textArea.selectRange(selection.getStart() + 1, selection.getEnd());
@@ -662,9 +668,10 @@ public class MainAppWindow implements AppWindow {
     }
 
     private int getEndOfLine(TextArea textArea) {
-        String text = textArea.getText();
-        if (!text.contains("\n")) return text.length();
-        return text.indexOf('\n', getBeginningOfLine(textArea));
+        logger.info(getBeginningOfLine(textArea) + " " + textArea.getLength() + " " + textArea.getText(getBeginningOfLine(textArea), textArea.getLength()));
+        String text = textArea.getText(getBeginningOfLine(textArea), textArea.getLength());
+        if (!text.contains("\n")) return textArea.getLength();
+        return text.indexOf('\n') + getBeginningOfLine(textArea);
     }
 
     private void formatBullet(TextArea textArea, String bullet) {
@@ -783,14 +790,18 @@ public class MainAppWindow implements AppWindow {
                     job.print();
                 }
             } catch (PrinterAbortException printerAbortException) {
-                FxUtils.createAlert(Alert.AlertType.ERROR, "Printing error",
-                                "The print-job was unexpectedly aborted", printerAbortException.getMessage(), stage)
-                        .show();
+                FxUtils.lazyRunOnPlatform(() -> {
+                    FxUtils.createAlert(Alert.AlertType.ERROR, "Printing error",
+                                    "The print-job was unexpectedly aborted", printerAbortException.getMessage(), stage)
+                            .show();
+                });
             } catch (IOException | PrinterException ex) {
-                FxUtils.createAlert(Alert.AlertType.ERROR, "General printing error",
-                                "A error occurred whilst sending the document to the printer",
-                                ex.getMessage(), stage)
-                        .show();
+                FxUtils.lazyRunOnPlatform(() -> {
+                    FxUtils.createAlert(Alert.AlertType.ERROR, "General printing error",
+                                    "A error occurred whilst sending the document to the printer",
+                                    ex.getMessage(), stage)
+                            .show();
+                });
             }
             setIsWorking(false);
         }, "print-worker");
