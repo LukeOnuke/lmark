@@ -1,6 +1,7 @@
 package com.lukeonuke.lmark.gui;
 
-import com.lowagie.text.DocumentException;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMarkApplication;
 import com.lukeonuke.lmark.Registry;
@@ -29,15 +30,27 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.printing.PDFPageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import javax.print.DocFlavor;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.attribute.AttributeSet;
+import javax.print.attribute.HashAttributeSet;
+import javax.print.attribute.standard.PrinterName;
 import java.awt.*;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -157,23 +170,8 @@ public class MainAppWindow implements AppWindow {
                 if (file.getPath().toLowerCase().endsWith(".md")) {
                     fileUtils.saveFile(file, edit.getText());
                 }
-                if(file.getPath().toLowerCase().endsWith(".pdf")){
-                    try (FileOutputStream fos = new FileOutputStream(file)){
-                        /*PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", Markdown.getOptions());*/
-
-                        ITextRenderer iTextRenderer = new ITextRenderer();
-                        iTextRenderer.setDocumentFromString(markdown.getPDFReadyDocument(), fileUtils.getParentFile().getPath());
-
-                        iTextRenderer.layout();
-                        iTextRenderer.finishPDF();
-
-                        iTextRenderer.createPDF(fos);
-
-                        fos.flush();
-                    } catch (IOException | DocumentException e) {
-                        e.printStackTrace();
-                    }
-
+                if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                    writePDFToFile(markdown, file);
                 }
                 if (file.getPath().toLowerCase().endsWith(".html")) {
                     fileUtils.saveFile(file, markdown.getContents());
@@ -188,6 +186,9 @@ public class MainAppWindow implements AppWindow {
         });
         fileMenu.getItems().add(openFilePath);
 
+        MenuItem print = new MenuItem("Print");
+        print.setOnAction(actionEvent -> print(markdown));
+        fileMenu.getItems().add(print);
 
         Menu documentMenu = new Menu("Document");
 
@@ -394,14 +395,13 @@ public class MainAppWindow implements AppWindow {
         stage.setScene(scene);
 
 
-
         stage.setOnCloseRequest((event) -> {
             logger.info("Close request");
 
             if (autosaveEnabled) {
                 save(edit.getText());
-            }else{
-                if(tampered){
+            } else {
+                if (tampered) {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setHeaderText("Are you sure you want to exit?");
                     alert.setContentText("Changes arent saved");
@@ -409,8 +409,8 @@ public class MainAppWindow implements AppWindow {
                     alert.initOwner(stage.getScene().getWindow());
                     alert.setTitle(alert.getHeaderText());
                     Optional<ButtonType> response = alert.showAndWait();
-                    if(response.isPresent()){
-                        if(response.get().equals(ButtonType.CANCEL)){
+                    if (response.isPresent()) {
+                        if (response.get().equals(ButtonType.CANCEL)) {
                             logger.info("Didnt close, going back to ");
                             event.consume();
                             return;
@@ -448,7 +448,7 @@ public class MainAppWindow implements AppWindow {
                 formatStrikethrough(edit);
             }
 
-            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.E))  {
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.E)) {
                 dotBulletFormat(edit);
             }
 
@@ -462,7 +462,7 @@ public class MainAppWindow implements AppWindow {
         });
 
         registry.registerRegistryChangeEvent(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED, autosaveEvent -> {
-            autosaveEnabled = Boolean.parseBoolean( (String) autosaveEvent.getNewValue());
+            autosaveEnabled = Boolean.parseBoolean((String) autosaveEvent.getNewValue());
             FxUtils.lazyRunOnPlatform(this::updateTitle);
         });
 
@@ -486,12 +486,12 @@ public class MainAppWindow implements AppWindow {
         logger.info("Saved hash = " + text.hashCode());
     }
 
-    private void updateTitle(){
+    private void updateTitle() {
         stage.setTitle(ApplicationConstants.MAIN_WINDOW_TITLE + " - " + fileUtils.getFile().getPath());
-        if (autosaveEnabled){
+        if (autosaveEnabled) {
             stage.setTitle(stage.getTitle() + " | autosave enabled");
-        }else{
-            if(tampered) stage.setTitle(stage.getTitle() + "*");
+        } else {
+            if (tampered) stage.setTitle(stage.getTitle() + "*");
         }
     }
 
@@ -529,7 +529,7 @@ public class MainAppWindow implements AppWindow {
         StringBuilder text = new StringBuilder(textArea.getText(selection.getStart() - 1, selection.getEnd()));
         double scroll = textArea.getScrollTop();
         text.delete(0, 1);
-        text.delete(text.length() , text.length() + 1);
+        text.delete(text.length(), text.length() + 1);
         textArea.replaceText(selection.getStart() - 1, selection.getEnd() + 1, text.toString());
         textArea.selectRange(selection.getStart() - 1, selection.getEnd() - 1);
         textArea.setScrollTop(scroll);
@@ -551,25 +551,25 @@ public class MainAppWindow implements AppWindow {
         textArea.setScrollTop(scroll);
     }
 
-    private void repairSelect(TextArea textArea, char character){
+    private void repairSelect(TextArea textArea, char character) {
         IndexRange selection = textArea.getSelection();
 
-        if(Objects.equals(textArea.getText(selection.getStart(), selection.getStart() + 1), String.valueOf(character))){
+        if (Objects.equals(textArea.getText(selection.getStart(), selection.getStart() + 1), String.valueOf(character))) {
             textArea.selectRange(selection.getStart() + 1, selection.getEnd());
             selection = textArea.getSelection();
         }
-        if(Objects.equals(textArea.getText(selection.getEnd() - 1, selection.getEnd()), String.valueOf(character))){
+        if (Objects.equals(textArea.getText(selection.getEnd() - 1, selection.getEnd()), String.valueOf(character))) {
             textArea.selectRange(selection.getStart(), selection.getEnd() - 1);
         }
     }
 
-    private void readFileAndSet(TextArea edit, Markdown markdown){
+    private void readFileAndSet(TextArea edit, Markdown markdown) {
         logger.info("Reading " + fileUtils.getFile().getPath());
         try {
             updateTitle();
             String fileContents = FileUtils.readSpecifiedFile(fileUtils.getFile());
 
-            if(!fileContents.contains(System.lineSeparator())){
+            if (!fileContents.contains(System.lineSeparator())) {
                 fileContents = fileContents.replace("\n", System.lineSeparator());
             }
 
@@ -580,51 +580,51 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void setWidthToA4(ScrollPane markdownContainer, SplitPane splitPane){
+    private void setWidthToA4(ScrollPane markdownContainer, SplitPane splitPane) {
         int index = splitPane.getItems().indexOf(markdownContainer);
         logger.info("Index " + index);
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         double width = toolkit.getScreenResolution() * 8.26D;
 
-        logger.info("[{}] Resolution is {}, width is {}",index ,toolkit.getScreenResolution(), width);
+        logger.info("[{}] Resolution is {}, width is {}", index, toolkit.getScreenResolution(), width);
 
-        if(index == 0){
+        if (index == 0) {
             splitPane.setDividerPosition(0, width);
-        }else{
+        } else {
             splitPane.setDividerPosition(index + 1, splitPane.getDividerPositions()[index] + width);
         }
     }
 
-    private int getBeginningOfLine(TextArea textArea){
+    private int getBeginningOfLine(TextArea textArea) {
         int caretPos = textArea.getCaretPosition();
         String text = textArea.getText(0, textArea.getCaretPosition());
 
-        if(!text.contains("\n")){
+        if (!text.contains("\n")) {
             return 0;
         }
 
         int index = caretPos;
-        while(text.charAt(index - 1) != '\n'){
+        while (text.charAt(index - 1) != '\n') {
             if (index < 1) return -1;
             index--;
         }
         return index;
     }
 
-    private int getEndOfLine(TextArea textArea){
+    private int getEndOfLine(TextArea textArea) {
         return textArea.getText().indexOf('\n', getBeginningOfLine(textArea));
     }
 
-    private void formatBullet(TextArea textArea, String bullet){
+    private void formatBullet(TextArea textArea, String bullet) {
         SelectionMemory selectionMemory = new SelectionMemory(textArea);
         int index = getBeginningOfLine(textArea);
-        if(index == -1) return;
+        if (index == -1) return;
         textArea.insertText(index, bullet);
         selectionMemory.applyOffset(bullet.length());
         selectionMemory.write(textArea);
     }
 
-    private void removeBullet(TextArea textArea, String bullet){
+    private void removeBullet(TextArea textArea, String bullet) {
         SelectionMemory selectionMemory = new SelectionMemory(textArea);
         int index = textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).indexOf(bullet);
         index += getBeginningOfLine(textArea);
@@ -633,49 +633,98 @@ public class MainAppWindow implements AppWindow {
         selectionMemory.write(textArea);
     }
 
-    private void replaceBullet(TextArea textArea, String bulletToReplace, String replacementBullet){
+    private void replaceBullet(TextArea textArea, String bulletToReplace, String replacementBullet) {
         removeBullet(textArea, bulletToReplace);
         formatBullet(textArea, replacementBullet);
     }
 
-    private boolean isFormattedBullet(TextArea textArea, String bullet){
+    private boolean isFormattedBullet(TextArea textArea, String bullet) {
         return textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).trim().startsWith(bullet);
     }
 
-    private void dotBulletFormat(TextArea textArea){
+    private void dotBulletFormat(TextArea textArea) {
         final String bullet = "- ";
-        if(isFormattedBullet(textArea, bullet)){
+        if (isFormattedBullet(textArea, bullet)) {
             removeBullet(textArea, bullet);
-        }else{
+        } else {
             formatBullet(textArea, bullet);
         }
     }
 
-    private void checkListBulletFormat(TextArea textArea){
+    private void checkListBulletFormat(TextArea textArea) {
         final String checked = "- [x]";
         final String unchecked = "- [ ]";
 
-        if(isFormattedBullet(textArea, unchecked)){
+        if (isFormattedBullet(textArea, unchecked)) {
             replaceBullet(textArea, unchecked, checked);
-        } else if(isFormattedBullet(textArea, checked)){
+        } else if (isFormattedBullet(textArea, checked)) {
             removeBullet(textArea, checked);
-        }else{
+        } else {
             formatBullet(textArea, unchecked);
         }
     }
 
-    private void titleFormat(TextArea textArea){
+    private void titleFormat(TextArea textArea) {
         final String title = "# ";
         final String title2 = "## ";
         final String title3 = "### ";
-        if(isFormattedBullet(textArea, title)){
+        if (isFormattedBullet(textArea, title)) {
             replaceBullet(textArea, title, title2);
-        } else if(isFormattedBullet(textArea, title2)){
+        } else if (isFormattedBullet(textArea, title2)) {
             replaceBullet(textArea, title2, title3);
-        } else if (isFormattedBullet(textArea, title3)){
+        } else if (isFormattedBullet(textArea, title3)) {
             removeBullet(textArea, title3);
         } else {
             formatBullet(textArea, title);
         }
+    }
+
+    private void writePDFToFile(Markdown markdown, File file) {
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            /*PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", Markdown.getOptions());*/
+
+            ConverterProperties converterProperties = new ConverterProperties();
+            converterProperties.setCharset(StandardCharsets.UTF_8.name());
+            converterProperties.setBaseUri(fileUtils.getParentFile().getPath());
+            HtmlConverter.convertToPdf(markdown.getPDFReadyDocument(), fos, converterProperties);
+
+            fos.flush();
+        } catch (IllegalArgumentException e) {
+            //swalla
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("PDF export error");
+            alert.setHeaderText("An error occured whilst exporting " + file.getPath() + " to pdf");
+            alert.setContentText(ex.getMessage());
+            alert.initOwner(stage);
+            alert.show();
+        }
+    }
+
+    private void print(Markdown markdown) {
+        Thread t = new Thread(() -> {
+            Instant instant = Instant.now();
+            File tmp = FileUtils.getRelativeFile(ApplicationConstants.TMP + instant.toEpochMilli() + ".pdf");
+
+            writePDFToFile(markdown, tmp);
+            try{
+                PDDocument document = PDDocument.load(tmp);
+
+                PrinterJob job = PrinterJob.getPrinterJob();
+                job.setPageable(new PDFPageable(document));
+                job.printDialog();
+                job.print();
+            }catch (IOException | PrinterException ex){
+                ex.printStackTrace();
+            }
+        }, "print-worker");
+        t.start();
     }
 }
