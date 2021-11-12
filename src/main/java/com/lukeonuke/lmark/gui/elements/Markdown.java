@@ -52,7 +52,10 @@ public class Markdown {
         extensions.add(TaskListExtension.create());
         extensions.add(AnchorLinkExtension.create());
         extensions.add(StrikethroughExtension.create());
+
         options.set(Parser.EXTENSIONS, extensions);
+        options.set(HtmlRenderer.SUPPRESS_HTML, true);
+        options.set(HtmlRenderer.ESCAPE_HTML, true);
         parser = Parser.builder(options).build();
         renderer = HtmlRenderer.builder(options).build();
     }
@@ -105,29 +108,26 @@ public class Markdown {
                     eventTarget.addEventListener("mouseleave", evt -> {
                         webView.fireEvent(new LinkStopHoverEvent((HTMLAnchorElement) evt.getCurrentTarget()));
                     }, false);
-                    eventTarget.addEventListener("click", new EventListener() {
-                        @Override
-                        public void handleEvent(Event evt) {
-                            HTMLAnchorElement anchorElement = (HTMLAnchorElement) evt.getCurrentTarget();
-                            String href = anchorElement.getHref();
-                            if (href.startsWith("#")) {
-                                webView.getEngine()
-                                        .executeScript("var ele = document.getElementById(`" + href.replace("#", "") + "`);" +
-                                                "if(ele != null){ele.scrollIntoView(true);}");
-                                return;
-                            }
-                            //handle opening URL outside JavaFX WebView
-                            OSIntegration.openWebpage(anchorElement.getHref());
-
-                            evt.preventDefault();
+                    eventTarget.addEventListener("click", evt -> {
+                        HTMLAnchorElement anchorElement = (HTMLAnchorElement) evt.getCurrentTarget();
+                        String href = anchorElement.getHref();
+                        if (href.startsWith("#")) {
+                            webView.getEngine()
+                                    .executeScript("var ele = document.getElementById(`" + href.replace("#", "") + "`);" +
+                                            "if(ele != null){ele.scrollIntoView(true);}");
+                            return;
                         }
+                        //handle opening URL outside JavaFX WebView
+                        OSIntegration.openWebpage(anchorElement.getHref());
+
+                        evt.preventDefault();
                     }, false);
                 }
             }
         });
     }
 
-    public void setContents(String contents) {
+    private void setContents(String contents) {
         this.contents = contents;
         refresh();
     }
@@ -182,9 +182,13 @@ public class Markdown {
                 .replace("</strong>", "</b>");
     }
 
+    /**
+     * Filter out nasty stuff the most secure way i could think of. Uses NCR <i>Numeric Character Reference<i/> to
+     * replace < into <code>&lt;<code/>
+     * <code><code/>
+     * */
     private String preFilter(String string) {
-        return string.replace(">", "`>`")
-                .replace("<", "`<`");
+        return string.replace("<", "&lt;");
     }
 
     public String getContents() {
