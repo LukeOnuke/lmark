@@ -25,13 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.events.Event;
-import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class Markdown {
     private static final Parser parser;
     private double scrollY;
     private String contents;
-    private static MutableDataSet options = new MutableDataSet();
+    private final static MutableDataSet options = new MutableDataSet();
     final ThemeManager themeManager = ThemeManager.getInstance();
 
     static {
@@ -178,8 +177,12 @@ public class Markdown {
     }
 
     private String filter(String string) {
-        return string.replace("<strong>", "<b>")
-                .replace("</strong>", "</b>");
+        org.jsoup.nodes.Document document = Jsoup.parse(string.replace("<strong>", "<b>")
+                .replace("</strong>", "</b>"));
+        document.getElementsByTag("code").textNodes().forEach(textNode -> {
+            textNode.text(textNode.text().replace("&lt;", "<"));
+        });
+        return document.html();
     }
 
     /**
@@ -205,6 +208,7 @@ public class Markdown {
         document.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
         return document.html();
     }
+
 
     /**
      * Implements a bridge between the javascript on the web view and the java:tm: on ere

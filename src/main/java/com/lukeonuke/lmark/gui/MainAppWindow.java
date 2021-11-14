@@ -119,6 +119,7 @@ public class MainAppWindow implements AppWindow {
         edit.setText("");
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(edit.getText());
+            if(edit.getCaretPosition() == edit.getLength() - 1) markdown.scrollTo(1D);
             if (!s.equals("")) tampered = true;
             updateTitle();
 
@@ -491,6 +492,10 @@ public class MainAppWindow implements AppWindow {
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.T)) {
                 titleFormat(edit);
+            }
+
+            if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.P)){
+                print(markdown);
             }
         });
 
