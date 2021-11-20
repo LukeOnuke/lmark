@@ -29,7 +29,7 @@ jobs:
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --type msi --name lmark --input jpackage-temp/ --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --win-shortcut --win-menu --file-associations jpackage-configuration/FAmarkdown.properties --app-version ${env.VERSION}
+      run : jpackage --type msi --name lmark --input jpackage-temp/ --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --win-shortcut --win-menu --file-associations jpackage-configuration/FAmarkdown.properties --app-version $VERSION
     - uses: actions/upload-artifact@v1
       with:
         name: WindowsPackage
@@ -53,7 +53,7 @@ jobs:
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --linux-shortcut --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --app-version ${env.VERSION}
+      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --linux-shortcut --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --app-version $VERSION
     - uses: actions/upload-artifact@v1
       with:
         name: LinuxPackage
@@ -77,7 +77,7 @@ jobs:
     - run: mkdir jpackage-temp && cp target/lmark.jar jpackage-temp
     
     - name: jpackage
-      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --app-version ${env.VERSION}
+      run : jpackage --name lmark --input jpackage-temp --main-jar lmark.jar --main-class com.lukeonuke.lmark.LMark --verbose --dest staging/app --description "lmark, the opensource markdown editor" --copyright "lukeonuke MIT 2021" --icon src/main/resources/icon.ico --vendor "LukeOnuke and contributors" --file-associations jpackage-configuration/FAmarkdown.properties --app-version $VERSION
     
     - uses: actions/upload-artifact@v1
       with:
