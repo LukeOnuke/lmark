@@ -53,22 +53,9 @@ public class StartWindow implements AppWindow {
         root.getStyleClass().add("gradient");
 
 
-        ArrayList<String> recentFilesList = new ArrayList<>();
-        File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
+        ArrayList<String> recentFilesList;
         try {
-            if (!recentFilesStorage.exists()) {
-
-                recentFilesStorage.createNewFile();
-                FileUtils.writeJSON(recentFilesList, recentFilesStorage);
-
-            }
-            recentFilesList = FileUtils.readJSON(recentFilesStorage.getPath(),
-                    new TypeToken<ArrayList<String>>() {
-                    }.getType());
-
-            if(recentFilesList == null){
-                recentFilesList = new ArrayList<>();
-            }
+            recentFilesList = FileUtils.getRecentFiles();
 
             recentFilesList.forEach(s -> {
                 recentFiles.getItems().add(new FileCell(new File(s)));

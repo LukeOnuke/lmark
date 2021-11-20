@@ -155,17 +155,7 @@ public class MainAppWindow implements AppWindow {
 
         final Menu openRecent = new Menu("Open recent");
         fileMenu.getItems().add(openRecent);
-        try {
-            ArrayList<String> recentsList = fileUtils.getRecentFiles();
-
-            recentsList.forEach(s -> {
-                MenuItem menuItem = new MenuItem(s);
-                menuItem.setOnAction(actionEvent -> fileUtils.setFile(new File(s)));
-                openRecent.getItems().add(menuItem);
-            });
-        } catch (IOException ioex) {
-            fileMenu.getItems().remove(openRecent);
-        }
+        addRecentToMenu(fileMenu, openRecent);
 
         MenuItem saveFile = new MenuItem("Save");
         saveFile.setOnAction(actionEvent -> fileUtils.saveFile(fileUtils.getFile(), edit.getText()));
@@ -393,9 +383,12 @@ public class MainAppWindow implements AppWindow {
          * ============================
          * */
         fileUtils.registerFileListener(fileChangeEvent -> {
+            if(fileChangeEvent.getOldValue() != null && autosaveEnabled) save(edit.getText(), (File) fileChangeEvent.getOldValue());
             readFileAndSet(edit, markdown);
             hoveredLink.setText("");
             statusBar.getChildren().remove(hoveredLink);
+
+            addRecentToMenu(fileMenu, openRecent);
         });
         fileUtils.setFile(fileUtils.getFile());
         readFileAndSet(edit, markdown);
@@ -533,13 +526,17 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void save(String text) {
+    private void save(String text, File file) {
         setIsWorking(true);
-        fileUtils.saveFile(fileUtils.getFile(), text);
+        fileUtils.saveFile(file, text);
         tampered = false;
         updateTitle();
         logger.info("Saved hash = " + text.hashCode());
         setIsWorking(false);
+    }
+
+    private void save(String text){
+        save(text, fileUtils.getFile());
     }
 
     private void updateTitle() {
@@ -673,7 +670,6 @@ public class MainAppWindow implements AppWindow {
     }
 
     private int getEndOfLine(TextArea textArea) {
-        logger.info(getBeginningOfLine(textArea) + " " + textArea.getLength() + " " + textArea.getText(getBeginningOfLine(textArea), textArea.getLength()));
         String text = textArea.getText(getBeginningOfLine(textArea), textArea.getLength());
         if (!text.contains("\n")) return textArea.getLength();
         return text.indexOf('\n') + getBeginningOfLine(textArea);
@@ -794,6 +790,8 @@ public class MainAppWindow implements AppWindow {
                 if (job.printDialog()) {
                     job.print();
                 }
+
+                document.close();
             } catch (PrinterAbortException printerAbortException) {
                 FxUtils.lazyRunOnPlatform(() -> {
                     FxUtils.createAlert(Alert.AlertType.ERROR, "Printing error",
@@ -811,5 +809,20 @@ public class MainAppWindow implements AppWindow {
             setIsWorking(false);
         }, "print-worker");
         t.start();
+    }
+
+    private void addRecentToMenu(Menu fileMenu, Menu openRecent){
+        try {
+            ArrayList<String> recentsList = FileUtils.getRecentFiles();
+            openRecent.getItems().clear();
+            recentsList.forEach(s -> {
+                MenuItem menuItem = new MenuItem(s);
+                menuItem.setOnAction(actionEvent -> fileUtils.setFile(new File(s)));
+                openRecent.getItems().add(menuItem);
+            });
+        } catch (IOException ioex) {
+            logger.info("Couldn't load (file > recent)", ioex.getCause());
+            fileMenu.getItems().remove(openRecent);
+        }
     }
 }

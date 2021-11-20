@@ -223,13 +223,7 @@ public class FileUtils {
         File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
         ArrayList<String> recent;
         try {
-            recent = FileUtils.readJSON(recentFilesStorage.getPath(),
-                    new TypeToken<ArrayList<String>>() {
-                    }.getType());
-
-            if (recent == null) {
-                recent = new ArrayList<>();
-            }
+            recent = FileUtils.getRecentFiles();
 
             if (recent.contains(recentFile.getAbsolutePath())) {
                 recent.remove(recentFile.getAbsolutePath());
@@ -250,7 +244,7 @@ public class FileUtils {
         }
     }
 
-    public ArrayList<String> getRecentFiles() throws IOException {
+    public static ArrayList<String> getRecentFiles() throws IOException {
         ArrayList<String> recentFilesList = new ArrayList<>();
         File recentFilesStorage = FileUtils.getRelativeFile(ApplicationConstants.RECENT_FILES_STORAGE);
 
@@ -267,6 +261,18 @@ public class FileUtils {
         if (recentFilesList == null) {
             recentFilesList = new ArrayList<>();
         }
+
+
+        File recent;
+        String s;
+        for (int i = 0; i < recentFilesList.size(); i++) {
+            s = recentFilesList.get(i);
+            recent = new File(s);
+            if (!recent.exists()) {
+                recentFilesList.remove(s);
+            }
+        }
+
         return recentFilesList;
     }
 
