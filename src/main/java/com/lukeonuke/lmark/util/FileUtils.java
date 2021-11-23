@@ -13,6 +13,10 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -292,9 +296,16 @@ public class FileUtils {
      * @return File object pointing to the virtual working dirrectory.
      */
     public static File getRelativeFile() {
-        ArrayList<String> path = new ArrayList<>(Arrays.asList(LMark.class.getResource(ApplicationConstants.ICON).getPath().replace(File.separator, "/").split("[/]")));
+        ArrayList<String> path = new ArrayList<>(
+                Arrays.asList(
+                        LMark.class.getResource(ApplicationConstants.ICON).getPath()
+                                .replace(File.separator, "/")
+                                .split("[/]")
+                )
+        );
         path.remove(path.size() - 1);
         path.remove(path.size() - 1);
+
         StringBuilder sb = new StringBuilder();
         path.forEach(s -> {
             if (path.indexOf(s) != 0) {
@@ -307,7 +318,7 @@ public class FileUtils {
         }
         logger.debug(new File(stripProtocol(sb.toString())).getPath());
         try {
-            return new File(stripProtocol(sb.toString()));
+            return new File(stripProtocol(URLDecoder.decode(sb.toString(), Charset.defaultCharset())));
         } catch (NullPointerException e) {
             logger.error("Error while getting relative file", e.getCause());
             e.printStackTrace();
@@ -320,18 +331,22 @@ public class FileUtils {
     /**
      * Strip protocol from url.
      *
+     * Every JDK derived from <strong>Oracle JDK</strong> loves adding protocol prefixes to everything.
+     * For example files get <code>file:c:\path\to\file</code>.
+     *
      * @param url The url to be stripped.
      * @return Only the path of the url with no protocol identifier.
      */
     public static String stripProtocol(String url) {
+
         String[] urlArr = url.split(":");
 
-        //It already has no protocol
-        if (urlArr.length == 2) {
-            return url;
+        StringBuilder sb = new StringBuilder();
+        if(urlArr.length == 2 ) {
+            sb.append(urlArr[0]);
+            sb.append(":");
         }
 
-        StringBuilder sb = new StringBuilder();
         for (int i = 1; i < urlArr.length; i++) {
             sb.append(urlArr[i]);
             if (i != urlArr.length - 1) {
