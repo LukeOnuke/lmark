@@ -14,7 +14,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -339,7 +338,14 @@ public class FileUtils {
      */
     public static String stripProtocol(String url) {
 
-        String[] urlArr = url.split(":");
+        try {
+            URL parsedUrl = new URL(url);
+            url = parsedUrl.getPath();
+        } catch (MalformedURLException e) {
+            // Swallow
+        }
+
+        /*String[] urlArr = url.split(":");
 
         StringBuilder sb = new StringBuilder();
         if(urlArr.length == 2 ) {
@@ -356,7 +362,7 @@ public class FileUtils {
         url = sb.toString();
         while (url.startsWith(File.separator)) {
             url = url.substring(1);
-        }
+        }*/
         return url;
     }
 }
