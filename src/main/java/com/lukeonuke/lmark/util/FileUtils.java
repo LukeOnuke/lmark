@@ -344,25 +344,6 @@ public class FileUtils {
         } catch (MalformedURLException e) {
             // Swallow
         }
-
-        /*String[] urlArr = url.split(":");
-
-        StringBuilder sb = new StringBuilder();
-        if(urlArr.length == 2 ) {
-            sb.append(urlArr[0]);
-            sb.append(":");
-        }
-
-        for (int i = 1; i < urlArr.length; i++) {
-            sb.append(urlArr[i]);
-            if (i != urlArr.length - 1) {
-                sb.append(":");
-            }
-        }
-        url = sb.toString();
-        while (url.startsWith(File.separator)) {
-            url = url.substring(1);
-        }*/
         return url;
     }
 }
