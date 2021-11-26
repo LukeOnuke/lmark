@@ -4,6 +4,7 @@ import com.lukeonuke.lmark.ApplicationConstants;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -41,6 +42,16 @@ public class FxUtils {
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
+
+        if (owner == null) {
+            Scene scene = new Scene(alert.getDialogPane());
+            ThemeManager.getInstance().addCss(scene);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            alert.initOwner(stage.getOwner());
+            return alert;
+        }
+
         alert.initOwner(owner.getScene().getWindow());
         return alert;
     }

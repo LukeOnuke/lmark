@@ -1,5 +1,7 @@
 package com.lukeonuke.lmark.util;
 
+import javafx.scene.control.Alert;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -11,16 +13,17 @@ import java.net.URL;
 /**
  * Utilities for OS integration, like opening browser.
  *
- * @since 0.0.1
  * @author LukeOnuke
+ * @since 0.0.1
  */
 public class OSIntegration {
     /**
      * Gets the desktop instance.
+     *
      * @return Desktop instance if desktop is supported on the system, otherwise it returns null
-     * */
-    public static Desktop getDesktopIfSupported(){
-        if(Desktop.isDesktopSupported()){
+     */
+    public static Desktop getDesktopIfSupported() {
+        if (Desktop.isDesktopSupported()) {
             return Desktop.getDesktop();
         }
         return null;
@@ -28,6 +31,7 @@ public class OSIntegration {
 
     /**
      * Opens webpage in os default browser (if supported).
+     *
      * @param uri Path to webpage.
      * @return Boolean indicating ,did it open the browser?
      */
@@ -46,6 +50,7 @@ public class OSIntegration {
 
     /**
      * Opens webpage in os default browser (if supported).
+     *
      * @param url Path to webpage.
      * @return Boolean indicating ,did it open the browser?
      */
@@ -60,6 +65,7 @@ public class OSIntegration {
 
     /**
      * Opens webpage in os default browser (if supported).
+     *
      * @param path Path to webpage.
      * @return Boolean indicating ,did it open the browser?
      */
@@ -74,28 +80,37 @@ public class OSIntegration {
 
     /**
      * Open explorer to file path.
+     *
      * @param file Path represented with a file instance
-     * */
-    public static void openPathInExplorer(File file){
+     */
+    public static void openPathInExplorer(File file) {
         try {
-            getDesktopIfSupported().open(file);
-        } catch (IOException e) {
+            Desktop d = getDesktopIfSupported();
 
+            if (d == null) return;
+            if (!d.isSupported(Desktop.Action.OPEN)) return;
+
+            d.open(file);
+        } catch (IOException e) {
+            FxUtils.lazyRunOnPlatform(() -> {
+                FxUtils.createAlert(Alert.AlertType.ERROR, "System error", "Could not open URL in browser", e.getMessage(), null);
+            });
         }
     }
 
     /**
      * Open explorer to file path.
+     *
      * @param file Path represented with a string
-     * */
-    public static void openPathInExplorer(String file){
+     */
+    public static void openPathInExplorer(String file) {
         openPathInExplorer(new File(file));
     }
 
     /**
      * Make a system specific notify (beep) sound. <i>Beep boop.<i/>
-     * */
-    public static void beep(){
+     */
+    public static void beep() {
         Toolkit.getDefaultToolkit().beep();
     }
 }
