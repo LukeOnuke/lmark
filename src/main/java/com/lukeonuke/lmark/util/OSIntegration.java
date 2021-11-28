@@ -1,13 +1,21 @@
 package com.lukeonuke.lmark.util;
 
+import com.lukeonuke.lmark.ApplicationConstants;
+import com.lukeonuke.lmark.LMark;
+import com.sun.javafx.util.Utils;
 import javafx.scene.control.Alert;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -17,6 +25,7 @@ import java.net.URL;
  * @since 0.0.1
  */
 public class OSIntegration {
+
     /**
      * Gets the desktop instance.
      *
@@ -112,5 +121,50 @@ public class OSIntegration {
      */
     public static void beep() {
         Toolkit.getDefaultToolkit().beep();
+    }
+
+    /***
+     * Check security and create file.
+     *
+     */
+    public static boolean createFile(File file) throws IOException {
+        LoggerFactory.getLogger(OSIntegration.class).info("{} {} {}", file.getPath(), file.isFile(), file.isDirectory());
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.checkWrite(file.getPath());
+        boolean isFinished = false;
+        if(file.isFile()){
+            file.getParentFile().mkdirs();
+            isFinished = file.createNewFile();
+        }
+        if(file.isDirectory()){
+            isFinished = file.mkdirs();
+        }
+        return isFinished;
+    }
+
+    private static OperatingSystem OS;
+    static {
+        if (Utils.isWindows()) OS = OperatingSystem.WINDOWS;
+        if (Utils.isMac()) OS = OperatingSystem.MACOS;
+        if (Utils.isUnix()) OS = OperatingSystem.UNIX;
+    }
+
+    /**
+     * Get operating system.
+     * @return Detected operating system.
+     * @since 2.2.0
+     * */
+    public static OperatingSystem getOS(){
+        return OS;
+    }
+
+    public static File getAppData(){
+        if(OS.equals(OperatingSystem.MACOS)){
+            return new File(File.separator + "Library" +
+                    File.separator + "Application Support" +
+                    File.separator + ApplicationConstants.APPDIR + File.separator);
+        }
+        return new File(System.getProperty("user.home") +
+                File.separator + ApplicationConstants.APPDIR + File.separator);
     }
 }

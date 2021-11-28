@@ -85,7 +85,7 @@ public class LMark {
 
     private static void createTemparoryFiles() {
         File temparory = FileUtils.getRelativeFile(ApplicationConstants.TMP);
-        temparory.mkdir();
+        temparory.mkdirs();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 Files.walkFileTree(temparory.toPath(), Set.of(), 5, new SimpleFileVisitor<Path>() {

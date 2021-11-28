@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMark;
+import com.sun.javafx.util.Utils;
 import javafx.application.Platform;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -241,7 +244,14 @@ public class FileUtils {
                 recent.remove(10);
             }
 
-            FileUtils.writeJSON(recent, recentFilesStorage);
+            AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+                try {
+                    FileUtils.writeJSON(recent, recentFilesStorage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -286,6 +296,18 @@ public class FileUtils {
      * @return Absolute file pointing to the selected child of relative working directory.
      */
     public static File getRelativeFile(String path) {
+        /*Todo : Get app data path
+        * Linux typically uses ${user.home}/.<app-name> (Note the leading dot to place a hidden directory)
+        *
+        * Windows may use ${user.home}/AppData/. The full path for this should be what you get when you pull the
+        * APPDATA property.
+        * Also on Windows, some programs use the same pattern as on linux. Including: gimp, virtualbox, ssh,
+        * oracle’s system-installed JRE, (Usage stats) & the JME SDK.
+        *
+        *
+        * OSX prefers ~/Library/Application Support/<appname> (more specifically, the AppID defined in your Info.plist)
+        * */
+
         return new File(getRelativeFile().getPath() + File.separator + path);
     }
 
@@ -295,36 +317,7 @@ public class FileUtils {
      * @return File object pointing to the virtual working dirrectory.
      */
     public static File getRelativeFile() {
-        ArrayList<String> path = new ArrayList<>(
-                Arrays.asList(
-                        LMark.class.getResource(ApplicationConstants.ICON).getPath()
-                                .replace(File.separator, "/")
-                                .split("[/]")
-                )
-        );
-        path.remove(path.size() - 1);
-        path.remove(path.size() - 1);
-
-        StringBuilder sb = new StringBuilder();
-        path.forEach(s -> {
-            if (path.indexOf(s) != 0) {
-                sb.append(File.separator);
-            }
-            sb.append(s);
-        });
-        if (!sb.toString().endsWith(File.separator)) {
-            sb.append(File.separator);
-        }
-        logger.debug(new File(stripProtocol(sb.toString())).getPath());
-        try {
-            return new File(stripProtocol(URLDecoder.decode(sb.toString(), Charset.defaultCharset())));
-        } catch (NullPointerException e) {
-            logger.error("Error while getting relative file", e.getCause());
-            e.printStackTrace();
-            Platform.exit();
-            System.exit(1);
-            return new File(".");
-        }
+        return OSIntegration.getAppData();
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.lukeonuke.lmark;
 
 import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.OSIntegration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Properties;
 
 public class Registry {
@@ -22,16 +25,18 @@ public class Registry {
     private Registry() {
         logger.info("Loading properties from {}", fileName);
         File file = new File(fileName);
-        if(!file.exists()){
+        if(file.exists()){
+            refresh();
+        } else {
             try {
                 file.createNewFile();
+                reset();
+                save();
             } catch (IOException e) {
-                logger.error("Error whilst initilising Registry", e.getCause());
+                logger.error("Error whilst initilising Registry {}", e.getMessage());
             }
-            reset();
-            save();
         }
-        refresh();
+
         logger.info(this.toString());
     }
 
@@ -43,11 +48,14 @@ public class Registry {
     }
 
     public void refresh(){
-        try (FileInputStream fis = new FileInputStream(fileName)) {
-            prop.load(fis);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            try (FileInputStream fis = new FileInputStream(fileName)) {
+                prop.load(fis);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return null;
+        });
     }
 
     public void reset(){

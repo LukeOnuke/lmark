@@ -16,4 +16,5 @@ public class ApplicationConstants {
     public static final String MARKDOWN_CACHE_PATH = "markdown-renderer-cache";
     public static final Font FONTS_AWESOME = Font.loadFont(LMark.class.getResourceAsStream("/gui/fa-6-solid.otf"), 12);
     public static final String TMP = "tmp/";
+    public static final String APPDIR = LMark.class.getName();
 }
