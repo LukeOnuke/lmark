@@ -123,25 +123,6 @@ public class OSIntegration {
         Toolkit.getDefaultToolkit().beep();
     }
 
-    /***
-     * Check security and create file.
-     *
-     */
-    public static boolean createFile(File file) throws IOException {
-        LoggerFactory.getLogger(OSIntegration.class).info("{} {} {}", file.getPath(), file.isFile(), file.isDirectory());
-        SecurityManager securityManager = new SecurityManager();
-        securityManager.checkWrite(file.getPath());
-        boolean isFinished = false;
-        if(file.isFile()){
-            file.getParentFile().mkdirs();
-            isFinished = file.createNewFile();
-        }
-        if(file.isDirectory()){
-            isFinished = file.mkdirs();
-        }
-        return isFinished;
-    }
-
     private static OperatingSystem OS;
     static {
         if (Utils.isWindows()) OS = OperatingSystem.WINDOWS;
