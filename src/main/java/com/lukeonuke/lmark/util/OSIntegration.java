@@ -143,7 +143,7 @@ public class OSIntegration {
         if(OS.equals(OperatingSystem.MACOS)){
             return new File(File.separator + "Library" +
                     File.separator + "Application Support" +
-                    File.separator + ApplicationConstants.APPDIR + File.separator);
+                    File.separator + LMark.class.getName() + File.separator);
         }
         return new File(System.getProperty("user.home") +
                 File.separator + ApplicationConstants.APPDIR + File.separator);

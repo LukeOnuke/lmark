@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -82,12 +83,19 @@ public class StartWindow implements AppWindow {
         });
 
         root.setOnDragOver(dragEvent -> {
+            if (dragEvent.getDragboard().hasFiles()) dragEvent.acceptTransferModes(TransferMode.ANY);
+        });
+
+        root.setOnDragDropped(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
+            if(!db.hasFiles()) return;
             File file = db.getFiles().get(0);
 
             try {
                 FileUtils.getInstance(file.getPath());
                 hide();
+                dragEvent.setDropCompleted(true);
+                dragEvent.consume();
 
                 FileUtils.addToRecents(file);
 
