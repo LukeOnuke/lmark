@@ -56,6 +56,7 @@ public class LMark {
                 "                                 \n" +
                 "Lmark - simple and os integrated markdown editor");
         //Load all mandatory subsystems
+        checkIfTested();
         createTemparoryFiles();
         registerToDesktop();
         logger.info("Registered to desktop");
@@ -108,4 +109,10 @@ public class LMark {
         }, "shutdown-delete-temp"));
     }
 
+    private static void checkIfTested(){
+        if(System.getenv("GITHUB_ACTIONS") == null) return;
+        if(System.getenv("GITHUB_ACTIONS").toLowerCase().equals("true")){
+            System.exit(0);
+        }
+    }
 }
