@@ -23,6 +23,9 @@
               <addClasspath>true</addClasspath>
               <mainClass>com.lukeonuke.lmark.LMark</mainClass>
             </manifest>
+            <manifestEntries>
+              <SplashScreen-Image>splash.png</SplashScreen-Image>
+            </manifestEntries>
           </archive>
           <finalName>${project.name}</finalName>
         </configuration>

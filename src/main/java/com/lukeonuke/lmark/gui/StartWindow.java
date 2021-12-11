@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -159,6 +160,7 @@ public class StartWindow implements AppWindow {
         stage.setScene(scene);
         stage.setTitle("LMark - home");
         stage.getIcons().add(new Image(ApplicationConstants.ICON));
+        if(SplashScreen.getSplashScreen() != null) SplashScreen.getSplashScreen().close();
         stage.show();
 
         AtomicReference<Double> maxListPrefWidth = new AtomicReference<>((double) 0);
