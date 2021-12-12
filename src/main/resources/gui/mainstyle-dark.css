@@ -106,7 +106,7 @@
 }
 
 .file-cell:hover{
-    -fx-background-color: derive(-wintergreen, 0.85);
+    -fx-background-color: derive(-wintergreen, -0.2);
     -fx-text-fill: -text-light;
 }
 
