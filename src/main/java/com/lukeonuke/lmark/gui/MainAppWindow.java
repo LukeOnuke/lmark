@@ -35,6 +35,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
+import org.fxmisc.richtext.CodeArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public class MainAppWindow implements AppWindow {
         Markdown markdown = new Markdown();
         ScrollPane markdownContainer = new ScrollPane();
         AnchorPane editContainer = new AnchorPane();
-        TextArea edit = new TextArea();
+        CodeArea edit = new CodeArea();
         MenuBar menuBar = new MenuBar();
         FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
         ProgressBar statusProgress = new ProgressBar();
@@ -116,7 +117,7 @@ public class MainAppWindow implements AppWindow {
         edit.wrapTextProperty().set(true);
 
         AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
-        edit.setText("");
+        edit.replaceText("");
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(edit.getText());
             if(edit.getCaretPosition() == edit.getLength() - 1) markdown.scrollTo(1D);

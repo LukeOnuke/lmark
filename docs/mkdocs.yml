@@ -1,0 +1,21 @@
+site_name: lmark
+repo_url: https://github.com/LukeOnuke/lmark/
+edit_uri: /tree/main/docs/docs
+site_description: Edit, view, and export your markdown files with lmark. Easy exporting to PDF and HTML!
+theme:
+  name: material
+  features:
+    - search.share
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
