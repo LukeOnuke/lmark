@@ -56,7 +56,9 @@ public class Markdown {
         options.set(HtmlRenderer.SUPPRESS_HTML, true);
         options.set(HtmlRenderer.ESCAPE_HTML, true);
         parser = Parser.builder(options).build();
+
         renderer = HtmlRenderer.builder(options).build();
+
     }
 
     public Markdown() {

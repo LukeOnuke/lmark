@@ -10,6 +10,7 @@ import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
 import com.lukeonuke.lmark.gui.elements.Markdown;
+import com.lukeonuke.lmark.gui.elements.MarkdownArea;
 import com.lukeonuke.lmark.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -78,8 +79,8 @@ public class MainAppWindow implements AppWindow {
         SplitPane splitPane = new SplitPane();
         Markdown markdown = new Markdown();
         ScrollPane markdownContainer = new ScrollPane();
-        AnchorPane editContainer = new AnchorPane();
-        CodeArea edit = new CodeArea();
+        ScrollPane editContainer = new ScrollPane();
+        MarkdownArea edit = new MarkdownArea();
         MenuBar menuBar = new MenuBar();
         FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
         ProgressBar statusProgress = new ProgressBar();
@@ -94,9 +95,9 @@ public class MainAppWindow implements AppWindow {
         markdownContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         markdown.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
-            if (editScrollPane.get() == null) return;
+            //if (editScrollPane.get() == null) return;
             if (!markdown.getNode().isHover()) return;
-            editScrollPane.get().setVvalue(lmarkEvent.getScrollPercentage());
+            editContainer.setVvalue(lmarkEvent.getScrollPercentage());
         });
 
         Label hoveredLink = new Label();
@@ -110,7 +111,10 @@ public class MainAppWindow implements AppWindow {
             statusBar.getChildren().remove(hoveredLink);
         });
 
-        editContainer.getChildren().add(edit);
+        editContainer.setContent(edit);
+        editContainer.setFitToWidth(true);
+        editContainer.setFitToHeight(true);
+        editContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         edit.getStyleClass().clear();
         edit.getStyleClass().addAll("edit", "text-area", "0-br");
@@ -126,7 +130,7 @@ public class MainAppWindow implements AppWindow {
 
             if (isScrollListenerRegistered.get()) return;
             //Run when size is calculated
-            Platform.runLater(() -> {
+            /*Platform.runLater(() -> {
                 editScrollPane.set((ScrollPane) edit.getChildrenUnmodifiable().get(0));
 
                 editScrollPane.get().vvalueProperty().addListener(observable -> {
@@ -136,7 +140,14 @@ public class MainAppWindow implements AppWindow {
 
                 });
                 isScrollListenerRegistered.set(true);
-            });
+            });*/
+        });
+
+        editContainer.vvalueProperty().addListener(observable -> {
+            //stop unwanted 2 way coupling
+            if (!editScrollPane.get().isHover()) return;
+            markdown.scrollTo(editScrollPane.get().getVvalue());
+
         });
 
         //Menu bar
@@ -343,25 +354,25 @@ public class MainAppWindow implements AppWindow {
                 actionEvent -> print(markdown));
 
         Button boldButton = FxUtils.createToolBarButton("\uf032", "CONTROL + B",
-                actionEvent -> formatItalicize(edit, 2));
+                actionEvent -> edit.formatItalicize(2));
 
         Button italicButton = FxUtils.createToolBarButton("\uf033", "CONTROL + I",
-                actionEvent -> formatItalicize(edit, 1));
+                actionEvent -> edit.formatItalicize( 1));
 
         Button boldItalicButton = FxUtils.createToolBarButton("\uf032\uf033", "CONTROL + J",
-                actionEvent -> formatItalicize(edit, 3));
+                actionEvent -> edit.formatItalicize(3));
 
         Button strikethroughButton = FxUtils.createToolBarButton("\uf0cc", "CONTROL + O",
-                actionEvent -> formatStrikethrough(edit));
+                actionEvent -> edit.formatStrikethrough());
 
         Button checkBoxButton = FxUtils.createToolBarButton("\uF14A", "CONTROL + R",
-                actionEvent -> checkListBulletFormat(edit));
+                actionEvent -> edit.checkListBulletFormat());
 
         Button bulletButton = FxUtils.createToolBarButton("\uF111", "CONTROL + E",
-                actionEvent -> dotBulletFormat(edit));
+                actionEvent -> edit.dotBulletFormat());
 
         Button headingButton = FxUtils.createToolBarButton("\uf1dc", "CONTROL + T",
-                actionEvent -> titleFormat(edit));
+                actionEvent -> edit.titleFormat());
 
         toolBar.getChildren()
                 .addAll(
@@ -461,31 +472,31 @@ public class MainAppWindow implements AppWindow {
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.I)) {
-                formatItalicize(edit, 1);
+                edit.formatItalicize(1);
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.B)) {
-                formatItalicize(edit, 2);
+                edit.formatItalicize(2);
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.J)) {
-                formatItalicize(edit, 3);
+                edit.formatItalicize(3);
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.O)) {
-                formatStrikethrough(edit);
+                edit.formatStrikethrough();
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.E)) {
-                dotBulletFormat(edit);
+                edit.dotBulletFormat();
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.R)) {
-                checkListBulletFormat(edit);
+                edit.checkListBulletFormat();
             }
 
             if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.T)) {
-                titleFormat(edit);
+                edit.titleFormat();
             }
 
             if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.P)){
@@ -622,7 +633,7 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void readFileAndSet(TextArea edit, Markdown markdown) {
+    private void readFileAndSet(MarkdownArea edit, Markdown markdown) {
         logger.info("Reading " + fileUtils.getFile().getPath());
         try {
             updateTitle();
@@ -632,7 +643,7 @@ public class MainAppWindow implements AppWindow {
                 fileContents = fileContents.replace("\n", System.lineSeparator());
             }
 
-            edit.setText(fileContents);
+            edit.replaceText(fileContents);
             markdown.setMDContents(fileContents);
         } catch (IOException e) {
             e.printStackTrace();

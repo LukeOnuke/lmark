@@ -332,3 +332,14 @@
     -fx-control-inner-background: transparent;
     -fx-background-color: -background;
 }
+
+#markdown-area {
+    -fx-control-inner-background: -background-2;
+    -fx-background-color: -background-2;
+    -fx-text-fill: -text;
+    -fx-fill: #ffffff;
+}
+
+#markdown-area .text{
+    -fx-fill: white;
+}

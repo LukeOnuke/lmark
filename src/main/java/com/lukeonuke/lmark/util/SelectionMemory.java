@@ -1,7 +1,9 @@
 package com.lukeonuke.lmark.util;
 
+import com.lukeonuke.lmark.gui.elements.MarkdownArea;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextArea;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 /**
  * Selection memory. Saves caret (cursor) position and selection, then writes them back to the same text area.
@@ -15,6 +17,12 @@ public class SelectionMemory {
         caretPosition = textArea.getCaretPosition();
         indexRange = textArea.getSelection();
         scrollTop = textArea.getScrollTop();
+    }
+
+    public SelectionMemory(MarkdownArea markdownArea) {
+        caretPosition = markdownArea.getCaretPosition();
+        indexRange = markdownArea.getSelection();
+        scrollTop = markdownArea.getScrollY();
     }
 
     public int getCaretPosition() {
@@ -38,5 +46,11 @@ public class SelectionMemory {
         textArea.positionCaret(caretPosition);
         textArea.selectRange(indexRange.getStart(), indexRange.getEnd());
         textArea.setScrollTop(scrollTop);
+    }
+
+    public void write(MarkdownArea markdownArea){
+        markdownArea.moveTo(caretPosition);
+        markdownArea.selectRange(indexRange.getStart(), indexRange.getEnd());
+        markdownArea.setScrollY(scrollTop);
     }
 }
