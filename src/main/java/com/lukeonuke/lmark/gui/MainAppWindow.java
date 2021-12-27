@@ -145,7 +145,6 @@ public class MainAppWindow implements AppWindow {
 
         editContainer.vvalueProperty().addListener(observable -> {
             //stop unwanted 2 way coupling
-            if (!editScrollPane.get().isHover()) return;
             markdown.scrollTo(editScrollPane.get().getVvalue());
 
         });

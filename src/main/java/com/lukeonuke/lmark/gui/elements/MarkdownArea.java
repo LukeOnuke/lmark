@@ -1,18 +1,21 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.util.SelectionMemory;
+import com.vladsch.flexmark.ast.Heading;
+import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
-import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollPane;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +53,18 @@ public class MarkdownArea extends CodeArea {
 
     public void computeHighlighting(){
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-        StringBuilder stringBuilder = new StringBuilder();
         parser.parse(this.getText()).getChildIterator().forEachRemaining(node -> {
-            stringBuilder.append(node.getChars());
-            spansBuilder.add(Collections.singleton("header"), node.getStartOffset());
-            spansBuilder.add(Collections.emptyList(), node.getStartOffset() + node.getTextLength());
+            addToSpansBuilder(spansBuilder, node);
         });
-        logger.info(stringBuilder.toString());
-        this.setStyle(0, this.getLength(), Collections.singleton("text"));
+        this.setStyleSpans(0, spansBuilder.create());
+    }
+
+    private int lastIndex = 0;
+    private void addToSpansBuilder(StyleSpansBuilder<Collection<String>> spansBuilder,  Node node){
+        logger.info(node.getStartOffset() + " " + node.getNodeName());
+        spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex);
+        spansBuilder.add(Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)), node.getEndOffset() - node.getStartOffset());
+        lastIndex = node.getEndOffset();
     }
 
     public double getScrollY(){

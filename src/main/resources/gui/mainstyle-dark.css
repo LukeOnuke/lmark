@@ -343,3 +343,21 @@
 #markdown-area .text{
     -fx-fill: white;
 }
+
+.caret {
+    -fx-stroke: -text;
+}
+
+/*----*/
+#markdown-area .text.heading{
+    -fx-fill: blue;
+    -fx-font-size: 24px;
+}
+
+#markdown-area .text.bulletlist{
+    -fx-fill: orange;
+}
+
+#markdown-area .text.htmlblock{
+    -fx-fill: red;
+}
