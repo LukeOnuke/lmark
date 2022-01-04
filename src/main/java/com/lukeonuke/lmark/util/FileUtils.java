@@ -3,9 +3,6 @@ package com.lukeonuke.lmark.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lukeonuke.lmark.ApplicationConstants;
-import com.lukeonuke.lmark.LMark;
-import com.sun.javafx.util.Utils;
-import javafx.application.Platform;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +13,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -296,7 +292,7 @@ public class FileUtils {
      * @return Absolute file pointing to the selected child of relative working directory.
      */
     public static File getRelativeFile(String path) {
-        /*Todo : Get app data path
+        /*
         * Linux typically uses ${user.home}/.<app-name> (Note the leading dot to place a hidden directory)
         *
         * Windows may use ${user.home}/AppData/. The full path for this should be what you get when you pull the

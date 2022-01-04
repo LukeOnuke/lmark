@@ -85,7 +85,6 @@ public class MainAppWindow implements AppWindow {
         FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
         ProgressBar statusProgress = new ProgressBar();
         StackPane statusBarContainer = new StackPane(statusProgress, statusBar);
-        AtomicReference<ScrollPane> editScrollPane = new AtomicReference<>(null);
         AnchorPane fileBrowserContainer = new AnchorPane();
         FlowPane toolBar = new FlowPane();
         //Setup all stuffs
@@ -143,10 +142,10 @@ public class MainAppWindow implements AppWindow {
             });*/
         });
 
-        editContainer.vvalueProperty().addListener(observable -> {
-            //stop unwanted 2 way coupling
-            markdown.scrollTo(editScrollPane.get().getVvalue());
-
+        edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
+            if(!edit.isHover()) return;
+            logger.info("Scroll is {} wich is {} percent of {}", edit.getEstimatedScrollY(), edit.getEstimatedScrollY() / edit.getTotalHeightEstimate(), edit.getTotalHeightEstimate());
+            markdown.scrollTo(edit.getEstimatedScrollY() / edit.getTotalHeightEstimate());
         });
 
         //Menu bar
