@@ -53,12 +53,15 @@ public class MarkdownArea extends CodeArea {
     public void computeHighlighting(){
         AtomicInteger lastIndex = new AtomicInteger(0);
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+        ArrayList<String> arrayList = new ArrayList<>();
         parser.parse(this.getText()).getChildIterator().forEachRemaining(node -> {
-            logger.info(node.getStartOffset() + " " + node.getNodeName());
+            if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
+
             spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
             spansBuilder.add(Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)), node.getTextLength());
             lastIndex.set(node.getEndOffset());
         });
+        logger.info(arrayList.toString());
         this.setStyleSpans(0, spansBuilder.create());
     }
 

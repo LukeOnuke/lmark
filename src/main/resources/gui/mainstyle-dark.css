@@ -338,6 +338,7 @@
     -fx-background-color: -background-2;
     -fx-text-fill: -text;
     -fx-fill: #ffffff;
+    -fx-padding: 0 1em 0 1em;
 }
 
 #markdown-area .text{
@@ -360,4 +361,9 @@
 
 #markdown-area .text.htmlblock{
     -fx-fill: red;
+}
+
+#markdown-area .text.fencedcodeblock{
+    -fx-fill: gray;
+    -fx-font-family: monospace;
 }

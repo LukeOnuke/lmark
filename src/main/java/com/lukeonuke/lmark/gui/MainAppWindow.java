@@ -96,6 +96,7 @@ public class MainAppWindow implements AppWindow {
         markdown.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
             //if (editScrollPane.get() == null) return;
             if (!markdown.getNode().isHover()) return;
+            edit.scrollYToPixel(lmarkEvent.getScrollPercentage() * (edit.getTotalHeightEstimate() - editContainer.getHeight()));
             editContainer.setVvalue(lmarkEvent.getScrollPercentage());
         });
 
@@ -144,8 +145,8 @@ public class MainAppWindow implements AppWindow {
 
         edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
             if(!edit.isHover()) return;
-            logger.info("Scroll is {} wich is {} percent of {}", edit.getEstimatedScrollY(), edit.getEstimatedScrollY() / edit.getTotalHeightEstimate(), edit.getTotalHeightEstimate());
-            markdown.scrollTo(edit.getEstimatedScrollY() / edit.getTotalHeightEstimate());
+            logger.info("Scroll is {} wich is {} percent of {}", edit.getEstimatedScrollY(), edit.getEstimatedScrollY()  / (edit.getTotalHeightEstimate() - editContainer.getHeight()), edit.getTotalHeightEstimate());
+            markdown.scrollTo(edit.getEstimatedScrollY()  / (edit.getTotalHeightEstimate() - editContainer.getHeight()));
         });
 
         //Menu bar
