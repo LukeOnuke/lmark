@@ -20,6 +20,8 @@ import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
+import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -43,7 +45,8 @@ public class Markdown {
     private double scrollY;
     private String contents;
     private final static MutableDataSet options = new MutableDataSet();
-    final ThemeManager themeManager = ThemeManager.getInstance();
+    private final ThemeManager themeManager = ThemeManager.getInstance();
+    private static org.jsoup.nodes.Document.OutputSettings outputSettings = new org.jsoup.nodes.Document.OutputSettings();
 
     static {
         List<Extension> extensions = new ArrayList<>();
@@ -51,6 +54,8 @@ public class Markdown {
         extensions.add(TaskListExtension.create());
         extensions.add(AnchorLinkExtension.create());
         extensions.add(StrikethroughExtension.create());
+
+        outputSettings.prettyPrint(false);
 
         options.set(Parser.EXTENSIONS, extensions);
         options.set(HtmlRenderer.SUPPRESS_HTML, true);
@@ -181,9 +186,6 @@ public class Markdown {
     private String filter(String string) {
         org.jsoup.nodes.Document document = Jsoup.parse(string.replace("<strong>", "<b>")
                 .replace("</strong>", "</b>"));
-        document.getElementsByTag("code").textNodes().forEach(textNode -> {
-            textNode.text(textNode.text().replace("&lt;", "<"));
-        });
         return document.html();
     }
 
@@ -193,7 +195,7 @@ public class Markdown {
      * <code><code/>
      * */
     private String preFilter(String string) {
-        return string.replace("<", "&lt;");
+        return Jsoup.clean(string, "", Safelist.none(), outputSettings);
     }
 
     public String getContents() {

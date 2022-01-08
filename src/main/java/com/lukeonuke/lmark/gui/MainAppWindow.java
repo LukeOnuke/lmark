@@ -96,8 +96,7 @@ public class MainAppWindow implements AppWindow {
         markdown.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
             //if (editScrollPane.get() == null) return;
             if (!markdown.getNode().isHover()) return;
-            edit.scrollYToPixel(lmarkEvent.getScrollPercentage() * (edit.getTotalHeightEstimate() - editContainer.getHeight()));
-            editContainer.setVvalue(lmarkEvent.getScrollPercentage());
+            edit.setScrollY(lmarkEvent.getScrollPercentage());
         });
 
         Label hoveredLink = new Label();
@@ -118,9 +117,7 @@ public class MainAppWindow implements AppWindow {
 
         edit.getStyleClass().clear();
         edit.getStyleClass().addAll("edit", "text-area", "0-br");
-        edit.wrapTextProperty().set(true);
 
-        AtomicBoolean isScrollListenerRegistered = new AtomicBoolean(false);
         edit.replaceText("");
         edit.textProperty().addListener((observableValue, s, t1) -> {
             markdown.setMDContents(edit.getText());
@@ -128,7 +125,6 @@ public class MainAppWindow implements AppWindow {
             if (!s.equals("")) tampered = true;
             updateTitle();
 
-            if (isScrollListenerRegistered.get()) return;
             //Run when size is calculated
             /*Platform.runLater(() -> {
                 editScrollPane.set((ScrollPane) edit.getChildrenUnmodifiable().get(0));
@@ -145,8 +141,7 @@ public class MainAppWindow implements AppWindow {
 
         edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
             if(!edit.isHover()) return;
-            logger.info("Scroll is {} wich is {} percent of {}", edit.getEstimatedScrollY(), edit.getEstimatedScrollY()  / (edit.getTotalHeightEstimate() - editContainer.getHeight()), edit.getTotalHeightEstimate());
-            markdown.scrollTo(edit.getEstimatedScrollY()  / (edit.getTotalHeightEstimate() - editContainer.getHeight()));
+            markdown.scrollTo(edit.getScrollY());
         });
 
         //Menu bar
@@ -522,7 +517,6 @@ public class MainAppWindow implements AppWindow {
     }
 
     static volatile int workAmount = 0;
-
     private synchronized static void setIsWorking(boolean bool) {
         if (!bool) {
             workAmount--;
@@ -559,79 +553,6 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private boolean selectionOutOfRange(IndexRange indexRange, int length, int offsetStart, int offsetEnd){
-        if(indexRange.getStart() + offsetStart > length) return true;
-        return indexRange.getEnd() + offsetEnd > length;
-    }
-
-    private void formatItalicize(TextArea textArea, int count) {
-        formatSelection(textArea, count, '*');
-    }
-
-    private void formatStrikethrough(TextArea textArea) {
-        formatSelection(textArea, 2, '~');
-    }
-
-    private void formatSelection(TextArea textArea, int count, char character) {
-        if (textArea.getSelection() == null) return;
-        if (textArea.getSelection().getStart() == 0 && textArea.getSelection().getEnd() == 0) return;
-        boolean isFormatted = true;
-        for (int i = 0; i < count; i++) {
-            repairSelect(textArea, character);
-        }
-        for (int i = 0; i < count; i++) {
-            isFormatted = isFormatted && selectionIsFormattedWithChar(textArea, i, character);
-        }
-        if (isFormatted) {
-            unformatSelection(textArea, count - 1);
-        } else {
-            formatWithChar(textArea, character, count - 1);
-        }
-    }
-
-    private void unformatSelection(TextArea textArea, int offset) {
-        IndexRange selection = textArea.getSelection();
-        StringBuilder text = new StringBuilder(
-                textArea.getText(selection.getStart() - 1 - offset, selection.getEnd() + offset));
-        double scroll = textArea.getScrollTop();
-        text.delete(0, 1 + offset);
-        text.delete(text.length() - offset, text.length() + 1);
-        textArea.replaceText(selection.getStart() - 1 - offset, selection.getEnd() + 1 + offset, text.toString());
-        textArea.selectRange(selection.getStart() - 1 - offset, selection.getEnd() - 1 - offset);
-        textArea.setScrollTop(scroll);
-    }
-
-    private boolean selectionIsFormattedWithChar(TextArea textArea, int offset, char character) {
-        IndexRange selection = textArea.getSelection();
-        return textArea.getText().charAt(selection.getStart() - 1 - offset) == character && textArea.getText().charAt(selection.getEnd() + offset) == character;
-    }
-
-    private void formatWithChar(TextArea textArea, char character, int count) {
-        IndexRange selection = textArea.getSelection();
-        StringBuilder text = new StringBuilder(textArea.getSelectedText());
-        double scroll = textArea.getScrollTop();
-
-        String repeatedCharacter = String.valueOf(character).repeat(count + 1);
-        text.append(repeatedCharacter);
-        text.insert(0, repeatedCharacter);
-        textArea.replaceText(selection, text.toString());
-        textArea.selectRange(selection.getStart() + 1 + count, selection.getEnd() + 1 + count);
-        textArea.setScrollTop(scroll);
-    }
-
-    private void repairSelect(TextArea textArea, char character) {
-        IndexRange selection = textArea.getSelection();
-        if (selectionOutOfRange(textArea.getSelection(), textArea.getLength(), -1, 1)) return;
-
-        if (Objects.equals(textArea.getText(selection.getStart(), selection.getStart() + 1), String.valueOf(character))) {
-            textArea.selectRange(selection.getStart() + 1, selection.getEnd());
-            selection = textArea.getSelection();
-        }
-        if (Objects.equals(textArea.getText(selection.getEnd() - 1, selection.getEnd()), String.valueOf(character))) {
-            textArea.selectRange(selection.getStart(), selection.getEnd() - 1);
-        }
-    }
-
     private void readFileAndSet(MarkdownArea edit, Markdown markdown) {
         logger.info("Reading " + fileUtils.getFile().getPath());
         try {
@@ -644,6 +565,8 @@ public class MainAppWindow implements AppWindow {
 
             edit.replaceText(fileContents);
             markdown.setMDContents(fileContents);
+
+            Platform.runLater(() -> edit.setScrollY(0D));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -661,97 +584,6 @@ public class MainAppWindow implements AppWindow {
             splitPane.setDividerPosition(0, width);
         } else {
             splitPane.setDividerPosition(index + 1, splitPane.getDividerPositions()[index] + width);
-        }
-    }
-
-    private int getBeginningOfLine(TextArea textArea) {
-        int caretPos = textArea.getCaretPosition();
-        String text = textArea.getText(0, textArea.getCaretPosition());
-
-        if (!text.contains("\n")) {
-            return 0;
-        }
-
-        int index = caretPos;
-        while (text.charAt(index - 1) != '\n') {
-            if (index < 1) return -1;
-            index--;
-        }
-        return index;
-    }
-
-    private int getEndOfLine(TextArea textArea) {
-        String text = textArea.getText(getBeginningOfLine(textArea), textArea.getLength());
-        if (!text.contains("\n")) return textArea.getLength();
-        return text.indexOf('\n') + getBeginningOfLine(textArea);
-    }
-
-    private void formatBullet(TextArea textArea, String bullet) {
-        SelectionMemory selectionMemory = new SelectionMemory(textArea);
-        int index = getBeginningOfLine(textArea);
-        if (index == -1) return;
-        textArea.insertText(index, bullet);
-        selectionMemory.applyOffset(bullet.length());
-        selectionMemory.write(textArea);
-    }
-
-    private void removeBullet(TextArea textArea, String bullet) {
-        SelectionMemory selectionMemory = new SelectionMemory(textArea);
-        int index = textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).indexOf(bullet);
-        index += getBeginningOfLine(textArea);
-        textArea.deleteText(index, index + bullet.length());
-        selectionMemory.applyOffset(-1 * bullet.length());
-        selectionMemory.write(textArea);
-    }
-
-    private void replaceBullet(TextArea textArea, String bulletToReplace, String replacementBullet) {
-        SelectionMemory selectionMemory = new SelectionMemory(textArea);
-        int beginningOfLine = getBeginningOfLine(textArea);
-        int endOfLine = getEndOfLine(textArea);
-        textArea.replaceText(beginningOfLine, endOfLine,
-                textArea.getText(beginningOfLine, endOfLine).replace(bulletToReplace, replacementBullet));
-        selectionMemory.applyOffset(replacementBullet.length() - bulletToReplace.length());
-        selectionMemory.write(textArea);
-    }
-
-    private boolean isFormattedBullet(TextArea textArea, String bullet) {
-        return textArea.getText(getBeginningOfLine(textArea), getEndOfLine(textArea)).trim().startsWith(bullet);
-    }
-
-    private void dotBulletFormat(TextArea textArea) {
-        final String bullet = "- ";
-        if (isFormattedBullet(textArea, bullet)) {
-            removeBullet(textArea, bullet);
-        } else {
-            formatBullet(textArea, bullet);
-        }
-    }
-
-    private void checkListBulletFormat(TextArea textArea) {
-        final String checked = "- [x]";
-        final String unchecked = "- [ ]";
-
-        if (isFormattedBullet(textArea, unchecked)) {
-            replaceBullet(textArea, unchecked, checked);
-        } else if (isFormattedBullet(textArea, checked)) {
-            removeBullet(textArea, checked);
-        } else {
-            formatBullet(textArea, unchecked);
-        }
-    }
-
-    private void titleFormat(TextArea textArea) {
-        final String title = "# ";
-        final String title2 = "## ";
-        final String title3 = "### ";
-        if (isFormattedBullet(textArea, title)) {
-            replaceBullet(textArea, title, title2);
-        } else if (isFormattedBullet(textArea, title2)) {
-            replaceBullet(textArea, title2, title3);
-        } else if (isFormattedBullet(textArea, title3)) {
-            removeBullet(textArea, title3);
-        } else {
-            formatBullet(textArea, title);
         }
     }
 

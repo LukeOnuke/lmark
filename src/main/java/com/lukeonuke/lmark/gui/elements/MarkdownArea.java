@@ -40,11 +40,11 @@ public class MarkdownArea extends CodeArea {
     }
 
     public MarkdownArea() {
+        this.wrapTextProperty().set(true);
+
         this.textProperty().addListener((observableValue, s, t1) ->
             computeHighlighting()
         );
-
-
 
         this.getStyleClass().add("markdown-area");
         this.setId("markdown-area");
@@ -66,16 +66,11 @@ public class MarkdownArea extends CodeArea {
     }
 
     public double getScrollY(){
-        if(this.getParent() instanceof ScrollPane){
-            return ((ScrollPane) this.getParent()).getHvalue();
-        }
-        return 0;
+        return this.getEstimatedScrollY()  / (this.getTotalHeightEstimate() - this.getHeight());
     }
 
     public void setScrollY(double scroll){
-        if(this.getParent() instanceof ScrollPane){
-            ((ScrollPane) this.getParent()).setHvalue(scroll);
-        }
+        this.scrollYToPixel(scroll * (this.getTotalHeightEstimate() - this.getHeight()));
     }
 
     private boolean selectionOutOfRange(IndexRange indexRange, int length, int offsetStart, int offsetEnd){
@@ -122,7 +117,6 @@ public class MarkdownArea extends CodeArea {
 
     private boolean selectionIsFormattedWithChar(int offset, char character) {
         IndexRange selection = this.getSelection();
-        //todo : optimise not to call the entire text, only to get single char
         return this.getText().charAt(selection.getStart() - 1 - offset) == character && this.getText().charAt(selection.getEnd() + offset) == character;
     }
 
