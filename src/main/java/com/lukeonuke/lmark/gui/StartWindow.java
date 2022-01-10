@@ -110,7 +110,7 @@ public class StartWindow implements AppWindow {
         recentFilesContainer.getStyleClass().addAll("shadow", "bg-1", "rounded-top-corners");
         Label recentTitle = new Label("Recent files");
         recentTitle.getStyleClass().addAll("h2", "pd-l");
-        Label recentDescription = new Label("Recent files appear below");
+        Label recentDescription = new Label("Recent files will appear below");
         recentDescription.getStyleClass().addAll("pd-l", "bottom-border", "pd-d");
         Button openButton = FxUtils.createToolBarButton("+", "New file", actionEvent -> {
             FileChooser fileChooser = new FileChooser();
