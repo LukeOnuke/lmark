@@ -5,6 +5,7 @@ import com.lukeonuke.lmark.event.LinkStartHoverEvent;
 import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.util.FileUtils;
+import com.lukeonuke.lmark.util.FxUtils;
 import com.lukeonuke.lmark.util.OSIntegration;
 import com.lukeonuke.lmark.util.ThemeManager;
 import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
@@ -13,7 +14,6 @@ import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
 import javafx.concurrent.Worker;
@@ -21,7 +21,6 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
-import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -32,12 +31,11 @@ import org.w3c.dom.html.HTMLAnchorElement;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Markdown {
-    private final Logger logger = LoggerFactory.getLogger(Markdown.class);
+public class MarkdownView {
+    private final Logger logger = LoggerFactory.getLogger(MarkdownView.class);
     private final WebView webView = new WebView();
     private JSBridge jsBridge;
     private static final HtmlRenderer renderer;
@@ -49,24 +47,20 @@ public class Markdown {
     private static org.jsoup.nodes.Document.OutputSettings outputSettings = new org.jsoup.nodes.Document.OutputSettings();
 
     static {
-        List<Extension> extensions = new ArrayList<>();
-        extensions.add(TablesExtension.create());
-        extensions.add(TaskListExtension.create());
-        extensions.add(AnchorLinkExtension.create());
-        extensions.add(StrikethroughExtension.create());
+
 
         outputSettings.prettyPrint(false);
 
-        options.set(Parser.EXTENSIONS, extensions);
-        options.set(HtmlRenderer.SUPPRESS_HTML, true);
-        options.set(HtmlRenderer.ESCAPE_HTML, true);
+        options.set(Parser.EXTENSIONS, getExtensions());
+        /*options.set(HtmlRenderer.SUPPRESS_HTML, true);
+        options.set(HtmlRenderer.ESCAPE_HTML, true);*/
         parser = Parser.builder(options).build();
 
         renderer = HtmlRenderer.builder(options).build();
 
     }
 
-    public Markdown() {
+    public MarkdownView() {
         webView.getStyleClass().add("markdown");
         webView.getEngine().getHistory().getEntries().clear();
         webView.contextMenuEnabledProperty().setValue(false);
@@ -133,6 +127,15 @@ public class Markdown {
         });
     }
 
+    public static List<Extension> getExtensions(){
+        List<Extension> extensions = new ArrayList<>();
+        extensions.add(TablesExtension.create());
+        extensions.add(TaskListExtension.create());
+        extensions.add(AnchorLinkExtension.create());
+        extensions.add(StrikethroughExtension.create());
+        return extensions;
+    }
+
     private void setContents(String contents) {
         this.contents = contents;
         refresh();
@@ -166,7 +169,11 @@ public class Markdown {
     }
 
     public void setMDContents(String contents) {
-        setContents(filter(renderer.render(parser.parse(preFilter(contents)))));
+        setRenderedContent(renderer.render(parser.parse(preFilter(contents))));
+    }
+
+    public void setRenderedContent(String html){
+        FxUtils.lazyRunOnPlatform(() -> setContents(filter(html)));
     }
 
     public WebView getNode() {
@@ -200,10 +207,6 @@ public class Markdown {
 
     public String getContents() {
         return (String) webView.getEngine().executeScript("document.documentElement.outerHTML");
-    }
-
-    public static DataHolder getOptions() {
-        return options;
     }
 
     public String getPDFReadyDocument() {

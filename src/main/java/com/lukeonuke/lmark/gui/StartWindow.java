@@ -114,7 +114,7 @@ public class StartWindow implements AppWindow {
         recentDescription.getStyleClass().addAll("pd-l", "bottom-border", "pd-d");
         Button openButton = FxUtils.createToolBarButton("+", "New file", actionEvent -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Markdown", "*.md"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("MarkdownView", "*.md"));
             File file = fileChooser.showOpenDialog(new Stage());
             if(file == null) return;
             logger.info("Selected {} file from plus dialog", file.getPath());

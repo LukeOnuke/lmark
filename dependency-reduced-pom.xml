@@ -92,7 +92,7 @@
   <properties>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
-    <MDE.description>lmark is a simple markdown editor</MDE.description>
+    <MDE.description>lmark is a simple markdownView editor</MDE.description>
     <MDE.name>lmark</MDE.name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

@@ -7,10 +7,10 @@ import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
 import javafx.scene.control.IndexRange;
-import javafx.scene.control.ScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.slf4j.Logger;
@@ -22,9 +22,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MarkdownArea extends CodeArea {
     public static final String LINE_BREAK = "\n";
     private Logger logger = LoggerFactory.getLogger(MarkdownArea.class);
+    private ArrayList<MarkdownView> slaves = new ArrayList<>();
 
     static MutableDataSet options = new MutableDataSet();
     static Parser parser;
+    private final HtmlRenderer renderer = HtmlRenderer.builder(options).build();
 
     static {
         List<Extension> extensions = new ArrayList<>();
@@ -54,7 +56,8 @@ public class MarkdownArea extends CodeArea {
         AtomicInteger lastIndex = new AtomicInteger(0);
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ArrayList<String> arrayList = new ArrayList<>();
-        parser.parse(this.getText()).getChildIterator().forEachRemaining(node -> {
+        Document doc = parser.parse(this.getText());
+        doc.getChildIterator().forEachRemaining(node -> {
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
             spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
@@ -63,6 +66,8 @@ public class MarkdownArea extends CodeArea {
         });
         logger.info(arrayList.toString());
         this.setStyleSpans(0, spansBuilder.create());
+
+        refreshSlaves(doc);
     }
 
     public double getScrollY(){
@@ -235,5 +240,22 @@ public class MarkdownArea extends CodeArea {
         } else {
             formatBullet(title);
         }
+    }
+
+    public void registerSlave(MarkdownView markdownView){
+        slaves.add(markdownView);
+    }
+
+    public void removeSlave(MarkdownView markdownView){
+        slaves.remove(markdownView);
+    }
+
+    private void refreshSlaves(Document doc){
+        new Thread(() ->{
+            final String html = renderer.render(doc);
+            slaves.forEach(markdownView -> {
+                markdownView.setRenderedContent(html);
+            });
+        }, "refresh-worker").start();
     }
 }

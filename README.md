@@ -1,10 +1,10 @@
 [![CI](https://github.com/LukeOnuke/lmark/actions/workflows/main.yml/badge.svg)](https://github.com/LukeOnuke/lmark/actions/workflows/main.yml) ![GitHub top language](https://img.shields.io/github/languages/top/LukeOnuke/lmark) ![Supports windows macOS linux](https://img.shields.io/badge/Supports-Win%20%7C%20MacOS%20%7C%20Linux-brightgreen)
 
 # lmark
-***Basicly a markdown notepad with extra open sauce!*** Or in academic wording an that allows you to easly open, edit and export md files.
+***Basicly a markdownView notepad with extra open sauce!*** Or in academic wording an that allows you to easly open, edit and export md files.
 
 ### Main features include
-- Export markdown to ***pdf*** and ***html***!
+- Export markdownView to ***pdf*** and ***html***!
 - System synchronisable dark / light mode
 - Native integration *(open with, and more)*.
 - Multiplatform support *(windows, linux, macos)*
@@ -14,7 +14,7 @@
 
 ### Planned stuff
 - Tabs
-- Being able to choose the css on export to pdf or markdown
+- Being able to choose the css on export to pdf or markdownView
 - More tools in the toolbar
 
 # Screenshots

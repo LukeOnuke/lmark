@@ -9,7 +9,7 @@ import com.lukeonuke.lmark.event.LinkStartHoverEvent;
 import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
-import com.lukeonuke.lmark.gui.elements.Markdown;
+import com.lukeonuke.lmark.gui.elements.MarkdownView;
 import com.lukeonuke.lmark.gui.elements.MarkdownArea;
 import com.lukeonuke.lmark.util.*;
 import javafx.application.Platform;
@@ -24,7 +24,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -36,7 +35,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
-import org.fxmisc.richtext.CodeArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MainAppWindow implements AppWindow {
     private Stage stage;
@@ -77,7 +72,7 @@ public class MainAppWindow implements AppWindow {
 
         //Initilise nodes
         SplitPane splitPane = new SplitPane();
-        Markdown markdown = new Markdown();
+        MarkdownView markdownView = new MarkdownView();
         ScrollPane markdownContainer = new ScrollPane();
         ScrollPane editContainer = new ScrollPane();
         MarkdownArea edit = new MarkdownArea();
@@ -88,24 +83,24 @@ public class MainAppWindow implements AppWindow {
         AnchorPane fileBrowserContainer = new AnchorPane();
         FlowPane toolBar = new FlowPane();
         //Setup all stuffs
-        markdownContainer.setContent(markdown.getNode());
+        markdownContainer.setContent(markdownView.getNode());
         markdownContainer.setFitToWidth(true);
         markdownContainer.setFitToHeight(true);
         markdownContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        markdown.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
+        markdownView.getNode().addEventHandler(SimpleScrollEvent.SIMPLE_SCROLL_EVENT_TYPE, lmarkEvent -> {
             //if (editScrollPane.get() == null) return;
-            if (!markdown.getNode().isHover()) return;
+            if (!markdownView.getNode().isHover()) return;
             edit.setScrollY(lmarkEvent.getScrollPercentage());
         });
 
         Label hoveredLink = new Label();
-        markdown.getNode().addEventHandler(LinkStartHoverEvent.LINK_START_HOVER_EVENT_TYPE, linkStartHoverEvent -> {
+        markdownView.getNode().addEventHandler(LinkStartHoverEvent.LINK_START_HOVER_EVENT_TYPE, linkStartHoverEvent -> {
             String href = linkStartHoverEvent.getAnchorElement().getHref();
             hoveredLink.setText(href);
             if (!statusBar.getChildren().contains(hoveredLink)) statusBar.getChildren().add(hoveredLink);
         });
-        markdown.getNode().addEventHandler(LinkStopHoverEvent.LINK_STOP_HOVER_EVENT_TYPE, linkStopHoverEvent -> {
+        markdownView.getNode().addEventHandler(LinkStopHoverEvent.LINK_STOP_HOVER_EVENT_TYPE, linkStopHoverEvent -> {
             hoveredLink.setText("");
             statusBar.getChildren().remove(hoveredLink);
         });
@@ -117,31 +112,18 @@ public class MainAppWindow implements AppWindow {
 
         edit.getStyleClass().clear();
         edit.getStyleClass().addAll("edit", "text-area", "0-br");
+        edit.registerSlave(markdownView);
 
         edit.replaceText("");
         edit.textProperty().addListener((observableValue, s, t1) -> {
-            markdown.setMDContents(edit.getText());
-            if(edit.getCaretPosition() == edit.getLength() - 1) markdown.scrollTo(1D);
+            if(edit.getCaretPosition() == edit.getLength() - 1) markdownView.scrollTo(1D);
             if (!s.equals("")) tampered = true;
             updateTitle();
-
-            //Run when size is calculated
-            /*Platform.runLater(() -> {
-                editScrollPane.set((ScrollPane) edit.getChildrenUnmodifiable().get(0));
-
-                editScrollPane.get().vvalueProperty().addListener(observable -> {
-                    //stop unwanted 2 way coupling
-                    if (!editScrollPane.get().isHover()) return;
-                    markdown.scrollTo(editScrollPane.get().getVvalue());
-
-                });
-                isScrollListenerRegistered.set(true);
-            });*/
         });
 
         edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
             if(!edit.isHover()) return;
-            markdown.scrollTo(edit.getScrollY());
+            markdownView.scrollTo(edit.getScrollY());
         });
 
         //Menu bar
@@ -170,7 +152,7 @@ public class MainAppWindow implements AppWindow {
         MenuItem saveFileAs = new MenuItem("Save As");
         saveFileAs.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Markdown", "*.md", "*.MD"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("MarkdownView", "*.md", "*.MD"));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML", "*.html"));
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Any", "*.*"));
@@ -181,10 +163,10 @@ public class MainAppWindow implements AppWindow {
                     fileUtils.saveFile(file, edit.getText());
                 }
                 if (file.getPath().toLowerCase().endsWith(".pdf")) {
-                    writePDFToFile(markdown, file);
+                    writePDFToFile(markdownView, file);
                 }
                 if (file.getPath().toLowerCase().endsWith(".html")) {
-                    fileUtils.saveFile(file, markdown.getContents());
+                    fileUtils.saveFile(file, markdownView.getContents());
                 }
             }
         });
@@ -197,7 +179,7 @@ public class MainAppWindow implements AppWindow {
         fileMenu.getItems().add(openFilePath);
 
         MenuItem print = new MenuItem("Print");
-        print.setOnAction(actionEvent -> print(markdown));
+        print.setOnAction(actionEvent -> print(markdownView));
         fileMenu.getItems().add(print);
 
         Menu documentMenu = new Menu("Document");
@@ -240,7 +222,7 @@ public class MainAppWindow implements AppWindow {
         showNonRenderedHTML.setOnAction(actionEvent -> {
             Stage stage = new Stage();
             DebugWindow debugWindow = new DebugWindow(stage);
-            debugWindow.setText(markdown.getContents());
+            debugWindow.setText(markdownView.getContents());
             debugWindow.show();
         });
 
@@ -345,7 +327,7 @@ public class MainAppWindow implements AppWindow {
                 actionEvent -> save(edit.getText()));
 
         Button printButton = FxUtils.createToolBarButton("\uF02F", "CONTROL + P",
-                actionEvent -> print(markdown));
+                actionEvent -> print(markdownView));
 
         Button boldButton = FxUtils.createToolBarButton("\uf032", "CONTROL + B",
                 actionEvent -> edit.formatItalicize(2));
@@ -390,14 +372,14 @@ public class MainAppWindow implements AppWindow {
          * */
         fileUtils.registerFileListener(fileChangeEvent -> {
             if(fileChangeEvent.getOldValue() != null && autosaveEnabled) save(edit.getText(), (File) fileChangeEvent.getOldValue());
-            readFileAndSet(edit, markdown);
+            readFileAndSet(edit, markdownView);
             hoveredLink.setText("");
             statusBar.getChildren().remove(hoveredLink);
 
             addRecentToMenu(fileMenu, openRecent);
         });
         fileUtils.setFile(fileUtils.getFile());
-        readFileAndSet(edit, markdown);
+        readFileAndSet(edit, markdownView);
 
         //Add to splitpane
         splitPane.getItems().add(markdownContainer);
@@ -408,7 +390,7 @@ public class MainAppWindow implements AppWindow {
         root.getChildren().add(statusBarContainer);
         root.getChildren().add(toolBar);
 
-        AnchorUtils.anchorAllSides(markdown.getNode(), 0D);
+        AnchorUtils.anchorAllSides(markdownView.getNode(), 0D);
         AnchorUtils.anchorAllSides(markdownContainer, 0D);
         AnchorUtils.anchorAllSides(edit, 0D);
         AnchorUtils.anchor(splitPane, 60D, 25D, 0D, 0D);
@@ -494,7 +476,7 @@ public class MainAppWindow implements AppWindow {
             }
 
             if(keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.P)){
-                print(markdown);
+                print(markdownView);
             }
         });
 
@@ -523,9 +505,7 @@ public class MainAppWindow implements AppWindow {
             if (workAmount <= 0) {
                 isWorking.set(false);
             }
-        }
-
-        if (bool) {
+        } else {
             workAmount++;
             isWorking.set(true);
         }
@@ -553,7 +533,7 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void readFileAndSet(MarkdownArea edit, Markdown markdown) {
+    private void readFileAndSet(MarkdownArea edit, MarkdownView markdownView) {
         logger.info("Reading " + fileUtils.getFile().getPath());
         try {
             updateTitle();
@@ -564,7 +544,6 @@ public class MainAppWindow implements AppWindow {
             }
 
             edit.replaceText(fileContents);
-            markdown.setMDContents(fileContents);
 
             Platform.runLater(() -> edit.setScrollY(0D));
         } catch (IOException e) {
@@ -587,7 +566,7 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void writePDFToFile(Markdown markdown, File file) {
+    private void writePDFToFile(MarkdownView markdownView, File file) {
         setIsWorking(true);
         if (!file.exists()) {
             try {
@@ -597,12 +576,12 @@ public class MainAppWindow implements AppWindow {
             }
         }
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            /*PdfConverterExtension.exportToPdf(fos, markdown.getContents(), "", Markdown.getOptions());*/
+            /*PdfConverterExtension.exportToPdf(fos, markdownView.getContents(), "", MarkdownView.getOptions());*/
 
             ConverterProperties converterProperties = new ConverterProperties();
             converterProperties.setCharset(StandardCharsets.UTF_8.name());
             converterProperties.setBaseUri(fileUtils.getParentFile().getPath());
-            HtmlConverter.convertToPdf(markdown.getPDFReadyDocument(), fos, converterProperties);
+            HtmlConverter.convertToPdf(markdownView.getPDFReadyDocument(), fos, converterProperties);
 
             fos.flush();
         } catch (IllegalArgumentException e) {
@@ -618,13 +597,13 @@ public class MainAppWindow implements AppWindow {
         setIsWorking(false);
     }
 
-    private void print(Markdown markdown) {
+    private void print(MarkdownView markdownView) {
         Thread t = new Thread(() -> {
             setIsWorking(true);
             Instant instant = Instant.now();
             File tmp = FileUtils.getRelativeFile(ApplicationConstants.TMP + instant.toEpochMilli() + ".pdf");
 
-            writePDFToFile(markdown, tmp);
+            writePDFToFile(markdownView, tmp);
             try {
                 PDDocument document = PDDocument.load(tmp);
 

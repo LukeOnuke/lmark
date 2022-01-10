@@ -4,7 +4,7 @@ import com.jthemedetecor.OsThemeDetector;
 import com.lukeonuke.lmark.ApplicationConstants;
 import com.lukeonuke.lmark.LMark;
 import com.lukeonuke.lmark.Registry;
-import com.lukeonuke.lmark.gui.elements.Markdown;
+import com.lukeonuke.lmark.gui.elements.MarkdownView;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ThemeManager {
     private static ThemeManager themeManager;
     private ArrayList<Scene> scenes = new ArrayList<>();
-    private ArrayList<Markdown> markdowns = new ArrayList<>();
+    private ArrayList<MarkdownView> markdownViews = new ArrayList<>();
     final OsThemeDetector detector = OsThemeDetector.getDetector();
     final Registry registry = Registry.getInstance();
     private boolean dark = false;
@@ -60,15 +60,15 @@ public class ThemeManager {
             });
         });
 
-        markdowns.forEach(markdown -> Platform.runLater(markdown::refresh));
+        markdownViews.forEach(markdownView -> Platform.runLater(markdownView::refresh));
     }
 
     public boolean isDark() {
         return dark;
     }
 
-    public String getWebCSS(Markdown markdown){
-        if(!markdowns.contains(markdown)) markdowns.add(markdown);
+    public String getWebCSS(MarkdownView markdownView){
+        if(!markdownViews.contains(markdownView)) markdownViews.add(markdownView);
 
         if(dark) return ApplicationConstants.WEB_MARKDOWN_DARK_CSS;
         return ApplicationConstants.WEB_MARKDOWN_CSS;
