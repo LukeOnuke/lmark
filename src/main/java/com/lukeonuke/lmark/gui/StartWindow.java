@@ -163,6 +163,11 @@ public class StartWindow implements AppWindow {
         if(SplashScreen.getSplashScreen() != null) SplashScreen.getSplashScreen().close();
         stage.show();
 
+        SplashScreen splashScreen = SplashScreen.getSplashScreen();
+        if (splashScreen != null){
+            splashScreen.close();
+        }
+
         AtomicReference<Double> maxListPrefWidth = new AtomicReference<>((double) 0);
         recentFiles.getItems().forEach(node -> {
             if(maxListPrefWidth.get() < node.getLayoutWidth()){

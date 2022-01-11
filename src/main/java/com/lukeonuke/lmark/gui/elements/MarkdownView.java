@@ -47,17 +47,12 @@ public class MarkdownView {
     private static org.jsoup.nodes.Document.OutputSettings outputSettings = new org.jsoup.nodes.Document.OutputSettings();
 
     static {
-
-
         outputSettings.prettyPrint(false);
-
         options.set(Parser.EXTENSIONS, getExtensions());
         /*options.set(HtmlRenderer.SUPPRESS_HTML, true);
         options.set(HtmlRenderer.ESCAPE_HTML, true);*/
         parser = Parser.builder(options).build();
-
         renderer = HtmlRenderer.builder(options).build();
-
     }
 
     public MarkdownView() {
@@ -202,7 +197,7 @@ public class MarkdownView {
      * <code><code/>
      * */
     private String preFilter(String string) {
-        return Jsoup.clean(string, "", Safelist.none(), outputSettings);
+        return Jsoup.clean(string, "", Safelist.basicWithImages(), outputSettings);
     }
 
     public String getContents() {

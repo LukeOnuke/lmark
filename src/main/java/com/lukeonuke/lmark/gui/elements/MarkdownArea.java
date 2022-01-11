@@ -1,15 +1,11 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.util.SelectionMemory;
-import com.vladsch.flexmark.ext.anchorlink.AnchorLinkExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
-import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
-import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.data.MutableDataSet;
-import com.vladsch.flexmark.util.misc.Extension;
+import javafx.application.Application;
 import javafx.scene.control.IndexRange;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -20,7 +16,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MarkdownArea extends CodeArea {
-    public static final String LINE_BREAK = "\n";
     private Logger logger = LoggerFactory.getLogger(MarkdownArea.class);
     private ArrayList<MarkdownView> slaves = new ArrayList<>();
 
@@ -29,13 +24,7 @@ public class MarkdownArea extends CodeArea {
     private final HtmlRenderer renderer = HtmlRenderer.builder(options).build();
 
     static {
-        List<Extension> extensions = new ArrayList<>();
-        extensions.add(TablesExtension.create());
-        extensions.add(TaskListExtension.create());
-        extensions.add(AnchorLinkExtension.create());
-        extensions.add(StrikethroughExtension.create());
-
-        options.set(Parser.EXTENSIONS, extensions);
+        options.set(Parser.EXTENSIONS, MarkdownView.getExtensions());
         options.set(HtmlRenderer.SUPPRESS_HTML, true);
         options.set(HtmlRenderer.ESCAPE_HTML, true);
         parser = Parser.builder(options).build();
@@ -45,14 +34,15 @@ public class MarkdownArea extends CodeArea {
         this.wrapTextProperty().set(true);
 
         this.textProperty().addListener((observableValue, s, t1) ->
-            computeHighlighting()
+                computeHighlighting()
         );
+
 
         this.getStyleClass().add("markdown-area");
         this.setId("markdown-area");
     }
 
-    public void computeHighlighting(){
+    public void computeHighlighting() {
         AtomicInteger lastIndex = new AtomicInteger(0);
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ArrayList<String> arrayList = new ArrayList<>();
@@ -70,16 +60,16 @@ public class MarkdownArea extends CodeArea {
         refreshSlaves(doc);
     }
 
-    public double getScrollY(){
-        return this.getEstimatedScrollY()  / (this.getTotalHeightEstimate() - this.getHeight());
+    public double getScrollY() {
+        return this.getEstimatedScrollY() / (this.getTotalHeightEstimate() - this.getHeight());
     }
 
-    public void setScrollY(double scroll){
+    public void setScrollY(double scroll) {
         this.scrollYToPixel(scroll * (this.getTotalHeightEstimate() - this.getHeight()));
     }
 
-    private boolean selectionOutOfRange(IndexRange indexRange, int length, int offsetStart, int offsetEnd){
-        if(indexRange.getStart() + offsetStart > length) return true;
+    private boolean selectionOutOfRange(IndexRange indexRange, int length, int offsetStart, int offsetEnd) {
+        if (indexRange.getStart() + offsetStart > length) return true;
         return indexRange.getEnd() + offsetEnd > length;
     }
 
@@ -99,7 +89,7 @@ public class MarkdownArea extends CodeArea {
             repairSelect(character);
         }
         for (int i = 0; i < count; i++) {
-            isFormatted = isFormatted && selectionIsFormattedWithChar( i, character);
+            isFormatted = isFormatted && selectionIsFormattedWithChar(i, character);
         }
         if (isFormatted) {
             unformatSelection(count - 1);
@@ -218,12 +208,12 @@ public class MarkdownArea extends CodeArea {
         final String checked = "- [x]";
         final String unchecked = "- [ ]";
 
-        if (isFormattedBullet( unchecked)) {
-            replaceBullet( unchecked, checked);
+        if (isFormattedBullet(unchecked)) {
+            replaceBullet(unchecked, checked);
         } else if (isFormattedBullet(checked)) {
-            removeBullet( checked);
+            removeBullet(checked);
         } else {
-            formatBullet( unchecked);
+            formatBullet(unchecked);
         }
     }
 
@@ -232,26 +222,26 @@ public class MarkdownArea extends CodeArea {
         final String title2 = "## ";
         final String title3 = "### ";
         if (isFormattedBullet(title)) {
-            replaceBullet( title, title2);
-        } else if (isFormattedBullet( title2)) {
-            replaceBullet( title2, title3);
-        } else if (isFormattedBullet( title3)) {
-            removeBullet( title3);
+            replaceBullet(title, title2);
+        } else if (isFormattedBullet(title2)) {
+            replaceBullet(title2, title3);
+        } else if (isFormattedBullet(title3)) {
+            removeBullet(title3);
         } else {
             formatBullet(title);
         }
     }
 
-    public void registerSlave(MarkdownView markdownView){
+    public void registerSlave(MarkdownView markdownView) {
         slaves.add(markdownView);
     }
 
-    public void removeSlave(MarkdownView markdownView){
+    public void removeSlave(MarkdownView markdownView) {
         slaves.remove(markdownView);
     }
 
-    private void refreshSlaves(Document doc){
-        new Thread(() ->{
+    private void refreshSlaves(Document doc) {
+        new Thread(() -> {
             final String html = renderer.render(doc);
             slaves.forEach(markdownView -> {
                 markdownView.setRenderedContent(html);
