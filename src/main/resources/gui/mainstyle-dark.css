@@ -351,8 +351,8 @@
 
 /*----*/
 #markdown-area .text.heading{
-    -fx-fill: blue;
-    -fx-font-size: 24px;
+    -fx-fill: blue !important;
+    -fx-font-size: 24px !important;
 }
 
 #markdown-area .text.bulletlist{
@@ -366,4 +366,8 @@
 #markdown-area .text.fencedcodeblock{
     -fx-fill: gray;
     -fx-font-family: monospace;
+}
+
+#markdown-area .text.anchorlink{
+    -fx-underline: true;
 }

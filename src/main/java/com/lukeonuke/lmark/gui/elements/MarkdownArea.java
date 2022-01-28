@@ -1,6 +1,8 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.util.SelectionMemory;
+import com.vladsch.flexmark.ast.Paragraph;
+import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
@@ -47,17 +49,30 @@ public class MarkdownArea extends CodeArea {
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ArrayList<String> arrayList = new ArrayList<>();
         Document doc = parser.parse(this.getText());
-        doc.getChildIterator().forEachRemaining(node -> {
+        //doc.getDescendants().forEach(node -> logger.info(node.getClass().toGenericString()));
+        doc.getDescendants().forEach(node -> {
+            if (node instanceof Text) return;
+            if (node instanceof Paragraph) return;
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
-            spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
+            logger.info("{} {} {}",node.getNodeName() , node.getStartOffset(), node.getEndOffset());
+
+            /*spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
             spansBuilder.add(Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)), node.getTextLength());
-            lastIndex.set(node.getEndOffset());
+            lastIndex.set(node.getEndOffset());*/
+
+            this.setStyle(node.getStartOffset(), node.getStartOffset() + node.getTextLength(), Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)));
         });
         logger.info(arrayList.toString());
-        this.setStyleSpans(0, spansBuilder.create());
+        //this.setStyleSpans(0, spansBuilder.create());
 
         refreshSlaves(doc);
+    }
+
+    private void fillSpansBuilder(StyleSpansBuilder<Collection<String>> spansBuilder, Collection<String> classes, int from, int to){
+        for(int i = from; i < to; i++){
+
+        }
     }
 
     public double getScrollY() {
