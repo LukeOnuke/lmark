@@ -1,6 +1,7 @@
 package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.util.SelectionMemory;
+import com.lukeonuke.lmark.util.StyleRegister;
 import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -48,23 +49,24 @@ public class MarkdownArea extends CodeArea {
         AtomicInteger lastIndex = new AtomicInteger(0);
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ArrayList<String> arrayList = new ArrayList<>();
+        StyleRegister styleRegister = new StyleRegister(this.getLength());
         Document doc = parser.parse(this.getText());
         //doc.getDescendants().forEach(node -> logger.info(node.getClass().toGenericString()));
         doc.getDescendants().forEach(node -> {
-            if (node instanceof Text) return;
-            if (node instanceof Paragraph) return;
+            //if (node instanceof Text) return;
+            //if (node instanceof Paragraph) return;
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
-
-            logger.info("{} {} {}",node.getNodeName() , node.getStartOffset(), node.getEndOffset());
 
             /*spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
             spansBuilder.add(Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)), node.getTextLength());
             lastIndex.set(node.getEndOffset());*/
+            styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
 
-            this.setStyle(node.getStartOffset(), node.getStartOffset() + node.getTextLength(), Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)));
+            //this.setStyle(node.getStartOffset(), node.getStartOffset() + node.getTextLength(), Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)));
         });
         logger.info(arrayList.toString());
-        //this.setStyleSpans(0, spansBuilder.create());
+        this.setStyleSpans(0, styleRegister.getStyleSpans());
+        logger.info("{}", this.getLength());
 
         refreshSlaves(doc);
     }
