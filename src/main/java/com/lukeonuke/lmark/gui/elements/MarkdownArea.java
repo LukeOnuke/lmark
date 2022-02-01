@@ -40,41 +40,23 @@ public class MarkdownArea extends CodeArea {
                 computeHighlighting()
         );
 
-
         this.getStyleClass().add("markdown-area");
         this.setId("markdown-area");
     }
 
     public void computeHighlighting() {
-        AtomicInteger lastIndex = new AtomicInteger(0);
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         ArrayList<String> arrayList = new ArrayList<>();
         StyleRegister styleRegister = new StyleRegister(this.getLength());
         Document doc = parser.parse(this.getText());
-        //doc.getDescendants().forEach(node -> logger.info(node.getClass().toGenericString()));
         doc.getDescendants().forEach(node -> {
-            //if (node instanceof Text) return;
-            //if (node instanceof Paragraph) return;
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
-            /*spansBuilder.add(Collections.emptyList(), node.getStartOffset() - lastIndex.get());
-            spansBuilder.add(Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)), node.getTextLength());
-            lastIndex.set(node.getEndOffset());*/
             styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
-
-            //this.setStyle(node.getStartOffset(), node.getStartOffset() + node.getTextLength(), Collections.singleton(node.getNodeName().toLowerCase(Locale.ENGLISH)));
         });
         logger.info(arrayList.toString());
         this.setStyleSpans(0, styleRegister.getStyleSpans());
-        logger.info("{}", this.getLength());
 
         refreshSlaves(doc);
-    }
-
-    private void fillSpansBuilder(StyleSpansBuilder<Collection<String>> spansBuilder, Collection<String> classes, int from, int to){
-        for(int i = from; i < to; i++){
-
-        }
     }
 
     public double getScrollY() {
