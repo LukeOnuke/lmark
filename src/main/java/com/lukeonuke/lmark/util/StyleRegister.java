@@ -2,6 +2,7 @@ package com.lukeonuke.lmark.util;
 
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -10,6 +11,7 @@ public class StyleRegister {
     //To reduce memory usage we use an indexed system
     ArrayList<Collection<String>> index = new ArrayList<>();
     ArrayList<Integer> styleList;
+    final Logger logger = LoggerFactory.getLogger(StyleRegister.class);
 
     private StyleRegister() {
     }
@@ -67,17 +69,17 @@ public class StyleRegister {
     public StyleSpans<Collection<String>> getStyleSpans(){
         int indicator = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-        System.out.println(styleList.size());
         for (int i = 0; i < styleList.size(); i++) {
             if(!styleList.get(indicator).equals(styleList.get(i))){
-                spansBuilder.add(getFromIndex(styleList.get(indicator)), i - 1 - indicator);
+                spansBuilder.add(getFromIndex(styleList.get(indicator)), i - indicator);
+                logger.info("{} from {} to {} length {}", getFromIndex(styleList.get(indicator)), indicator, i, i - indicator - 1);
                 indicator = i;
             }
         }
-        index.forEach(collection -> {
-            LoggerFactory.getLogger(StyleRegister.class).info(collection.toString());
-        });
-        LoggerFactory.getLogger(StyleRegister.class).info("{}", styleList.size());
+        /*index.forEach(collection -> {
+            logger.info(collection.toString());
+        });*/
+        logger.info("{}", styleList.size());
         return spansBuilder.create();
     }
 }
