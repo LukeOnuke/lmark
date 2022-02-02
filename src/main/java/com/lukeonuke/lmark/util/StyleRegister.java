@@ -17,7 +17,7 @@ public class StyleRegister {
     }
 
     public StyleRegister(int size) {
-        addToIndex(List.of("fillerx"));
+        addToIndex(List.of("text"));
         styleList = new ArrayList<>(Arrays.asList(new Integer[size]));
         Collections.fill(styleList, 0);
     }
@@ -37,12 +37,7 @@ public class StyleRegister {
     }
 
     public void setStyleAt(int charAt, Collection<String> styleCollection){
-        if(styleList.get(charAt) == 0){
-            addToIndex(styleCollection);
-            styleList.ensureCapacity(charAt);
-            styleList.set(charAt, lookupIndex(styleCollection));
-        }else{
-            Collection<String> styles = getStyleAt(charAt);
+            List<String> styles = new ArrayList<>(getStyleAt(charAt));
             styleCollection.forEach(s -> {
                 if(!styles.contains(s)){
                     styles.add(s);
@@ -50,7 +45,6 @@ public class StyleRegister {
             });
             addToIndex(styles);
             styleList.set(charAt, lookupIndex(styles));
-        }
     }
 
     public void setStyleBetween(int min, int max, Collection<String> styleCollection){
@@ -72,14 +66,9 @@ public class StyleRegister {
         for (int i = 0; i < styleList.size(); i++) {
             if(!styleList.get(indicator).equals(styleList.get(i))){
                 spansBuilder.add(getFromIndex(styleList.get(indicator)), i - indicator);
-                logger.info("{} from {} to {} length {}", getFromIndex(styleList.get(indicator)), indicator, i, i - indicator - 1);
                 indicator = i;
             }
         }
-        /*index.forEach(collection -> {
-            logger.info(collection.toString());
-        });*/
-        logger.info("{}", styleList.size());
         return spansBuilder.create();
     }
 }

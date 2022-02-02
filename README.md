@@ -1,7 +1,7 @@
 [![CI](https://github.com/LukeOnuke/lmark/actions/workflows/main.yml/badge.svg)](https://github.com/LukeOnuke/lmark/actions/workflows/main.yml) ![GitHub top language](https://img.shields.io/github/languages/top/LukeOnuke/lmark) ![Supports windows macOS linux](https://img.shields.io/badge/Supports-Win%20%7C%20MacOS%20%7C%20Linux-brightgreen)
 
 # lmark
-***Basicly a markdownView notepad with extra open sauce!*** Or in academic wording an that allows you to easly open, edit and export md files.
+***Basicly a markdownnotepad with extra open sauce!*** Or in academic wording an that allows you to easly open, edit and export md files.
 
 ### Main features include
 - Export markdownView to ***pdf*** and ***html***!
@@ -60,8 +60,9 @@ Preffered IDE is intelij IDEA but you could make it work on others
 # Licence & legal
 This program uses [fonts awsome 6](https://fontawesome.com/)
 
+```
 This program is under the mit licence.
-
+```
 ```txt
 MIT License
 
@@ -75,7 +76,9 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+copies or substantial portions of the Software. 
+
+ultra pog markdown *renderer* momenat jer gaming **vreme**
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

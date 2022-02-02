@@ -355,7 +355,11 @@
     -fx-font-size: 24px !important;
 }
 
-#markdown-area .text.bulletlist{
+#markdown-area .text.bulletlistitem{
+    -fx-fill: orange;
+}
+
+#markdown-area .text.tasklistitem{
     -fx-fill: orange;
 }
 
@@ -368,6 +372,24 @@
     -fx-font-family: monospace;
 }
 
-#markdown-area .text.anchorlink{
+#markdown-area .text.link{
     -fx-underline: true;
 }
+
+#markdown-area .text.code{
+    -fx-fill: gray;
+    -fx-font-family: monospace;
+}
+
+#markdown-area .text.image{
+    -fx-fill: lightblue;
+}
+
+#markdown-area .text.blockquote{
+    -fx-fill: #9c9c9c;
+}
+
+#markdown-area .text.strongemphasis{
+    -fx-font-weight: bold;
+}
+

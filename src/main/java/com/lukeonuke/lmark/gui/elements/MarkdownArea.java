@@ -3,6 +3,7 @@ package com.lukeonuke.lmark.gui.elements;
 import com.lukeonuke.lmark.util.SelectionMemory;
 import com.lukeonuke.lmark.util.StyleRegister;
 import com.vladsch.flexmark.ast.Paragraph;
+import com.vladsch.flexmark.ast.StrongEmphasis;
 import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -52,6 +53,7 @@ public class MarkdownArea extends CodeArea {
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
             styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
+            if (node instanceof StrongEmphasis) {logger.info("{} - textlen : {} - len: {} - pos: {}", ((StrongEmphasis) node).getText(), node.getTextLength(), ((StrongEmphasis) node).getText().length(), node.getStartOffset());}
         });
         logger.info(arrayList.toString());
         this.setStyleSpans(0, styleRegister.getStyleSpans());
