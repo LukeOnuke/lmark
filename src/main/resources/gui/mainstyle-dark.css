@@ -13,9 +13,16 @@
     -transparent-white: rgba(255, 255, 255, 0.3);
     -none: rgba(0,0,0,0);
 
+    -syntax-orange: #ec7336;
+    -syntax-purple: #7676f4;
+    -syntax-gray: #5b5b76;
+    -syntax-deep-purple: #5151e6;
+
     -fx-background-color : -background;
     -fx-control-inner-background: -background;
     -fx-border-color: -gray;
+
+    -fx-font-family: "Arial";
 }
 
 .text{
@@ -351,45 +358,53 @@
 
 /*----*/
 #markdown-area .text.heading{
-    -fx-fill: blue !important;
+    -fx-fill: -syntax-orange !important;
     -fx-font-size: 24px !important;
 }
 
 #markdown-area .text.bulletlistitem{
-    -fx-fill: orange;
+    -fx-fill: -syntax-gray;
 }
 
 #markdown-area .text.tasklistitem{
-    -fx-fill: orange;
+    -fx-fill: -syntax-gray;
 }
 
 #markdown-area .text.htmlblock{
-    -fx-fill: red;
+    -fx-fill: -syntax-orange;
 }
 
 #markdown-area .text.fencedcodeblock{
-    -fx-fill: gray;
+    -fx-fill: -syntax-gray;
     -fx-font-family: monospace;
 }
 
 #markdown-area .text.link{
-    -fx-underline: true;
+    -fx-fill: -syntax-purple;
 }
 
 #markdown-area .text.code{
-    -fx-fill: gray;
-    -fx-font-family: monospace;
+    -fx-fill: gray !important;
+    -fx-font-family: monospace !important;
 }
 
 #markdown-area .text.image{
-    -fx-fill: lightblue;
+    -fx-fill: -syntax-purple;
 }
 
 #markdown-area .text.blockquote{
     -fx-fill: #9c9c9c;
 }
 
-#markdown-area .text.strongemphasis{
+#markdown-area .text.strong{
     -fx-font-weight: bold;
 }
+#markdown-area .text.emphasis{
+    -fx-font-style: italic;
+}
+#markdown-area .text.strongemphasis{
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+}
+
 
