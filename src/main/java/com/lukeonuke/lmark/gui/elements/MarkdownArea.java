@@ -2,23 +2,19 @@ package com.lukeonuke.lmark.gui.elements;
 
 import com.lukeonuke.lmark.util.SelectionMemory;
 import com.lukeonuke.lmark.util.StyleRegister;
-import com.vladsch.flexmark.ast.FencedCodeBlock;
-import com.vladsch.flexmark.ast.Paragraph;
-import com.vladsch.flexmark.ast.StrongEmphasis;
-import com.vladsch.flexmark.ast.Text;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.data.MutableDataSet;
-import javafx.application.Application;
 import javafx.scene.control.IndexRange;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
 
 public class MarkdownArea extends CodeArea {
     private Logger logger = LoggerFactory.getLogger(MarkdownArea.class);
@@ -47,16 +43,12 @@ public class MarkdownArea extends CodeArea {
     }
 
     public void computeHighlighting() {
-        ArrayList<String> arrayList = new ArrayList<>();
         StyleRegister styleRegister = new StyleRegister(this.getLength());
         Document doc = parser.parse(this.getText());
         doc.getDescendants().forEach(node -> {
-            if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
             styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() - 1 , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
-            if (node instanceof FencedCodeBlock) {logger.info("{} - textlen : {} - pos: {}", ((FencedCodeBlock) node).getChars().toString(), node.getTextLength(), node.getStartOffset());}
         });
-        logger.info(arrayList.toString());
         this.setStyleSpans(0, styleRegister.getStyleSpans());
 
         refreshSlaves(doc);

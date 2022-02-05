@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <target>System.out</target>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
-                %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
-            </Pattern>
-        </layout>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/.lmark/lmark.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
-    <logger name="com.lukeonuke" level="debug" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-    </logger>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %-36logger - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-    <root level="error">
-        <appender-ref ref="CONSOLE"/>
+    <root level="info">
+        <appender-ref ref="STDOUT" /> <!-- Every log will apear on screen log -->
+        <appender-ref ref="FILE" />   <!-- Every log will apear on file -->
     </root>
 
 </configuration>

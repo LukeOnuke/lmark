@@ -340,6 +340,8 @@
     -fx-background-color: -background;
 }
 
+/*-- MarkdownArea --*/
+
 #markdown-area {
     -fx-control-inner-background: -background-2;
     -fx-background-color: -background-2;
@@ -356,7 +358,6 @@
     -fx-stroke: -text;
 }
 
-/*----*/
 #markdown-area .text.heading{
     -fx-fill: -syntax-orange !important;
     -fx-font-size: 24px !important;
@@ -375,7 +376,7 @@
 }
 
 #markdown-area .text.fencedcodeblock{
-    -fx-fill: -syntax-gray !important;
+    -fx-fill: derive(-syntax-gray, 0.25) !important;
     -fx-font-family: monospace !important;
 }
 
@@ -385,7 +386,7 @@
 }
 
 #markdown-area .text.code{
-    -fx-fill: gray !important;
+    -fx-fill: derive(-syntax-gray, 0.25) !important;
     -fx-font-family: monospace !important;
 }
 
@@ -394,7 +395,7 @@
 }
 
 #markdown-area .text.blockquote{
-    -fx-fill: #9c9c9c;
+    -fx-fill: -syntax-gray;
 }
 
 #markdown-area .text.strong{

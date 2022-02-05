@@ -11,7 +11,6 @@ public class StyleRegister {
     //To reduce memory usage we use an indexed system
     ArrayList<Collection<String>> index = new ArrayList<>();
     ArrayList<Integer> styleList;
-    final Logger logger = LoggerFactory.getLogger(StyleRegister.class);
 
     private StyleRegister() {
     }

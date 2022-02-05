@@ -140,11 +140,6 @@ public class OSIntegration {
     }
 
     public static File getAppData(){
-        if(OS.equals(OperatingSystem.MACOS)){
-            return new File(File.separator + "Library" +
-                    File.separator + "Application Support" +
-                    File.separator + LMark.class.getName() + File.separator);
-        }
         return new File(System.getProperty("user.home") +
                 File.separator + ApplicationConstants.APPDIR + File.separator);
     }
