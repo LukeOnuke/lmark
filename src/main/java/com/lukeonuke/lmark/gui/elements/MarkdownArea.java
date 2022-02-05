@@ -53,7 +53,7 @@ public class MarkdownArea extends CodeArea {
         doc.getDescendants().forEach(node -> {
             if (!arrayList.contains(node.getNodeName())) arrayList.add(node.getNodeName());
 
-            styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
+            styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() - 1 , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
             if (node instanceof FencedCodeBlock) {logger.info("{} - textlen : {} - pos: {}", ((FencedCodeBlock) node).getChars().toString(), node.getTextLength(), node.getStartOffset());}
         });
         logger.info(arrayList.toString());

@@ -30,7 +30,7 @@
 ![light mode loaded file](https://raw.githubusercontent.com/LukeOnuke/lmark/main/images/light-open.png)
 
 # Contributions
-If you want to contribute to lmark, please do. Contributers are welcome. For build instructions go to [# Builds](#builds)
+If you want to contribute to **lmark**, please do. Contributers are welcome. For build instructions go to [# Builds](#builds)
 
 # Builds
 You can find the newest builds in the [package all platforms action](https://github.com/LukeOnuke/lmark/actions/workflows/main.yml), although be ware they might not work as intended.

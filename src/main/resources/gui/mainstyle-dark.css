@@ -375,12 +375,13 @@
 }
 
 #markdown-area .text.fencedcodeblock{
-    -fx-fill: -syntax-gray;
-    -fx-font-family: monospace;
+    -fx-fill: -syntax-gray !important;
+    -fx-font-family: monospace !important;
 }
 
 #markdown-area .text.link{
     -fx-fill: -syntax-purple;
+    -fx-underline: true;
 }
 
 #markdown-area .text.code{
@@ -389,7 +390,7 @@
 }
 
 #markdown-area .text.image{
-    -fx-fill: -syntax-purple;
+    -fx-fill: derive(-syntax-purple, -0.25);
 }
 
 #markdown-area .text.blockquote{
@@ -404,7 +405,6 @@
 }
 #markdown-area .text.strongemphasis{
     -fx-font-weight: bold;
-    -fx-font-style: italic;
 }
 
 
