@@ -242,6 +242,11 @@ public class MainAppWindow implements AppWindow {
         Menu help = new Menu("Help");
         menuBar.getMenus().add(help);
 
+        MenuItem openHelp = new MenuItem("Open Help");
+        openHelp.setOnAction(actionEvent -> {
+            OSIntegration.openWebpage("https://lukeonuke.com/lmark/");
+        });
+
         MenuItem aboutCreators = new MenuItem("About Creator");
         aboutCreators.setOnAction(observable -> {
             OSIntegration.openWebpage("https://github.com/LukeOnuke");

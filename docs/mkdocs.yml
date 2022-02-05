@@ -1,6 +1,6 @@
 site_name: lmark
 repo_url: https://github.com/LukeOnuke/lmark/
-edit_uri: /tree/main/docs/docs
+edit_uri: /edit/main/docs/docs/
 site_description: Edit, view, and export your markdown files with lmark. Easy exporting to PDF and HTML!
 theme:
   name: material
