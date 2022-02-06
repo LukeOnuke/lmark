@@ -9,6 +9,7 @@ import com.lukeonuke.lmark.event.LinkStartHoverEvent;
 import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
 import com.lukeonuke.lmark.gui.elements.FileCell;
+import com.lukeonuke.lmark.gui.elements.FileTreeView;
 import com.lukeonuke.lmark.gui.elements.MarkdownView;
 import com.lukeonuke.lmark.gui.elements.MarkdownArea;
 import com.lukeonuke.lmark.util.*;
@@ -305,28 +306,11 @@ public class MainAppWindow implements AppWindow {
         AnchorUtils.anchorAllSides(statusProgress, 0D);
 
         //Arround files
-        FlowPane files = new FlowPane(Orientation.VERTICAL);
-        files.getStyleClass().add("bg-2");
-        ScrollPane filesContainer = new ScrollPane(files);
-        filesContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        filesContainer.setFitToHeight(true);
-        filesContainer.setFitToWidth(true);
-        filesContainer.getStyleClass().add("bg-1");
-
-        files.setAlignment(Pos.CENTER);
-
-        Arrays.stream(fileUtils.getParentFile().listFiles()).iterator().forEachRemaining(file -> {
-            if (!file.isFile()) return;
-            FileCell currentFile = new FileCell(file);
-            currentFile.setOnMouseClicked(mouseEvent -> {
-                fileUtils.setFile(currentFile.getFile());
-            });
-            files.getChildren().add(currentFile);
-        });
+        FileTreeView treeView = new FileTreeView(fileUtils.getParentFile());
 
         AnchorUtils.anchorAllSides(fileBrowserContainer, 0D);
-        AnchorUtils.anchorAllSides(filesContainer, 0D);
-        fileBrowserContainer.getChildren().addAll(filesContainer);
+        AnchorUtils.anchorAllSides(treeView, 0D);
+        fileBrowserContainer.getChildren().addAll(treeView);
 
         Button saveButton = FxUtils.createToolBarButton("\uF0C7", "CONTROL + S",
                 actionEvent -> save(edit.getText()));

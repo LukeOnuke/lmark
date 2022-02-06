@@ -20,6 +20,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 
 /**
@@ -334,5 +335,14 @@ public class FileUtils {
             // Swallow
         }
         return url;
+    }
+
+    public static boolean supports(File file){
+        if (file.isDirectory()) return false;
+        boolean supports = false;
+        for (String openableExtension : ApplicationConstants.openableExtensions) {
+            supports = supports || file.getName().toLowerCase(Locale.ROOT).endsWith(openableExtension);
+        }
+        return supports;
     }
 }

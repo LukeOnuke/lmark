@@ -2,6 +2,9 @@ package com.lukeonuke.lmark;
 
 import javafx.scene.text.Font;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class ApplicationConstants {
     public static final String APPLICATION_CSS = "/gui/mainstyle-light.css";
     public static final String APPLICATION_DARK_CSS = "/gui/mainstyle-dark.css";
@@ -17,4 +20,5 @@ public class ApplicationConstants {
     public static final Font FONTS_AWESOME = Font.loadFont(LMark.class.getResourceAsStream("/gui/fa-6-solid.otf"), 12);
     public static final String TMP = "tmp/";
     public static final String APPDIR = ".lmark";
+    public static final ArrayList<String> openableExtensions = new ArrayList<>(Arrays.asList("md", "txt"));
 }
