@@ -31,7 +31,6 @@ public class FileGraphic extends Text {
         if (file.isDirectory()) {setTextFromGraphics("dir"); return;};
         String name = file.getName();
         setTextFromGraphics(name.substring(name.lastIndexOf(".") + 1).toLowerCase(Locale.ROOT));
-        System.out.println(name.substring(name.lastIndexOf(".") + 1).toLowerCase(Locale.ROOT));
     }
 
     private void setTextFromGraphics(String key) {
