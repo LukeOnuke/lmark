@@ -8,10 +8,7 @@ import com.lukeonuke.lmark.Registry;
 import com.lukeonuke.lmark.event.LinkStartHoverEvent;
 import com.lukeonuke.lmark.event.LinkStopHoverEvent;
 import com.lukeonuke.lmark.event.SimpleScrollEvent;
-import com.lukeonuke.lmark.gui.elements.FileCell;
-import com.lukeonuke.lmark.gui.elements.FileTreeView;
-import com.lukeonuke.lmark.gui.elements.MarkdownView;
-import com.lukeonuke.lmark.gui.elements.MarkdownArea;
+import com.lukeonuke.lmark.gui.elements.*;
 import com.lukeonuke.lmark.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -124,6 +121,7 @@ public class MainAppWindow implements AppWindow {
 
         edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
             if(!edit.isHover()) return;
+            if(!edit.getText().isEmpty()) return;
             markdownView.scrollTo(edit.getScrollY());
         });
 
@@ -305,8 +303,14 @@ public class MainAppWindow implements AppWindow {
         AnchorUtils.anchorAllSides(statusBar, 0D);
         AnchorUtils.anchorAllSides(statusProgress, 0D);
 
-        //Arround files
+        //FileTree
         FileTreeView treeView = new FileTreeView(fileUtils.getParentFile());
+        treeView.getSelectionModel().selectedItemProperty().addListener((observableValue, stringTreeItem, t1) -> {
+            fileUtils.setFile(((FileTreeItem)treeView.getSelectionModel().getSelectedItem()).getFile());
+        });
+        fileUtils.registerFileListener(evt -> {
+            treeView.setFile(((File)evt.getNewValue()).getParentFile());
+        });
 
         AnchorUtils.anchorAllSides(fileBrowserContainer, 0D);
         AnchorUtils.anchorAllSides(treeView, 0D);

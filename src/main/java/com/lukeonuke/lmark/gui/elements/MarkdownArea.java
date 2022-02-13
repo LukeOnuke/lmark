@@ -34,8 +34,11 @@ public class MarkdownArea extends CodeArea {
     public MarkdownArea() {
         this.wrapTextProperty().set(true);
 
-        this.textProperty().addListener((observableValue, s, t1) ->
-                computeHighlighting()
+        this.textProperty().addListener((observableValue, s, t1) -> {
+                    computeHighlighting();
+                    if (t1.replace(s, "").equals("\n")) return;
+                    if (!t1.endsWith("\n")) this.appendText("\n");
+                }
         );
 
         this.getStyleClass().add("markdown-area");
@@ -46,10 +49,11 @@ public class MarkdownArea extends CodeArea {
         StyleRegister styleRegister = new StyleRegister(this.getLength());
         Document doc = parser.parse(this.getText());
         doc.getDescendants().forEach(node -> {
-
-            styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() - 1 , new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
+            styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() - 1, new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
         });
-        this.setStyleSpans(0, styleRegister.getStyleSpans());
+        logger.info("Is modified {}", styleRegister.isModified());
+        if (styleRegister.isModified()) this.setStyleSpans(0, styleRegister.getStyleSpans());
+
 
         refreshSlaves(doc);
     }
