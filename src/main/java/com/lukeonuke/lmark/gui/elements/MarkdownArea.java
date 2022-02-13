@@ -51,7 +51,6 @@ public class MarkdownArea extends CodeArea {
         doc.getDescendants().forEach(node -> {
             styleRegister.setStyleBetween(node.getStartOffset(), node.getEndOffset() - 1, new ArrayList<>(Arrays.asList(node.getNodeName().toLowerCase(Locale.ENGLISH))));
         });
-        logger.info("Is modified {}", styleRegister.isModified());
         if (styleRegister.isModified()) this.setStyleSpans(0, styleRegister.getStyleSpans());
 
 

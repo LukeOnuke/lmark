@@ -37,7 +37,6 @@ public class StyleRegister {
 
     public void setStyleAt(int charAt, Collection<String> styleCollection) {
         hasBeenModified = true;
-        LoggerFactory.getLogger(StyleRegister.class).info("{} {}", charAt, styleCollection);
         List<String> styles = new ArrayList<>(getStyleAt(charAt));
         styleCollection.forEach(s -> {
             if (!styles.contains(s)) {
@@ -74,9 +73,6 @@ public class StyleRegister {
                 spansBuilder.add(getFromIndex(integer), 1);
             }
         }
-        index.forEach(collection -> {
-            LoggerFactory.getLogger("lol").info("{}", collection);
-        });
 
         return spansBuilder.create();
     }
