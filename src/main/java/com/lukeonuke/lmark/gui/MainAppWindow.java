@@ -316,31 +316,31 @@ public class MainAppWindow implements AppWindow {
         AnchorUtils.anchorAllSides(treeView, 0D);
         fileBrowserContainer.getChildren().addAll(treeView);
 
-        Button saveButton = FxUtils.createToolBarButton("\uF0C7", "CONTROL + S",
+        Button saveButton = FxUtils.createToolBarButton(Icons.SAVE, "CONTROL + S",
                 actionEvent -> save(edit.getText()));
 
-        Button printButton = FxUtils.createToolBarButton("\uF02F", "CONTROL + P",
+        Button printButton = FxUtils.createToolBarButton(Icons.PRINTER, "CONTROL + P",
                 actionEvent -> print(markdownView));
 
-        Button boldButton = FxUtils.createToolBarButton("\uf032", "CONTROL + B",
+        Button boldButton = FxUtils.createToolBarButton(Icons.BOLD, "CONTROL + B",
                 actionEvent -> edit.formatItalicize(2));
 
-        Button italicButton = FxUtils.createToolBarButton("\uf033", "CONTROL + I",
+        Button italicButton = FxUtils.createToolBarButton(Icons.ITALIC, "CONTROL + I",
                 actionEvent -> edit.formatItalicize( 1));
 
-        Button boldItalicButton = FxUtils.createToolBarButton("\uf032\uf033", "CONTROL + J",
+        Button boldItalicButton = FxUtils.createToolBarButton(Icons.BOLD + Icons.ITALIC, "CONTROL + J",
                 actionEvent -> edit.formatItalicize(3));
 
-        Button strikethroughButton = FxUtils.createToolBarButton("\uf0cc", "CONTROL + O",
+        Button strikethroughButton = FxUtils.createToolBarButton(Icons.STRIKETHROUGH, "CONTROL + O",
                 actionEvent -> edit.formatStrikethrough());
 
-        Button checkBoxButton = FxUtils.createToolBarButton("\uF14A", "CONTROL + R",
+        Button checkBoxButton = FxUtils.createToolBarButton(Icons.CHECKMARK, "CONTROL + R",
                 actionEvent -> edit.checkListBulletFormat());
 
-        Button bulletButton = FxUtils.createToolBarButton("\uF111", "CONTROL + E",
+        Button bulletButton = FxUtils.createToolBarButton(Icons.DOT, "CONTROL + E",
                 actionEvent -> edit.dotBulletFormat());
 
-        Button headingButton = FxUtils.createToolBarButton("\uf1dc", "CONTROL + T",
+        Button headingButton = FxUtils.createToolBarButton(Icons.TITLE, "CONTROL + T",
                 actionEvent -> edit.titleFormat());
 
         toolBar.getChildren()

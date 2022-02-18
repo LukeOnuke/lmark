@@ -26,7 +26,7 @@ public class FileGraphic extends Text {
     }
 
     public FileGraphic(File file) {
-        this.getStyleClass().addAll("file-graphic", "text");
+        this.getStyleClass().addAll("file-graphic");
         this.setFont(ApplicationConstants.FONTS_AWESOME);
         if (file.isDirectory()) {setTextFromGraphics("dir"); return;};
         String name = file.getName();

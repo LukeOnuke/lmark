@@ -1,12 +1,16 @@
 package com.lukeonuke.lmark.gui.elements;
 
+import com.lukeonuke.lmark.util.Icons;
 import com.lukeonuke.lmark.util.SelectionMemory;
 import com.lukeonuke.lmark.util.StyleRegister;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import org.fxmisc.richtext.CodeArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,13 @@ public class MarkdownArea extends CodeArea {
                     if (!t1.endsWith("\n")) this.appendText("\n");
                 }
         );
+
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem bold = new MenuItem("Bold");
+        bold.setOnAction(actionEvent -> formatItalicize(2));
+        bold.setGraphic(new Icon(Icons.BOLD));
+        contextMenu.getItems().addAll(bold);
+        setContextMenu(contextMenu);
 
         this.getStyleClass().add("markdown-area");
         this.setId("markdown-area");
