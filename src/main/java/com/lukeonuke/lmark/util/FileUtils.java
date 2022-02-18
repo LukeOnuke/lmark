@@ -237,7 +237,7 @@ public class FileUtils {
                 recent.add(0, recentFile.getAbsolutePath());
             }
 
-            if (recent.size() >= 10) {
+            if (recent.size() > 10) {
                 recent.remove(10);
             }
 
