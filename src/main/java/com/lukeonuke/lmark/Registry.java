@@ -37,6 +37,8 @@ public class Registry {
             }
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread(this::save, "registry-shutdown-hook"));
+
         logger.info(this.toString());
     }
 
@@ -62,6 +64,7 @@ public class Registry {
         prop.setProperty(ApplicationConstants.PROPERTIES_AUTOSAVE_ENABLED, "true");
         prop.setProperty(ApplicationConstants.PROPERTIES_AUTO_DARK_MODE, "true");
         prop.setProperty(ApplicationConstants.PROPERTIES_DARK_MODE_ENABLED, "false");
+        prop.setProperty(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW, "true");
     }
 
     public String readOption(String key){

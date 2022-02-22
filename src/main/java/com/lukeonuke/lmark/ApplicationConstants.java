@@ -22,4 +22,5 @@ public class ApplicationConstants {
     public static final String APPDIR = ".lmark";
     public static final ArrayList<String> openableExtensions = new ArrayList<>(Arrays.asList("md", "txt"));
     public static final String NEW_LINE = "\n";
+    public static final String PROPERTIES_VIEW_FILETREEVIEW = "view.fileTreeView";
 }

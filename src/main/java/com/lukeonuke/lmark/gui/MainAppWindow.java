@@ -14,7 +14,6 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -46,7 +45,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class MainAppWindow implements AppWindow {
@@ -78,7 +76,7 @@ public class MainAppWindow implements AppWindow {
         FlowPane statusBar = new FlowPane(Orientation.HORIZONTAL);
         ProgressBar statusProgress = new ProgressBar();
         StackPane statusBarContainer = new StackPane(statusProgress, statusBar);
-        AnchorPane fileBrowserContainer = new AnchorPane();
+        AnchorPane fileTreeContainer = new AnchorPane();
         FlowPane toolBar = new FlowPane();
         //Setup all stuffs
         markdownContainer.setContent(markdownView.getNode());
@@ -261,14 +259,10 @@ public class MainAppWindow implements AppWindow {
 
         Menu view = new Menu("View");
 
-        MenuItem toggleRecent = new MenuItem("Toggle arround files");
+        MenuItem toggleRecent = new MenuItem("Toggle file tree");
         toggleRecent.setOnAction(actionEvent -> {
-            if (splitPane.getItems().contains(fileBrowserContainer)) {
-                splitPane.setPrefWidth(splitPane.getWidth());
-                splitPane.getItems().remove(fileBrowserContainer);
-            } else {
-                splitPane.getItems().add(0, fileBrowserContainer);
-            }
+            registry.write(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW,
+                    !registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW));
         });
         view.getItems().add(toggleRecent);
 
@@ -312,9 +306,23 @@ public class MainAppWindow implements AppWindow {
             treeView.setFile(((File)evt.getNewValue()).getParentFile());
         });
 
-        AnchorUtils.anchorAllSides(fileBrowserContainer, 0D);
+        registry.registerRegistryChangeEvent(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW, evt -> {
+            if ( Boolean.parseBoolean(evt.getNewValue().toString()) ) {
+                splitPane.getItems().add(0, fileTreeContainer);
+            } else {
+                splitPane.getItems().remove(fileTreeContainer);
+            }
+            resetSplitPane(splitPane);
+        });
+
+        //Place file tree in GUI by triggering change event
+        if(registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW)){
+            splitPane.getItems().add(0, fileTreeContainer);
+        }
+
+        AnchorUtils.anchorAllSides(fileTreeContainer, 0D);
         AnchorUtils.anchorAllSides(treeView, 0D);
-        fileBrowserContainer.getChildren().addAll(treeView);
+        fileTreeContainer.getChildren().addAll(treeView);
 
         Button saveButton = FxUtils.createToolBarButton(Icons.SAVE, "CONTROL + S",
                 actionEvent -> save(edit.getText()));
@@ -365,14 +373,14 @@ public class MainAppWindow implements AppWindow {
          * */
         fileUtils.registerFileListener(fileChangeEvent -> {
             if(fileChangeEvent.getOldValue() != null && autosaveEnabled) save(edit.getText(), (File) fileChangeEvent.getOldValue());
-            readFileAndSet(edit, markdownView);
+            readFileAndSet(edit);
             hoveredLink.setText("");
             statusBar.getChildren().remove(hoveredLink);
 
             addRecentToMenu(fileMenu, openRecent);
         });
         fileUtils.setFile(fileUtils.getFile());
-        readFileAndSet(edit, markdownView);
+        readFileAndSet(edit);
 
         //Add to splitpane
         splitPane.getItems().add(markdownContainer);
@@ -478,7 +486,12 @@ public class MainAppWindow implements AppWindow {
             FxUtils.lazyRunOnPlatform(this::updateTitle);
         });
 
+        stage.setMinHeight(300D);
+        stage.setMinWidth(500D);
+
         stage.show();
+
+        resetSplitPane(splitPane);
     }
 
     @Override
@@ -526,7 +539,7 @@ public class MainAppWindow implements AppWindow {
         }
     }
 
-    private void readFileAndSet(MarkdownArea edit, MarkdownView markdownView) {
+    private void readFileAndSet(MarkdownArea edit) {
         logger.info("Reading " + fileUtils.getFile().getPath());
         try {
             updateTitle();
@@ -639,5 +652,16 @@ public class MainAppWindow implements AppWindow {
             logger.info("Couldn't load (file > recent)", ioex.getCause());
             fileMenu.getItems().remove(openRecent);
         }
+    }
+
+    private void resetSplitPane(SplitPane splitPane){
+        splitPane.setDividerPosition(0, (splitPane.getWidth() / (splitPane.getDividerPositions().length + 1)) / splitPane.getWidth());
+        for (int i = 1; i < splitPane.getDividerPositions().length; i++) {
+            splitPane.setDividerPosition(i, splitPane.getDividerPositions()[i - 1] + (splitPane.getWidth() / (splitPane.getDividerPositions().length + 1)) / splitPane.getWidth());
+        }
+    }
+
+    private void toggleFileTreeView(SplitPane splitPane, AnchorPane fileTreeContainer){
+
     }
 }
