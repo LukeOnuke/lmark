@@ -1,7 +1,6 @@
 package com.lukeonuke.lmark;
 
 import com.lukeonuke.lmark.util.FileUtils;
-import com.lukeonuke.lmark.util.OSIntegration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,10 @@ public class Registry {
             }
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::save, "registry-shutdown-hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            this.save();
+            logger.info("Saved registry, shutdown hook terminated.");
+        }, "registry-shutdown-hook"));
 
         logger.info(this.toString());
     }

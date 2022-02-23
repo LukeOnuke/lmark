@@ -119,7 +119,8 @@ public class MainAppWindow implements AppWindow {
 
         edit.estimatedScrollYProperty().addListener((observableValue, aDouble, t1) -> {
             if(!edit.isHover()) return;
-            if(!edit.getText().isEmpty()) return;
+            if(edit.getText().isEmpty()) return;
+
             markdownView.scrollTo(edit.getScrollY());
         });
 
