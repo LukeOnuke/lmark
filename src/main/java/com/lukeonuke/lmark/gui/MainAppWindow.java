@@ -201,7 +201,7 @@ public class MainAppWindow implements AppWindow {
         Menu optionsMenu = new Menu("Options");
         menuBar.getMenus().add(optionsMenu);
 
-        MenuItem cacheAndSettingsFolderOptions = new MenuItem("Open settings");
+        MenuItem cacheAndSettingsFolderOptions = new MenuItem("Settings");
         cacheAndSettingsFolderOptions.setOnAction(actionEvent -> {
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.show();
@@ -265,7 +265,11 @@ public class MainAppWindow implements AppWindow {
             registry.write(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW,
                     !registry.readOptionAsBoolean(ApplicationConstants.PROPERTIES_VIEW_FILETREEVIEW));
         });
-        view.getItems().add(toggleRecent);
+
+        MenuItem resetSplitPaneMenu = new MenuItem("Reset split pane");
+        resetSplitPaneMenu.setOnAction(actionEvent -> resetSplitPane(splitPane));
+
+        view.getItems().addAll(toggleRecent, resetSplitPaneMenu);
 
         menuBar.getMenus().add(view);
 
