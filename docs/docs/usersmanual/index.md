@@ -16,8 +16,8 @@ You can see shortcuts for operations on the toolbar when you hover over them.
 | `CTRL` + `J` |  Bold and italizise selection.  |
 | `CTRL` + `O` |  Strikethrough selection.  |
 | `CTRL` + `E` |  Bullet carret line.  |
-| `CTRL` + `E` |  Add to do on carret line.  |
-| `CTRL` + `E` |  Title carret line.  |
+| `CTRL` + `R` |  Add to do on carret line.  |
+| `CTRL` + `T` |  Title carret line.  |
 
 ## Autosave
 Autosave is enabled by default and saves to the file when :
