@@ -21,6 +21,7 @@ You can see shortcuts for operations on the toolbar when you hover over them.
 
 ## Autosave
 Autosave is enabled by default and saves to the file when :
+
 - Enter is pressed
 - Space is pressed
 - A dot is added

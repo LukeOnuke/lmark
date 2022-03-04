@@ -11,6 +11,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
 import org.fxmisc.richtext.CodeArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,11 @@ public class MarkdownArea extends CodeArea {
                     if (!t1.endsWith("\n")) this.appendText("\n");
                 }
         );
+
+        setOnKeyPressed(keyEvent -> {
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.Z)) undo();
+            if (keyEvent.isControlDown() && keyEvent.getCode().equals(KeyCode.Y)) redo();
+        });
 
         ContextMenu contextMenu = new ContextMenu();
         MenuItem bold = new MenuItem("Bold");
