@@ -411,6 +411,11 @@ menu-bar {
     -fx-fill : derive(-orange, 0.25);
 }
 
+.tree-view{
+    -fx-accent: derive(-wintergreen, 0.85);
+    -fx-focus-color: derive(-wintergreen, 0.85);
+}
+
 .file-tree-view{
     -fx-control-inner-background: -background-2;
 }

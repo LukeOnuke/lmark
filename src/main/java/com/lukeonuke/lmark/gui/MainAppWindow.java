@@ -305,6 +305,7 @@ public class MainAppWindow implements AppWindow {
         //FileTree
         FileTreeView treeView = new FileTreeView(fileUtils.getParentFile());
         treeView.getSelectionModel().selectedItemProperty().addListener((observableValue, stringTreeItem, t1) -> {
+            if (((FileTreeItem)treeView.getSelectionModel().getSelectedItem()).getFile().isDirectory()) return;
             fileUtils.setFile(((FileTreeItem)treeView.getSelectionModel().getSelectedItem()).getFile());
         });
         fileUtils.registerFileListener(evt -> {

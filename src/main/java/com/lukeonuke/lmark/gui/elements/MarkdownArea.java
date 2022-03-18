@@ -79,6 +79,7 @@ public class MarkdownArea extends CodeArea {
     }
 
     public void setScrollY(double scroll) {
+        if (totalHeightEstimateProperty().getValue() == null) return;
         this.scrollYToPixel(scroll * (this.getTotalHeightEstimate() - this.getHeight()));
     }
 
