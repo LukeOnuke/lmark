@@ -36,7 +36,7 @@ There arent that many customisation options but you can find (almost) all of the
 If you truly want to edit them by hand all settings are saved in the `app.properties` file located in the program directory. You can navigate to the program dirrectory using the `Options > Open program folder` menu.
 
 ## Dark / Light mode
-By default dark mode is synched with the system, but you can disable sync or chose the mode yourself it in the [options](#options).
+By default, dark mode is synched with the system, but you can disable sync or chose the mode yourself it in the [options](#options).
 
 ## Exporting markdown documents
 To export your markdown document go to `File > Save As` and pick your filetype of choice.

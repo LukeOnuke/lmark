@@ -120,6 +120,7 @@ public class MarkdownView {
                 }
             }
         });
+        setContents(" ");
     }
 
     public static List<Extension> getExtensions(){
